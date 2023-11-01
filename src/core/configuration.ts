@@ -20,8 +20,8 @@ module BP3D.Core {
     private static data: {[key: string]: any} = {
       dimUnit: dimInch,
 
-      wallHeight: 250,
-      wallThickness: 10
+      wallHeight: 160,
+      wallThickness: 1
     };
 
     /** Set a configuration parameter. */

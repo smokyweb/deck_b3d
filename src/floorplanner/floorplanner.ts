@@ -1,4 +1,4 @@
-/// <reference path="../../lib/jQuery.d.ts" />
+/// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../model/floorplan.ts" />
 /// <reference path="floorplanner_view.ts" />
 

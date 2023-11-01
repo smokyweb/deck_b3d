@@ -146,12 +146,96 @@ $(document).ready(function() {
       "model" : "models/js/cb-blue-block-60x96.js",
       "type" : "8"
     },
+    // {
+    //   "name" : "Chair OBJ",
+    //   "image" : "models/thumbnails/Screenshot 2023-10-17 164946.png",
+    //   "model" : "models/js/Apple-1_Hor.js",
+    //   "type" : "1"
+    // },
+    // {
+    //   "name" : "Arm Chair",
+    //   "image" : "models/thumbnails/Screenshot 2023-10-17 183429.png",
+    //   "model" : "models/js/Ancor36.js",
+    //   "type" : "1"
+    // },
+    // {
+    //   "name" : "Single Stairs",
+    //   "image" : "models/thumbnails/thumbnail_stair.png",
+    //   "model" : "models/js/Beadboard.js",
+    //   "type" : "1"
+    // },
+    // {
+    //   "name" : "Stairs",
+    //   "image" : "models/thumbnails/Olson_Deck.png",
+    //   "model" : "models/js/Rough_Square_Concrete_Block.js",
+    //   "type" : "1"
+    // },
+    // {
+    //   "name" : "Railings",
+    //   "image" : "models/thumbnails/grill.jpg",
+    //   "model" : "models/js/grill.js",
+    //   "type" : "1"
+    // },
+    {
+      "name" : "Olson Deck Column",
+      "image" : "models/thumbnails/Olson_Deck_Column.jpg",
+      "model" : "models/js/Olson_Deck_Column.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck DeckRail",
+      "image" : "models/thumbnails/Olson_Deck_DeckRail.jpg",
+      "model" : "models/js/Olson_Deck_DeckRail.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck Joist",
+      "image" : "models/thumbnails/Olson_Deck_Joist.jpg",
+      "model" : "models/js/Olson_Deck_Joist.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck Plank",
+      "image" : "models/thumbnails/Olson_Deck_Plank.jpg",
+      "model" : "models/js/Olson_Deck_Plank.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck RailColumn",
+      "image" : "models/thumbnails/Olson_Deck_RailColumn.jpg",
+      "model" : "models/js/Olson_Deck_RailColumn.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck Rim",
+      "image" : "models/thumbnails/Olson_Deck_Rim.jpg",
+      "model" : "models/js/Olson_Deck_Rim.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck StairRail",
+      "image" : "models/thumbnails/Olson_Deck_StairRail.jpg",
+      "model" : "models/js/Olson_Deck_StairRail.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck Stairs",
+      "image" : "models/thumbnails/Olson_Deck_Stairs.jpg",
+      "model" : "models/js/Olson_Deck_Stairs.js",
+      "type" : "1"
+    },
+    {
+      "name" : "Olson Deck",
+      "image" : "models/thumbnails/Olson_Deck.jpg",
+      "model" : "models/js/Olson_Deck.js",
+      "type" : "1"
+    },
     {
       "name" : "NYC Poster",
       "image" : "models/thumbnails/thumbnail_nyc2.jpg",
       "model" : "models/js/nyc-poster2.js",
       "type" : "2"
-    }
+    },
    /*     
    {
       "name" : "",
@@ -167,7 +251,7 @@ $(document).ready(function() {
   var itemsDiv = $("#items-wrapper")
   for (var i = 0; i < items.length; i++) {
     var item = items[i];
-    var html = '<div class="col-sm-4">' +
+    var html = '<div class="col-sm-4 mb-3">' +
                 '<a class="thumbnail add-item" model-name="' + 
                 item.name + 
                 '" model-url="' +
@@ -182,3 +266,35 @@ $(document).ready(function() {
     itemsDiv.append(html);
   }
 });
+
+// var itemsDiv = $("#items-wrapper");
+
+// $.ajax({
+//     url: 'get_items.php',
+//     method: 'GET',
+//     dataType: 'json',
+//     success: function (data) {
+//         console.log('jsksk',data);
+//         var items = data;
+
+//         for (var i = 0; i < items.length; i++) {
+//             var item = items[i];
+//             var html = '<div class="col-sm-4">' +
+//                 '<a class="thumbnail add-item" model-name="' +
+//                 item.name +
+//                 '" model-url="' +
+//                 item.model +
+//                 '" model-type="' +
+//                 item.type +
+//                 '"><img src="' +
+//                 item.image +
+//                 '" alt="Add Item"> ' +
+//                 item.name +
+//                 '</a></div>';
+//             itemsDiv.append(html);
+//         }
+//     },
+//     error: function (error) {
+//         console.error("Error fetching data:", error);
+//     }
+// });
