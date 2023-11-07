@@ -10,18 +10,28 @@ module BP3D.Model {
   /** */
   const defaultFloorPlanTolerance = 10.0;
 
-  /** 
+  /**
    * A Floorplan represents a number of Walls, Corners and Rooms.
    */
   export class Floorplan {
+    /** 
+        This is an array of all Wall objects associated with the
+        Floorplan, but not in any particular order.
 
-    /** */
+        Every wall has a start corner and end corner.
+    */
     private walls: Wall[] = [];
 
-    /** */
+    /** 
+        Corners store references to the walls they are parts of. 
+    */
     private corners: Corner[] = [];
 
-    /** */
+    /** 
+        The main job of a Room is to render its floor and to hold
+        a reference to the two-way HalfEdge chain around its 
+        perimeter.
+    */
     private rooms: Room[] = [];
 
     /** */
@@ -39,21 +49,20 @@ module BP3D.Model {
     /** */
     public roomLoadedCallbacks = $.Callbacks();
 
-    /** 
-    * Floor textures are owned by the floorplan, because room objects are 
-    * destroyed and created each time we change the floorplan.
-    * floorTextures is a map of room UUIDs (string) to a object with
-    * url and scale attributes.
-    */
+    /**
+     * Floor textures are owned by the floorplan, because room objects are
+     * destroyed and created each time we change the floorplan.
+     * floorTextures is a map of room UUIDs (string) to a object with
+     * url and scale attributes.
+     */
     private floorTextures = {};
 
     /** Constructs a floorplan. */
-    constructor() {
-    }
+    constructor() {}
 
     // hack
     public wallEdges(): HalfEdge[] {
-      var edges = []
+      var edges = [];
 
       this.walls.forEach((wall) => {
         if (wall.frontEdge) {
@@ -68,7 +77,7 @@ module BP3D.Model {
 
     // hack
     public wallEdgePlanes(): THREE.Mesh[] {
-      var planes = []
+      var planes = [];
       this.walls.forEach((wall) => {
         if (wall.frontEdge) {
           planes.push(wall.frontEdge.plane);
@@ -110,7 +119,7 @@ module BP3D.Model {
      */
     public newWall(start: Corner, end: Corner): Wall {
       var wall = new Wall(start, end);
-      this.walls.push(wall)
+      this.walls.push(wall);
       var scope = this;
       wall.fireOnDelete(() => {
         scope.removeWall(wall);
@@ -195,22 +204,22 @@ module BP3D.Model {
         walls: [],
         wallTextures: [],
         floorTextures: {},
-        newFloorTextures: {}
-      }
+        newFloorTextures: {},
+      };
 
       this.corners.forEach((corner) => {
         floorplan.corners[corner.id] = {
-          'x': corner.x,
-          'y': corner.y
+          x: corner.x,
+          y: corner.y,
         };
       });
 
       this.walls.forEach((wall) => {
         floorplan.walls.push({
-          'corner1': wall.getStart().id,
-          'corner2': wall.getEnd().id,
-          'frontTexture': wall.frontTexture,
-          'backTexture': wall.backTexture
+          corner1: wall.getStart().id,
+          corner2: wall.getEnd().id,
+          frontTexture: wall.frontTexture,
+          backTexture: wall.backTexture,
         });
       });
       floorplan.newFloorTextures = this.floorTextures;
@@ -221,8 +230,12 @@ module BP3D.Model {
       this.reset();
 
       var corners = {};
-      if (floorplan == null || !('corners' in floorplan) || !('walls' in floorplan)) {
-        return
+      if (
+        floorplan == null ||
+        !("corners" in floorplan) ||
+        !("walls" in floorplan)
+      ) {
+        return;
       }
       for (var id in floorplan.corners) {
         var corner = floorplan.corners[id];
@@ -231,7 +244,9 @@ module BP3D.Model {
       var scope = this;
       floorplan.walls.forEach((wall) => {
         var newWall = scope.newWall(
-          corners[wall.corner1], corners[wall.corner2]);
+          corners[wall.corner1],
+          corners[wall.corner2]
+        );
         if (wall.frontTexture) {
           newWall.frontTexture = wall.frontTexture;
         }
@@ -240,7 +255,7 @@ module BP3D.Model {
         }
       });
 
-      if ('newFloorTextures' in floorplan) {
+      if ("newFloorTextures" in floorplan) {
         this.floorTextures = floorplan.newFloorTextures;
       }
 
@@ -259,8 +274,8 @@ module BP3D.Model {
     public setFloorTexture(uuid: string, url: string, scale: number) {
       this.floorTextures[uuid] = {
         url: url,
-        scale: scale
-      }
+        scale: scale,
+      };
     }
 
     /** clear out obsolete floor textures */
@@ -270,7 +285,7 @@ module BP3D.Model {
       });
       for (var uuid in this.floorTextures) {
         if (!Core.Utils.hasValue(uuids, uuid)) {
-          delete this.floorTextures[uuid]
+          delete this.floorTextures[uuid];
         }
       }
     }
@@ -281,15 +296,15 @@ module BP3D.Model {
       var tmpWalls = this.walls.slice(0);
       tmpCorners.forEach((corner) => {
         corner.remove();
-      })
+      });
       tmpWalls.forEach((wall) => {
         wall.remove();
-      })
+      });
       this.corners = [];
       this.walls = [];
     }
 
-    /** 
+    /**
      * Update rooms
      */
     public update() {
@@ -309,7 +324,7 @@ module BP3D.Model {
       this.updated_rooms.fire();
     }
 
-    /** 
+    /**
      * Returns the center of the floorplan in the y plane
      */
     public getCenter() {
@@ -334,7 +349,12 @@ module BP3D.Model {
         if (corner.y > zMax) zMax = corner.y;
       });
       var ret;
-      if (xMin == Infinity || xMax == -Infinity || zMin == Infinity || zMax == -Infinity) {
+      if (
+        xMin == Infinity ||
+        xMax == -Infinity ||
+        zMin == Infinity ||
+        zMax == -Infinity
+      ) {
         ret = new THREE.Vector3();
       } else {
         if (center) {
@@ -342,7 +362,7 @@ module BP3D.Model {
           ret = new THREE.Vector3((xMin + xMax) * 0.5, 0, (zMin + zMax) * 0.5);
         } else {
           // size
-          ret = new THREE.Vector3((xMax - xMin), 0, (zMax - zMin));
+          ret = new THREE.Vector3(xMax - xMin, 0, zMax - zMin);
         }
       }
       return ret;
@@ -352,7 +372,7 @@ module BP3D.Model {
       // kinda hacky
       // find orphaned wall segments (i.e. not part of rooms) and
       // give them edges
-      var orphanWalls = []
+      var orphanWalls = [];
       this.walls.forEach((wall) => {
         if (!wall.backEdge && !wall.frontEdge) {
           wall.orphan = true;
@@ -363,7 +383,6 @@ module BP3D.Model {
           orphanWalls.push(wall);
         }
       });
-
     }
 
     /*
@@ -373,13 +392,17 @@ module BP3D.Model {
      * @returns The rooms, each room as an array of corners.
      */
     public findRooms(corners: Corner[]): Corner[][] {
-
-      function _calculateTheta(previousCorner: Corner, currentCorner: Corner, nextCorner: Corner) {
+      function _calculateTheta(
+        previousCorner: Corner,
+        currentCorner: Corner,
+        nextCorner: Corner
+      ) {
         var theta = Core.Utils.angle2pi(
           previousCorner.x - currentCorner.x,
           previousCorner.y - currentCorner.y,
           nextCorner.x - currentCorner.x,
-          nextCorner.y - currentCorner.y);
+          nextCorner.y - currentCorner.y
+        );
         return theta;
       }
 
@@ -387,9 +410,9 @@ module BP3D.Model {
         var results: Corner[][] = [];
         var lookup = {};
         var hashFunc = function (corner) {
-          return corner.id
+          return corner.id;
         };
-        var sep = '-';
+        var sep = "-";
         for (var i = 0; i < roomArray.length; i++) {
           // rooms are cycles, shift it around to check uniqueness
           var add = true;
@@ -409,15 +432,18 @@ module BP3D.Model {
         return results;
       }
 
-      function _findTightestCycle(firstCorner: Corner, secondCorner: Corner): Corner[] {
+      function _findTightestCycle(
+        firstCorner: Corner,
+        secondCorner: Corner
+      ): Corner[] {
         var stack: {
-          corner: Corner,
-          previousCorners: Corner[]
+          corner: Corner;
+          previousCorners: Corner[];
         }[] = [];
 
         var next = {
           corner: secondCorner,
-          previousCorners: [firstCorner]
+          previousCorners: [firstCorner],
         };
         var visited = {};
         visited[firstCorner.id] = true;
@@ -439,12 +465,14 @@ module BP3D.Model {
 
             // is this where we came from?
             // give an exception if its the first corner and we aren't at the second corner
-            if (nextCorner.id in visited &&
-              !(nextCorner === firstCorner && currentCorner !== secondCorner)) {
+            if (
+              nextCorner.id in visited &&
+              !(nextCorner === firstCorner && currentCorner !== secondCorner)
+            ) {
               continue;
             }
 
-            // nope, throw it on the queue  
+            // nope, throw it on the queue
             addToStack.push(nextCorner);
           }
 
@@ -452,10 +480,13 @@ module BP3D.Model {
           previousCorners.push(currentCorner);
           if (addToStack.length > 1) {
             // visit the ones with smallest theta first
-            var previousCorner = next.previousCorners[next.previousCorners.length - 1];
+            var previousCorner =
+              next.previousCorners[next.previousCorners.length - 1];
             addToStack.sort(function (a, b) {
-              return (_calculateTheta(previousCorner, currentCorner, b) -
-                _calculateTheta(previousCorner, currentCorner, a));
+              return (
+                _calculateTheta(previousCorner, currentCorner, b) -
+                _calculateTheta(previousCorner, currentCorner, a)
+              );
             });
           }
 
@@ -464,7 +495,7 @@ module BP3D.Model {
             addToStack.forEach((corner) => {
               stack.push({
                 corner: corner,
-                previousCorners: previousCorners
+                previousCorners: previousCorners,
               });
             });
           }
@@ -488,7 +519,10 @@ module BP3D.Model {
       // remove duplicates
       var uniqueLoops = _removeDuplicateRooms(loops);
       //remove CW loops
-      var uniqueCCWLoops = Core.Utils.removeIf(uniqueLoops, Core.Utils.isClockwise);
+      var uniqueCCWLoops = Core.Utils.removeIf(
+        uniqueLoops,
+        Core.Utils.isClockwise
+      );
 
       return uniqueCCWLoops;
     }
