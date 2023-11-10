@@ -168,11 +168,11 @@ module BP3D.Three {
         THREE.DoubleSide, fillerColor));
 
       // sides
-      planes.push(buildSideFillter(
+      planes.push(buildSideFiller(
         edge.interiorStart(), edge.exteriorStart(),
         wall.height, sideColor));
 
-      planes.push(buildSideFillter(
+      planes.push(buildSideFiller(
         edge.interiorEnd(), edge.exteriorEnd(),
         wall.height, sideColor));
     }
@@ -258,7 +258,7 @@ module BP3D.Three {
       return mesh;
     }
 
-    function buildSideFillter(p1, p2, height, color) {
+    function buildSideFiller(p1, p2, height, color) {
       var points = [
         toVec3(p1),
         toVec3(p2),
