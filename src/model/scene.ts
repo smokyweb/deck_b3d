@@ -30,6 +30,9 @@ module BP3D.Model {
     /** Item */
     private itemRemovedCallbacks = $.Callbacks();
 
+    /** rail item for future use */
+    private railItem = null; 
+
     /**
      * Constructs a scene.
      * @param model The associated model.
@@ -41,6 +44,30 @@ module BP3D.Model {
       // init item loader
       this.loader = new THREE.JSONLoader();
       this.loader.crossOrigin = "";
+
+      // load the rail item
+      const theClass = Items.Factory.getClass(1);
+      const scope = this;
+      const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
+        console.log("deckRail callback");
+        const item = new (theClass)(
+          scope.model,
+          {}, geometry,
+          new THREE.MeshFaceMaterial(materials),
+          new THREE.Vector3(), new THREE.Vector3(), 0
+        );
+        scope.railItem = item;
+        item.initObject();
+        console.log("deckRail loaded", scope.railItem);
+        scope.itemLoadedCallbacks.fire(item);
+      }
+
+      console.log("loading DeckRail");
+      this.loader.load(
+        "models/js/Olson_Deck_DeckRail.js",
+        loaderCallback,
+        undefined // TODO_Ekki 
+      );
     }
 
     /** Adds a non-item, basically a mesh, to the scene.
