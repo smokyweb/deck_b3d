@@ -24,6 +24,9 @@ module BP3D.Three {
       scope.floors.forEach((floor) => {
         floor.removeFromScene();
       });
+      scope.kenObjects.forEach((item) => {
+        scope.scene.removeItem(item);
+      });
 
       scope.edges.forEach((edge) => {
         edge.remove();
@@ -56,7 +59,7 @@ module BP3D.Three {
         const geometry = new THREE.SphereGeometry( 15, 32, 16 ); 
         const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
         const pos = midpoint(wall.start, wall.end);
-        const item = new wallItemClass(scene.model, {}, geometry, material, {x: pos.x, y: 0, z: pos.y}, 0, new THREE.Vector3(5, 5, 5));
+        const item = new wallItemClass(scene.model, {}, geometry, material, {x: pos.x, y: wall.height/2, z: pos.y}, 0, new THREE.Vector3(5, 5, 5));
 
         scope.kenObjects.push(item);
         scope.scene.add(item);
