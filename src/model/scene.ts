@@ -31,14 +31,14 @@ module BP3D.Model {
     private itemRemovedCallbacks = $.Callbacks();
 
     /** rail item for future use */
-    private railItem = null; 
+    public railItem: Items.Item = null; 
 
     /**
      * Constructs a scene.
      * @param model The associated model.
      * @param textureDir The directory from which to load the textures.
      */
-    constructor(private model: Model, private textureDir: string) {
+    constructor(public model: Model, private textureDir: string) {
       this.scene = new THREE.Scene();
 
       // init item loader
@@ -49,7 +49,7 @@ module BP3D.Model {
       const theClass = Items.Factory.getClass(1);
       const scope = this;
       const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
-        console.log("deckRail callback");
+        //console.log("deckRail callback");
         const item = new (theClass)(
           scope.model,
           {}, geometry,
@@ -58,11 +58,11 @@ module BP3D.Model {
         );
         scope.railItem = item;
         item.initObject();
-        console.log("deckRail loaded", scope.railItem);
+        //console.log("deckRail loaded", scope.railItem);
         scope.itemLoadedCallbacks.fire(item);
       }
 
-      console.log("loading DeckRail");
+      //console.log("loading DeckRail");
       this.loader.load(
         "models/js/Olson_Deck_DeckRail.js",
         loaderCallback,

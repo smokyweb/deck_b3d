@@ -70,6 +70,7 @@ module BP3D.Model {
 
       this.start.attachStart(this)
       this.end.attachEnd(this);
+
     }
 
     private getUuid(): string {
