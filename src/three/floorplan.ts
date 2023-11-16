@@ -52,14 +52,14 @@ module BP3D.Three {
       // FIXME: this Factory thing is stupid, it just discards all the 
       //    type info that causes a typescript compile error.  The type 
       //    errors should be fixed.
-      const wallItemClass = Items.Factory.getClass(2);
+      const itemClass = Items.Factory.getClass(8); // 8 == floorItem
       scope.floorplan.getWalls().forEach((wall) => {
         // stick a sphere on it.
         // this code is based on the loader callback in Model.Scene.addItem()
         const geometry = new THREE.SphereGeometry( 15, 32, 16 ); 
-        const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+        const material = new THREE.MeshBasicMaterial( { color: 0xaa00aa } ); 
         const pos = midpoint(wall.start, wall.end);
-        const item = new wallItemClass(scene.model, {}, geometry, material, {x: pos.x, y: wall.height/2, z: pos.y}, 0, new THREE.Vector3(5, 5, 5));
+        const item = new itemClass(scene.model, {}, geometry, material, {x: pos.x, y: wall.height/2, z: pos.y}, 0, new THREE.Vector3(5, 5, 5));
 
         scope.kenObjects.push(item);
         scope.scene.add(item);
