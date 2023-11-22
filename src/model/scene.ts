@@ -51,7 +51,7 @@ module BP3D.Model {
       const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
         scope.railGeom = geometry;
         scope.railMat = materials;
-        console.log("deckRail callback");
+        scope.model.floorplan.update();
       }
 
       console.log("loading DeckRail");
