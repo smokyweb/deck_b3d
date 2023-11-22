@@ -19,7 +19,7 @@ module BP3D.Three {
     floorplan.fireOnUpdatedRooms(redraw);
 
     function redraw() {
-      console.log("THREE.Floorplan.redraw()");
+      console.log("THREE.Floorplan.redraw() entry", scope.scene);
       // clear scene
       scope.floors.forEach((floor) => {
         floor.removeFromScene();
@@ -52,21 +52,30 @@ module BP3D.Three {
       // FIXME: this Factory thing is stupid, it just discards all the 
       //    type info that causes a typescript compile error.  The type 
       //    errors should be fixed.
-      const itemClass = Items.Factory.getClass(8); // 8 == floorItem
+      // 1: Items.FloorItem,
+      // 2: Items.WallItem,
+      // 3: Items.InWallItem,
+      // 7: Items.InWallFloorItem,
+      // 8: Items.OnFloorItem,
+      // 9: Items.WallFloorItem
+      const itemClass = Items.Factory.getClass(3); 
       scope.floorplan.getWalls().forEach((wall) => {
-        // stick a sphere on it.
-        // this code is based on the loader callback in Model.Scene.addItem()
-        const geometry = new THREE.SphereGeometry( 15, 32, 16 ); 
-        const material = new THREE.MeshBasicMaterial( { color: 0xaa00aa } ); 
+        // this code mostly copied from model/scene/addItem, but 
+        // can't use that call because it reloads the urls every time.
         const pos = midpoint(wall.start, wall.end);
-        const item = new itemClass(scene.model, {}, geometry, material, {x: pos.x, y: wall.height/2, z: pos.y}, 0, new THREE.Vector3(5, 5, 5));
+        const item = scope.scene.makeRailItem(pos);
+        if (item) {
+          console.log("made rail item ", item);
 
-        scope.kenObjects.push(item);
-        scope.scene.add(item);
-        item.initObject();
-        scope.scene.itemLoadedCallbacks.fire(item);
-        console.log("done with item", item);
+          scope.kenObjects.push(item);
+          scope.scene.items.push(item);
+          scope.scene.add(item);
+          scope.scene.itemLoadedCallbacks.fire(item);
+        } else {
+          console.log("railItem not made");
+        }
       });
+      console.log("THREE.Floorplan.redraw() exit", scope.scene);
     }
     function midpoint(p1: {x: number, y: number}, p2: {x: number, y: number}): {x: number, y: number} 
     {

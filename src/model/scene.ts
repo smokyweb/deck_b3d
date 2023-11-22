@@ -31,7 +31,8 @@ module BP3D.Model {
     private itemRemovedCallbacks = $.Callbacks();
 
     /** rail item for future use */
-    public railItem: Items.Item = null; 
+    private railGeom: THREE.Geometry = null; 
+    private railMat: THREE.Material[] = null;
 
     /**
      * Constructs a scene.
@@ -46,28 +47,37 @@ module BP3D.Model {
       this.loader.crossOrigin = "";
 
       // load the rail item
-      const theClass = Items.Factory.getClass(1);
       const scope = this;
       const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
-        //console.log("deckRail callback");
-        const item = new (theClass)(
-          scope.model,
-          {}, geometry,
-          new THREE.MeshFaceMaterial(materials),
-          new THREE.Vector3(), new THREE.Vector3(), 0
-        );
-        scope.railItem = item;
-        item.initObject();
-        //console.log("deckRail loaded", scope.railItem);
-        scope.itemLoadedCallbacks.fire(item);
+        scope.railGeom = geometry;
+        scope.railMat = materials;
+        console.log("deckRail callback");
       }
 
-      //console.log("loading DeckRail");
+      console.log("loading DeckRail");
       this.loader.load(
         "models/js/Olson_Deck_DeckRail.js",
         loaderCallback,
         undefined // TODO_Ekki 
       );
+    }
+
+    public makeRailItem(pos: { x: number, y: number}): Items.Item {
+      if (this.railGeom !== null) {
+        const theClass = Items.Factory.getClass(8);
+        const item = new (theClass)(
+          this.model,
+          {}, this.railGeom,
+          new THREE.MeshFaceMaterial(this.railMat),
+          new THREE.Vector3(pos.x, 0, pos.y), 0, new THREE.Vector3(1, 1, 1)
+        );
+        item.initObject();
+        console.log("new deckRail item created", item);
+        this.itemLoadedCallbacks.fire(item);
+        return item;
+      } else {
+        return null;
+      }
     }
 
     /** Adds a non-item, basically a mesh, to the scene.
