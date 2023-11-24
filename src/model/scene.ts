@@ -71,13 +71,22 @@ module BP3D.Model {
         const theClass = Items.Factory.getClass(8);
         const start = wall.getStart();
         const end = wall.getEnd();
-        const rotation = Math.atan2(end.y - start.y, end.x - start.x);
+        // not sure why negative sign is necessary here.  Probably because
+        // of legacy confusion with left and right handed coordinates.
+        const rotation = -Math.atan2(end.y - start.y, end.x - start.x);
+        const wallLength = Core.Utils.distance(start.x, start.y, end.x, end.y);
+        this.railGeom.computeBoundingBox();
+        const railBox = this.railGeom.boundingBox;
+        const horizscale = wallLength / (railBox.max.x - railBox.min.x);
+        const objheight = railBox.max.y - railBox.min.y;
+        const vertscale = wall.height / objheight;
         const pos = this.midpoint(start, end);
         const item = new (theClass)(
           this.model,
           {}, this.railGeom,
           new THREE.MeshFaceMaterial(this.railMat),
-          new THREE.Vector3(pos.x, 0, pos.y), rotation, new THREE.Vector3(1, 1, 1)
+          new THREE.Vector3(pos.x, 0, pos.y), rotation, 
+          new THREE.Vector3(horizscale, vertscale, horizscale) 
         );
         item.initObject();
         console.log("new deckRail item created", item);
