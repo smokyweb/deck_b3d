@@ -62,9 +62,14 @@ module BP3D.Model {
       );
     }
 
-    public makeRailItem(pos: { x: number, y: number}): Items.Item {
+    private midpoint(p1: {x: number, y: number}, p2: {x: number, y: number}): {x: number, y: number} 
+    {
+      return { x: (p1.x + p2.x)*0.5, y: (p1.y + p2.y)*0.5 }
+    }
+    public makeRailItem(wall: Model.Wall): Items.Item {
       if (this.railGeom !== null) {
         const theClass = Items.Factory.getClass(8);
+        const pos = this.midpoint(wall.getStart(), wall.getEnd());
         const item = new (theClass)(
           this.model,
           {}, this.railGeom,

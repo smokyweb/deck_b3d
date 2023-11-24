@@ -58,12 +58,10 @@ module BP3D.Three {
       // 7: Items.InWallFloorItem,
       // 8: Items.OnFloorItem,
       // 9: Items.WallFloorItem
-      const itemClass = Items.Factory.getClass(3); 
       scope.floorplan.getWalls().forEach((wall) => {
         // this code mostly copied from model/scene/addItem, but 
         // can't use that call because it reloads the urls every time.
-        const pos = midpoint(wall.start, wall.end);
-        const item = scope.scene.makeRailItem(pos);
+        const item = scope.scene.makeRailItem(wall);
         if (item) {
           console.log("made rail item ", item);
 
@@ -76,10 +74,6 @@ module BP3D.Three {
         }
       });
       console.log("THREE.Floorplan.redraw() exit", scope.scene);
-    }
-    function midpoint(p1: {x: number, y: number}, p2: {x: number, y: number}): {x: number, y: number} 
-    {
-      return { x: (p1.x + p2.x)*0.5, y: (p1.y + p2.y)*0.5 }
     }
   }
 }
