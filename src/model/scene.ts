@@ -50,6 +50,7 @@ module BP3D.Model {
       const scope = this;
       const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
         scope.railGeom = geometry;
+        geometry.computeBoundingBox();
         scope.railMat = materials;
         scope.model.floorplan.update();
       }
@@ -75,11 +76,10 @@ module BP3D.Model {
         // of legacy confusion with left and right handed coordinates.
         const rotation = -Math.atan2(end.y - start.y, end.x - start.x);
         const wallLength = Core.Utils.distance(start.x, start.y, end.x, end.y);
-        this.railGeom.computeBoundingBox();
         const railBox = this.railGeom.boundingBox;
         const horizscale = wallLength / (railBox.max.x - railBox.min.x);
-        const objheight = railBox.max.y - railBox.min.y;
-        const vertscale = wall.height / objheight;
+        const railHeight = railBox.max.y - railBox.min.y;
+        const vertscale = wall.height / railHeight;
         const pos = this.midpoint(start, end);
         const item = new (theClass)(
           this.model,
