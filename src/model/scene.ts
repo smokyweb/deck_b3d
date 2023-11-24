@@ -69,12 +69,15 @@ module BP3D.Model {
     public makeRailItem(wall: Model.Wall): Items.Item {
       if (this.railGeom !== null) {
         const theClass = Items.Factory.getClass(8);
-        const pos = this.midpoint(wall.getStart(), wall.getEnd());
+        const start = wall.getStart();
+        const end = wall.getEnd();
+        const rotation = Math.atan2(end.y - start.y, end.x - start.x);
+        const pos = this.midpoint(start, end);
         const item = new (theClass)(
           this.model,
           {}, this.railGeom,
           new THREE.MeshFaceMaterial(this.railMat),
-          new THREE.Vector3(pos.x, 0, pos.y), 0, new THREE.Vector3(1, 1, 1)
+          new THREE.Vector3(pos.x, 0, pos.y), rotation, new THREE.Vector3(1, 1, 1)
         );
         item.initObject();
         console.log("new deckRail item created", item);
