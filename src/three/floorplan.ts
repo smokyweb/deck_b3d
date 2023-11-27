@@ -42,12 +42,15 @@ module BP3D.Three {
         threeFloor.addToScene();
       });
 
-      // draw edges
-      scope.floorplan.wallEdges().forEach((edge) => {
-        var threeEdge = new Three.Edge(
-          scene, edge, scope.controls);
-        scope.edges.push(threeEdge);
-      });
+      // not doing this since we have real rails now.
+      if (false) {
+        // draw edges
+        scope.floorplan.wallEdges().forEach((edge) => {
+          var threeEdge = new Three.Edge(
+            scene, edge, scope.controls);
+          scope.edges.push(threeEdge);
+        });
+      }
 
       // FIXME: this Factory thing is stupid, it just discards all the 
       //    type info that causes a typescript compile error.  The type 
