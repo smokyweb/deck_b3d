@@ -18,7 +18,7 @@ module BP3D {
     floorplannerElement?: string;
 
     /** The texture directory. */
-    textureDir?: string;
+    textureDir: string;
   }
 
   /** Blueprint3D core application. */
@@ -28,15 +28,19 @@ module BP3D {
 
     private three: any; // Three.Main;
 
-    private floorplanner: Floorplanner.Floorplanner;
+    private floorplanner?: Floorplanner.Floorplanner;
 
     /** Creates an instance.
      * @param options The initialization options.
      */
     constructor(options: Options) {
       this.model = new Model.Model(options.textureDir);
-      this.three = new Three.Main(this.model, options.threeElement, options.threeCanvasElement, {});
+      // FIXME: "as any" to avoid typescript type error
+      this.three = new (Three.Main as any)(this.model, options.threeElement, options.threeCanvasElement, {});
 
+      if (options.floorplannerElement === undefined) {
+        throw Error("can't construct Blueprint3d because no options.floorplannerElement");
+      }
       if (!options.widget) {
         this.floorplanner = new Floorplanner.Floorplanner(options.floorplannerElement, this.model.floorplan);
       }
