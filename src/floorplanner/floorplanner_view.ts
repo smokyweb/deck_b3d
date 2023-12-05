@@ -50,7 +50,7 @@ module BP3D.Floorplanner {
     private canvasElement: HTMLCanvasElement;
 
     /** The 2D context. */
-    private context;
+    private context: CanvasRenderingContext2D;
 
     /** */
     constructor(private floorplan: Model.Floorplan, private viewmodel: Floorplanner, private canvas: string) {
@@ -151,23 +151,25 @@ module BP3D.Floorplanner {
         // dont draw labels on walls this short
         return;
       }
-      this.context.font = "normal 12px Arial";
-      this.context.fillStyle = "#000000";
-      this.context.textBaseline = "middle";
-      this.context.textAlign = "center";
-      this.context.strokeStyle = "#ffffff";
-      this.context.lineWidth = 4;
+      if (this.context) {
+        this.context.font = "normal 12px Arial";
+        this.context.fillStyle = "#000000";
+        this.context.textBaseline = "middle";
+        this.context.textAlign = "center";
+        this.context.strokeStyle = "#ffffff";
+        this.context.lineWidth = 4;
 
-      this.context.strokeText(Core.Dimensioning.cmToMeasure(length),
-        this.viewmodel.convertX(pos.x),
-        this.viewmodel.convertY(pos.y));
-      this.context.fillText(Core.Dimensioning.cmToMeasure(length),
-        this.viewmodel.convertX(pos.x),
-        this.viewmodel.convertY(pos.y));
+        this.context.strokeText(Core.Dimensioning.cmToMeasure(length),
+          this.viewmodel.convertX(pos.x),
+          this.viewmodel.convertY(pos.y));
+        this.context.fillText(Core.Dimensioning.cmToMeasure(length),
+          this.viewmodel.convertX(pos.x),
+          this.viewmodel.convertY(pos.y));
+      }
     }
 
     /** */
-    private drawEdge(edge: Model.HalfEdge, hover) {
+    private drawEdge(edge: Model.HalfEdge, hover: boolean) {
       var color = edgeColor;
       if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
         color = deleteColor;
@@ -248,12 +250,14 @@ module BP3D.Floorplanner {
     private drawLine(startX: number, startY: number, endX: number, endY: number, width: number, color) {
       // width is an integer
       // color is a hex string, i.e. #ff0000
-      this.context.beginPath();
-      this.context.moveTo(startX, startY);
-      this.context.lineTo(endX, endY);
-      this.context.lineWidth = width;
-      this.context.strokeStyle = color;
-      this.context.stroke();
+      if (this.context) {
+        this.context.beginPath();
+        this.context.moveTo(startX, startY);
+        this.context.lineTo(endX, endY);
+        this.context.lineWidth = width;
+        this.context.strokeStyle = color;
+        this.context.stroke();
+      }
     }
 
     /** */
