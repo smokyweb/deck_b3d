@@ -17,7 +17,7 @@ module BP3D.Floorplanner {
     public mode = 0;
 
     /** */
-    public activeWall (BP3D.Model.Wall | null) = null;
+    public activeWall: (BP3D.Model.Wall | null) = null;
 
     /** */
     public activeCorner: (BP3D.Model.Corner | null) = null;
@@ -169,7 +169,7 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private mousemove(event) {
+    private mousemove(event: JQueryMouseEventObject) {
       this.mouseMoved = true;
 
       // update mouse

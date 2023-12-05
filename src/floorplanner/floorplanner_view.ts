@@ -50,7 +50,7 @@ module BP3D.Floorplanner {
     private canvasElement: HTMLCanvasElement;
 
     /** The 2D context. */
-    private context: CanvasRenderingContext2D;
+    private context: CanvasRenderingContext2D | null;
 
     /** */
     constructor(private floorplan: Model.Floorplan, private viewmodel: Floorplanner, private canvas: string) {
@@ -77,7 +77,9 @@ module BP3D.Floorplanner {
 
     /** */
     public draw() {
-      this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+      if (this.context) {
+        this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+      }     
 
       this.drawGrid();
 
@@ -94,7 +96,7 @@ module BP3D.Floorplanner {
       });
 
       if (this.viewmodel.mode == floorplannerModes.DRAW) {
-        this.drawTarget(this.viewmodel.targetX, this.viewmodel.targetY, this.viewmodel.lastNode);
+        this.drawTarget(this.viewmodel.targetX, this.viewmodel.targetY);
       }
 
       this.floorplan.getWalls().forEach((wall) => {
@@ -227,7 +229,7 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawTarget(x: number, y: number, lastNode) {
+    private drawTarget(x: number, y: number) {
       this.drawCircle(
         this.viewmodel.convertX(x),
         this.viewmodel.convertY(y),
@@ -236,8 +238,8 @@ module BP3D.Floorplanner {
       );
       if (this.viewmodel.lastNode) {
         this.drawLine(
-          this.viewmodel.convertX(lastNode.x),
-          this.viewmodel.convertY(lastNode.y),
+          this.viewmodel.convertX(this.viewmodel.lastNode.x),
+          this.viewmodel.convertY(this.viewmodel.lastNode.y),
           this.viewmodel.convertX(x),
           this.viewmodel.convertY(y),
           wallWidthHover,
@@ -247,7 +249,7 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawLine(startX: number, startY: number, endX: number, endY: number, width: number, color) {
+    private drawLine(startX: number, startY: number, endX: number, endY: number, width: number, color: string) {
       // width is an integer
       // color is a hex string, i.e. #ff0000
       if (this.context) {
@@ -261,37 +263,44 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private drawPolygon(xArr, yArr, fill, fillColor, stroke?, strokeColor?, strokeWidth?) {
+    private drawPolygon(xArr: number[], yArr: number[], 
+                        fill: boolean, fillColor: string | null, 
+                        stroke?: boolean, strokeColor?: string, strokeWidth?: number) {
       // fillColor is a hex string, i.e. #ff0000
       fill = fill || false;
       stroke = stroke || false;
-      this.context.beginPath();
-      this.context.moveTo(xArr[0], yArr[0]);
-      for (var i = 1; i < xArr.length; i++) {
-        this.context.lineTo(xArr[i], yArr[i]);
-      }
-      this.context.closePath();
-      if (fill) {
-        this.context.fillStyle = fillColor;
-        this.context.fill();
-      }
-      if (stroke) {
-        this.context.lineWidth = strokeWidth;
-        this.context.strokeStyle = strokeColor;
-        this.context.stroke();
+      if (this.context) {
+        this.context.beginPath();
+        this.context.moveTo(xArr[0], yArr[0]);
+        for (var i = 1; i < xArr.length; i++) {
+          this.context.lineTo(xArr[i], yArr[i]);
+        }
+        this.context.closePath();
+        if (fill && (fillColor !== null)) {
+          this.context.fillStyle = fillColor;
+          this.context.fill();
+        }
+        if (stroke && strokeWidth !== undefined && strokeColor !== undefined) {
+          this.context.lineWidth = strokeWidth;
+          this.context.strokeStyle = strokeColor;
+          this.context.stroke();
+        }
       }
     }
 
     /** */
-    private drawCircle(centerX, centerY, radius, fillColor) {
-      this.context.beginPath();
-      this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-      this.context.fillStyle = fillColor;
-      this.context.fill();
+    private drawCircle(centerX: number, centerY: number, 
+                       radius: number, fillColor: string) {
+      if (this.context) {
+        this.context.beginPath();
+        this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        this.context.fillStyle = fillColor;
+        this.context.fill();
+      }
     }
 
     /** returns n where -gridSize/2 < n <= gridSize/2  */
-    private calculateGridOffset(n) {
+    private calculateGridOffset(n: number): number {
       if (n >= 0) {
         return (n + gridSpacing / 2.0) % gridSpacing - gridSpacing / 2.0;
       } else {
