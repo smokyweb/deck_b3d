@@ -7,6 +7,7 @@ module BP3D.Core {
     is probably what was intended.
 
   */
+  export type Point = { x: number, y: number };
   export class Utils {
     /** Determines the distance of a point from a line.
      * @param x Point's x coordinate.
@@ -124,7 +125,7 @@ module BP3D.Core {
       This assumes the points are in a left-handed coordinate system.
      * @returns True if clockwise.
      */
-    static isClockwise(points): boolean {
+    static isClockwise(points: Point[]): boolean {
       // determine CW/CCW, based on:
       // http://stackoverflow.com/questions/1165647
       let sum = 0;
@@ -172,7 +173,7 @@ module BP3D.Core {
       If a vertex of one lies on the edge of another, the behavior is undefined.
 
     */
-    static polygonPolygonIntersect(firstCorners, secondCorners): boolean {
+    static polygonPolygonIntersect(firstCorners: Point[], secondCorners: Point[]): boolean {
       for (var tI = 0; tI < firstCorners.length; tI++) {
         var tFirstCorner = firstCorners[tI],
           tSecondCorner;
@@ -209,7 +210,7 @@ module BP3D.Core {
       y1: number,
       x2: number,
       y2: number,
-      corners
+      corners: Point[]
     ): boolean {
       for (var tI = 0; tI < corners.length; tI++) {
         var tFirstCorner = corners[tI],
@@ -260,7 +261,7 @@ module BP3D.Core {
          it can return the opposite of the intended value and the overall function
          still works without obvious fault.
        */
-      function tCCW(p1, p2, p3) {
+      function tCCW(p1: Point, p2: Point, p3: Point) {
         var tA = p1.x,
           tB = p1.y,
           tC = p2.x,
@@ -310,7 +311,7 @@ module BP3D.Core {
     static pointInPolygon(
       x: number,
       y: number,
-      corners,
+      corners: Point[],
       startX?: number,
       startY?: number
     ): boolean {
@@ -361,8 +362,8 @@ module BP3D.Core {
 
     /** Checks if all corners of insideCorners are inside the polygon described by outsideCorners */
     static polygonInsidePolygon(
-      insideCorners,
-      outsideCorners,
+      insideCorners: Point[],
+      outsideCorners: Point[],
       startX: number,
       startY: number
     ): boolean {
@@ -392,8 +393,8 @@ module BP3D.Core {
 
     */
     static polygonOutsidePolygon(
-      insideCorners,
-      outsideCorners,
+      insideCorners: Point[],
+      outsideCorners: Point[],
       startX: number,
       startY: number
     ): boolean {
@@ -418,20 +419,20 @@ module BP3D.Core {
 
     // arrays
 
-    static forEach(array, action) {
+    static forEach<T>(array: T[], action: (arg: T) => any) {
       for (var tI = 0; tI < array.length; tI++) {
         action(array[tI]);
       }
     }
 
-    static forEachIndexed(array, action) {
+    static forEachIndexed<T>(array: T[], action: (idx: number, arg: T) => any) {
       for (var tI = 0; tI < array.length; tI++) {
         action(tI, array[tI]);
       }
     }
 
-    static map(array, func) {
-      var tResult = [];
+    static map<T, U>(array: T[], func: (arg: T) => U): U[] {
+      var tResult: U[] = [];
       array.forEach((element) => {
         tResult.push(func(element));
       });
@@ -444,8 +445,8 @@ module BP3D.Core {
         This function creates a new array with all the elements that are not
         matched by the predicate.
     */
-    static removeIf(array, func) {
-      var tResult = [];
+    static removeIf<T>(array: T[], func: (arg: T) => boolean): T[] {
+      var tResult: T[] = [];
       array.forEach((element) => {
         if (!func(element)) {
           tResult.push(element);
@@ -455,8 +456,8 @@ module BP3D.Core {
     }
 
     /** Shift the items in an array by shift (positive integer) */
-    static cycle(arr, shift) {
-      var tReturn = arr.slice(0);
+    static cycle<T>(arr: T[], shift: number): (T | undefined)[] {
+      var tReturn: (T | undefined)[] = arr.slice(0);
       for (var tI = 0; tI < shift; tI++) {
         var tmp = tReturn.shift();
         tReturn.push(tmp);
@@ -465,20 +466,21 @@ module BP3D.Core {
     }
 
     /** Returns in the unique elemnts in arr */
-    static unique(arr, hashFunc) {
+    static unique<T>(arr: T[], hashFunc: (arg: T) => PropertyKey): T[] {
       var tResults = [];
-      var tMap = {};
+      var tMap: any = {};
       for (var tI = 0; tI < arr.length; tI++) {
-        if (!tMap.hasOwnProperty(arr[tI])) {
+        const pk = hashFunc(arr[tI]);
+        if (!tMap.hasOwnProperty(pk)) {
           tResults.push(arr[tI]);
-          tMap[hashFunc(arr[tI])] = true;
+          tMap[pk] = true;
         }
       }
       return tResults;
     }
 
     /** Remove value from array, if it is present */
-    static removeValue(array, value) {
+    static removeValue<T>(array: T[], value: T) {
       for (var tI = array.length - 1; tI >= 0; tI--) {
         if (array[tI] === value) {
           array.splice(tI, 1);
@@ -487,7 +489,7 @@ module BP3D.Core {
     }
 
     /** Checks if value is in array */
-    static hasValue = function (array, value): boolean {
+    static hasValue = function<T>(array: T[], value: T): boolean {
       for (var tI = 0; tI < array.length; tI++) {
         if (array[tI] === value) {
           return true;
@@ -497,7 +499,7 @@ module BP3D.Core {
     };
 
     /** Subtracts the elements in subArray from array */
-    static subtract(array, subArray) {
+    static subtract<T>(array: T[], subArray: T[]) {
       return Utils.removeIf(array, function (el) {
         return Utils.hasValue(subArray, el);
       });
