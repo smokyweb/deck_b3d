@@ -117,7 +117,7 @@ module BP3D.Model {
     }
 
     /** Removes all walls. */
-    private removeAll() {
+    public removeAll() {
       for (var i = 0; i < this.wallStarts.length; i++) {
         this.wallStarts[i].remove();
       }

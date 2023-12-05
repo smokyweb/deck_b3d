@@ -1,5 +1,7 @@
 /// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../model/floorplan.ts" />
+/// <reference path="../model/corner.ts" />
+/// <reference path="../model/wall.ts" />
 /// <reference path="floorplanner_view.ts" />
 
 module BP3D.Floorplanner {
@@ -15,10 +17,10 @@ module BP3D.Floorplanner {
     public mode = 0;
 
     /** */
-    public activeWall = null;
+    public activeWall (BP3D.Model.Wall | null) = null;
 
     /** */
-    public activeCorner = null;
+    public activeCorner: (BP3D.Model.Corner | null) = null;
 
     /** */
     public originX = 0;
@@ -33,7 +35,7 @@ module BP3D.Floorplanner {
     public targetY = 0;
 
     /** drawing state */
-    public lastNode = null;
+    public lastNode: (BP3D.Model.Corner | null) = null;
 
     /** */
     private wallWidth: number;
