@@ -49,7 +49,7 @@ module BP3D.Model {
       this.generatePlane();
     }
 
-    private getUuid(): string {
+    public getUuid(): string {
       var cornerUuids = Core.Utils.map(this.corners, function (c) {
         return c.id;
       });

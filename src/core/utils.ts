@@ -462,11 +462,14 @@ module BP3D.Core {
     }
 
     /** Shift the items in an array by shift (positive integer) */
-    static cycle<T>(arr: T[], shift: number): (T | undefined)[] {
-      var tReturn: (T | undefined)[] = arr.slice(0);
-      for (var tI = 0; tI < shift; tI++) {
-        var tmp = tReturn.shift();
-        tReturn.push(tmp);
+    static cycle<T>(arr: T[], shift: number): T[] {
+      var tReturn: T[] = arr.slice(0);
+      if (tReturn.length > 0) {
+        for (var tI = 0; tI < shift; tI++) {
+          // ! is safe because we know length is >0
+          var tmp: T = tReturn.shift()!;
+          tReturn.push(tmp);
+        }
       }
       return tReturn;
     }

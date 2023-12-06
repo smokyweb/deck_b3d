@@ -27,34 +27,37 @@ module BP3D.Model {
     /** Callbacks to be fired in case of action. */
     private action_callbacks = $.Callbacks();
 
+    public id: string;
+
     /** Constructs a corner. 
      * @param floorplan The associated floorplan.
      * @param x X coordinate.
      * @param y Y coordinate.
      * @param id An optional unique id. If not set, created internally.
      */
-    constructor(private floorplan: Floorplan, public x: number, public y: number, public id?: string) {
-      this.id = id || Core.Utils.guid();
+    constructor(private floorplan: Floorplan, public x: number, public y: number, _id?: string) {
+      this.id = _id || Core.Utils.guid();
     }
 
     /** Add function to moved callbacks.
      * @param func The function to be added.
     */
-    public fireOnMove(func) {
+    public fireOnMove(func: (x: number, y: number) => void) {
       this.moved_callbacks.add(func);
     }
 
     /** Add function to deleted callbacks.
      * @param func The function to be added.
      */
-    public fireOnDelete(func) {
+    public fireOnDelete(func: (c: Corner) => void) {
       this.deleted_callbacks.add(func);
     }
 
     /** Add function to action callbacks.
      * @param func The function to be added.
      */
-    public fireOnAction(func) {
+    // FIXME: What type is 'action'?
+    public fireOnAction(func: (action: any) => void) {
       this.action_callbacks.add(func);
     }
 
@@ -107,7 +110,7 @@ module BP3D.Model {
       this.move(this.x + dx, this.y + dy);
     }
 
-    private fireAction(action) {
+    private fireAction(action: any) {
       this.action_callbacks.fire(action)
     }
 
@@ -232,7 +235,7 @@ module BP3D.Model {
      * @param corner A corner.
      * @return The associated wall or null.
      */
-    public wallTo(corner: Corner): Wall {
+    public wallTo(corner: Corner): Wall | null {
       for (var i = 0; i < this.wallStarts.length; i++) {
         if (this.wallStarts[i].getEnd() === corner) {
           return this.wallStarts[i];
@@ -245,7 +248,7 @@ module BP3D.Model {
      * @param corner A corner.
      * @return The associated wall or null.
      */
-    public wallFrom(corner: Corner): Wall {
+    public wallFrom(corner: Corner): Wall | null {
       for (var i = 0; i < this.wallEnds.length; i++) {
         if (this.wallEnds[i].getStart() === corner) {
           return this.wallEnds[i];
@@ -258,7 +261,7 @@ module BP3D.Model {
      * @param corner A corner.
      * @return The associated wall or null.
      */
-    public wallToOrFrom(corner: Corner): Wall {
+    public wallToOrFrom(corner: Corner): Wall | null {
       return this.wallTo(corner) || this.wallFrom(corner);
     }
 
@@ -315,28 +318,41 @@ module BP3D.Model {
     /** Ensure we do not have duplicate walls (i.e. same start and end points) */
     private removeDuplicateWalls() {
       // delete the wall between these corners, if it exists
-      var wallEndpoints = {};
-      var wallStartpoints = {};
+      // FIXME:  should really be something like { [index: string]: boolean }
+      var wallEndpoints: any = {};
+      // FIXME:  should really be something like { [ index: string]: Corner }
+      var wallStartpoints: any = {};
       for (var i = this.wallStarts.length - 1; i >= 0; i--) {
-        if (this.wallStarts[i].getEnd() === this) {
-          // remove zero length wall 
-          this.wallStarts[i].remove();
-        } else if (this.wallStarts[i].getEnd().id in wallEndpoints) {
-          // remove duplicated wall
-          this.wallStarts[i].remove();
-        } else {
-          wallEndpoints[this.wallStarts[i].getEnd().id] = true;
+        const start = this.wallStarts[i];
+        if (start) {
+          if (start.getEnd() === this) {
+            // remove zero length wall 
+            start.remove();
+          } else {
+            const end = start.getEnd();
+            if (end && end.id) {
+              if (end.id in wallEndpoints) {
+                // remove duplicated wall
+                start.remove();
+              } else {
+                wallEndpoints[end.id] = true;
+              }
+            }
+          }
         }
       }
       for (var i = this.wallEnds.length - 1; i >= 0; i--) {
-        if (this.wallEnds[i].getStart() === this) {
-          // removed zero length wall 
-          this.wallEnds[i].remove();
-        } else if (this.wallEnds[i].getStart().id in wallStartpoints) {
-          // removed duplicated wall
-          this.wallEnds[i].remove();
-        } else {
-          wallStartpoints[this.wallEnds[i].getStart().id] = true;
+        const start = this.wallEnds[i].getStart();
+        if (start) {
+          if (start === this) {
+            // removed zero length wall 
+            this.wallEnds[i].remove();
+          } else if (start.id && start.id in wallStartpoints) {
+            // removed duplicated wall
+            this.wallEnds[i].remove();
+          } else {
+            wallStartpoints[start.id] = true;
+          }
         }
       }
     }

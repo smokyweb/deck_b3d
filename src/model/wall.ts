@@ -22,7 +22,7 @@ module BP3D.Model {
   export class Wall {
 
     /** The unique id of each wall. */
-    private id: string;
+    public id: string;
 
     /** Front is the plane from start to end. */
     public frontEdge: HalfEdge = null;

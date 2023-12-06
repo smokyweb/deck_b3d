@@ -48,7 +48,7 @@ module BP3D.Model {
      * @param wall The corresponding wall.
      * @param front True if front side.
      */
-    constructor(private room: Room, public wall: Wall, private front: boolean) {
+    constructor(private room: Room | null, public wall: Wall, private front: boolean) {
       this.front = front || false;
 
       this.offset = wall.thickness / 2.0;
