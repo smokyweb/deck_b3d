@@ -7,7 +7,7 @@
 
 module BP3D.Items {
   /** Enumeration of item types. */
-  const item_types = {
+  const item_types: any = {
     1: Items.FloorItem,
     2: Items.WallItem,
     3: Items.InWallItem,
@@ -19,7 +19,7 @@ module BP3D.Items {
   /** Factory class to create items. */
   export class Factory {
     /** Gets the class for the specified item. */
-    public static getClass(itemType) { 
+    public static getClass(itemType: number): any { 
       return item_types[itemType]
     }
   }

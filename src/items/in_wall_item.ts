@@ -14,6 +14,9 @@ module BP3D.Items {
     /** */
     public getWallOffset() {
       // fudge factor so it saves to the right wall
+      if (!this.currentWallEdge) {
+        throw Error("no currentWallEdge");
+      }
       return -this.currentWallEdge.offset + 0.5;
     }
   }

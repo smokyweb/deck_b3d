@@ -73,7 +73,7 @@ module BP3D.Items {
 
       this.errorColor = 0xff0000;
 
-      this.resizable = metadata.resizable;
+      this.resizable = metadata.resizable || false;
 
       this.castShadow = true;
       this.receiveShadow = false;
@@ -136,28 +136,28 @@ module BP3D.Items {
     }
 
     /** Subclass can define to take action after a resize. */
-    protected abstract resized();
+    protected abstract resized(): void;
 
     /** */
-    public getHeight = function () {
+    public getHeight(): number {
       return this.halfSize.y * 2.0;
     }
 
     /** */
-    public getWidth = function () {
+    public getWidth(): number {
       return this.halfSize.x * 2.0;
     }
 
     /** */
-    public getDepth = function () {
+    public getDepth(): number {
       return this.halfSize.z * 2.0;
     }
 
     /** */
-    public abstract placeInRoom();
+    public abstract placeInRoom(): void;
 
     /** */
-    public initObject = function () {
+    public initObject() {
       this.placeInRoom();
       // select and stuff
       this.scene.needsUpdate = true;
@@ -203,12 +203,12 @@ module BP3D.Items {
     };
 
     /** intersection has attributes point (vec3) and object (THREE.Mesh) */
-    public clickPressed(intersection) {
+    public clickPressed(intersection: BP3D.Core.Intersection) {
       this.dragOffset.copy(intersection.point).sub(this.position);
     };
 
     /** */
-    public clickDragged(intersection) {
+    public clickDragged(intersection: BP3D.Core.Intersection) {
       if (intersection) {
         this.moveToPosition(
           intersection.point.sub(this.dragOffset),
@@ -217,7 +217,7 @@ module BP3D.Items {
     };
 
     /** */
-    public rotate(intersection) {
+    public rotate(intersection: BP3D.Core.Intersection) {
       if (intersection) {
         var angle = Core.Utils.angle(
           0,
@@ -240,7 +240,7 @@ module BP3D.Items {
     }
 
     /** */
-    public moveToPosition(vec3, intersection) {
+    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection) {
       this.position.copy(vec3);
     }
 
@@ -255,7 +255,7 @@ module BP3D.Items {
      * Returns an array of planes to use other than the ground plane
      * for passing intersection to clickPressed and clickDragged
      */
-    public customIntersectionPlanes() {
+    public customIntersectionPlanes(): THREE.Mesh[] {
       return [];
     }
 
@@ -265,8 +265,9 @@ module BP3D.Items {
      * offset is Vector3 (used for getting corners of object at a new position)
      * 
      * TODO: handle rotated objects better!
+     * FIXME: xDim and yDim are presumed 'x' and 'z' respectively, actual args ignored
      */
-    public getCorners(xDim, yDim, position) {
+    public getCorners(xDim: PropertyKey, yDim: PropertyKey, position: THREE.Vector3) {
 
       position = position || this.position;
 
@@ -307,10 +308,10 @@ module BP3D.Items {
     }
 
     /** */
-    public abstract isValidPosition(vec3): boolean;
+    public abstract isValidPosition(vec3: THREE.Vector3): boolean;
 
     /** */
-    public showError(vec3) {
+    public showError(vec3: THREE.Vector3) {
       vec3 = vec3 || this.position;
       if (!this.error) {
         this.error = true;
@@ -336,7 +337,7 @@ module BP3D.Items {
     }
 
     /** */
-    public createGlow(color, opacity, ignoreDepth): THREE.Mesh {
+    public createGlow(color: any, opacity: number, ignoreDepth: boolean): THREE.Mesh {
       ignoreDepth = ignoreDepth || false
       opacity = opacity || 0.2;
       var glowMaterial = new THREE.MeshBasicMaterial({

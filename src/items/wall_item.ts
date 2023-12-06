@@ -11,7 +11,7 @@ namespace BP3D.Items {
    */
   export abstract class WallItem extends Item {
     /** The currently applied wall edge. */
-    protected currentWallEdge: Model.HalfEdge = null;
+    protected currentWallEdge: Model.HalfEdge | null = null;
     /* TODO:
        This caused a huge headache.
        HalfEdges get destroyed/created every time floorplan is edited.
@@ -52,12 +52,12 @@ namespace BP3D.Items {
     /** Get the closet wall edge.
      * @returns The wall edge.
      */
-    public closestWallEdge(): Model.HalfEdge {
+    public closestWallEdge(): Model.HalfEdge | null {
 
       var wallEdges = this.model.floorplan.wallEdges();
 
       var wallEdge = null;
-      var minDistance = null;
+      var minDistance: number | null = null;
 
       var itemX = this.position.x;
       var itemZ = this.position.z;
@@ -76,14 +76,14 @@ namespace BP3D.Items {
     /** */
     public removed() {
       if (this.currentWallEdge != null && this.addToWall) {
-        Core.Utils.removeValue(this.currentWallEdge.wall.items, this);
+        Core.Utils.removeValue(this.currentWallEdge.wall.items, this as unknown as Item);
         this.redrawWall();
       }
     }
 
     /** */
     private redrawWall() {
-      if (this.addToWall) {
+      if (this.addToWall && this.currentWallEdge) {
         this.currentWallEdge.wall.fireRedraw();
       }
     }
@@ -117,11 +117,13 @@ namespace BP3D.Items {
 
     /** */
     public placeInRoom() {
-      var closestWallEdge = this.closestWallEdge();
-      this.changeWallEdge(closestWallEdge);
+      const closestWallEdge = this.closestWallEdge();
+      if (closestWallEdge) {
+        this.changeWallEdge(closestWallEdge);
+      }
       this.updateSize();
 
-      if (!this.position_set) {
+      if (!this.position_set && closestWallEdge) {
         // position not set
         var center = closestWallEdge.interiorCenter();
         var newPos = new THREE.Vector3(
@@ -135,7 +137,8 @@ namespace BP3D.Items {
     };
 
     /** */
-    public moveToPosition(vec3, intersection) {
+    // FIXME:  Figure out proper type of intersection arg
+    public moveToPosition(vec3: THREE.Vector3, intersection: any) {
       this.changeWallEdge(intersection.object.edge);
       this.boundMove(vec3);
       this.position.copy(vec3);
@@ -148,7 +151,7 @@ namespace BP3D.Items {
     }
 
     /** */
-    private changeWallEdge(wallEdge) {
+    private changeWallEdge(wallEdge: Model.HalfEdge) {
       if (this.currentWallEdge != null) {
         if (this.addToWall) {
           Core.Utils.removeValue(this.currentWallEdge.wall.items, this);
@@ -166,9 +169,17 @@ namespace BP3D.Items {
 
       // find angle between wall normals
       var normal2 = new THREE.Vector2();
-      var normal3 = wallEdge.plane.geometry.faces[0].normal;
-      normal2.x = normal3.x;
-      normal2.y = normal3.z;
+      // FIXME:  THREE.Mesh.geometry has type Geometry|BufferGeometry,
+      //         and BufferGeometry may have a 'normal' BufferAttribute, but no
+      //         'faces' member.  Right now we know this geometry has a faces attribute 
+      //         because we just made it, but the normal should really be calculated 
+      //         independently.
+      if ('faces' in wallEdge.plane.geometry) {
+        const faces = wallEdge.plane.geometry.faces;
+        var normal3 = faces[0].normal;
+        normal2.x = normal3.x;
+        normal2.y = normal3.z;
+      }
 
       var angle = Core.Utils.angle(
         this.refVec.x, this.refVec.y,
@@ -178,44 +189,46 @@ namespace BP3D.Items {
       // update currentWall
       this.currentWallEdge = wallEdge;
       if (this.addToWall) {
-        wallEdge.wall.items.push(this);
+        wallEdge.wall.items.push(this as unknown as Item);
         this.redrawWall();
       } else {
-        wallEdge.wall.onItems.push(this);
+        wallEdge.wall.onItems.push(this as unknown as Item);
       }
     }
 
     /** Returns an array of planes to use other than the ground plane
      * for passing intersection to clickPressed and clickDragged */
-    public customIntersectionPlanes() {
+    public customIntersectionPlanes(): THREE.Mesh[] {
       return this.model.floorplan.wallEdgePlanes();
     }
 
     /** takes the move vec3, and makes sure object stays bounded on plane */
-    private boundMove(vec3) {
+    private boundMove(vec3: THREE.Vector3) {
       var tolerance = 1;
       var edge = this.currentWallEdge;
-      vec3.applyMatrix4(edge.interiorTransform);
+      if (edge) {
+        vec3.applyMatrix4(edge.interiorTransform);
 
-      if (vec3.x < this.sizeX / 2.0 + tolerance) {
-        vec3.x = this.sizeX / 2.0 + tolerance;
-      } else if (vec3.x > (edge.interiorDistance() - this.sizeX / 2.0 - tolerance)) {
-        vec3.x = edge.interiorDistance() - this.sizeX / 2.0 - tolerance;
-      }
-
-      if (this.boundToFloor) {
-        vec3.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y + 0.01;
-      } else {
-        if (vec3.y < this.sizeY / 2.0 + tolerance) {
-          vec3.y = this.sizeY / 2.0 + tolerance;
-        } else if (vec3.y > edge.height - this.sizeY / 2.0 - tolerance) {
-          vec3.y = edge.height - this.sizeY / 2.0 - tolerance;
+        if (vec3.x < this.sizeX / 2.0 + tolerance) {
+          vec3.x = this.sizeX / 2.0 + tolerance;
+        } else if (vec3.x > (edge.interiorDistance() - this.sizeX / 2.0 - tolerance)) {
+          vec3.x = edge.interiorDistance() - this.sizeX / 2.0 - tolerance;
         }
+
+        if (this.boundToFloor) {
+          vec3.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y + 0.01;
+        } else {
+          if (vec3.y < this.sizeY / 2.0 + tolerance) {
+            vec3.y = this.sizeY / 2.0 + tolerance;
+          } else if (vec3.y > edge.height - this.sizeY / 2.0 - tolerance) {
+            vec3.y = edge.height - this.sizeY / 2.0 - tolerance;
+          }
+        }
+
+        vec3.z = this.getWallOffset();
+
+        vec3.applyMatrix4(edge.invInteriorTransform);
       }
-
-      vec3.z = this.getWallOffset();
-
-      vec3.applyMatrix4(edge.invInteriorTransform);
     }
   }
 }

@@ -8,6 +8,12 @@ module BP3D.Core {
 
   */
   export type Point = { x: number, y: number };
+  export type Intersection = {
+    distance: number,
+    point: THREE.Vector3,
+    object: THREE.Object3D
+  };
+
   export class Utils {
     /** Determines the distance of a point from a line.
      * @param x Point's x coordinate.
@@ -480,7 +486,7 @@ module BP3D.Core {
     }
 
     /** Remove value from array, if it is present */
-    static removeValue<T>(array: T[], value: T) {
+    static removeValue<T>(array: T[], value: object) {
       for (var tI = array.length - 1; tI >= 0; tI--) {
         if (array[tI] === value) {
           array.splice(tI, 1);

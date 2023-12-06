@@ -28,7 +28,7 @@ module BP3D.Items {
     }
 
     /** */
-    public moveToPosition(vec3, intersection) {
+    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection) {
       // keeps the position in the room and on the floor
       if (!this.isValidPosition(vec3)) {
         this.showError(vec3);
@@ -41,7 +41,7 @@ module BP3D.Items {
     }
 
     /** */
-    public isValidPosition(vec3): boolean {
+    public isValidPosition(vec3: THREE.Vector3): boolean {
       var corners = this.getCorners('x', 'z', vec3);
 
       // check if we are in a room
