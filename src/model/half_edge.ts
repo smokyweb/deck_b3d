@@ -248,38 +248,43 @@ module BP3D.Model {
      * 
      * this was written with the left-handed coordinate system in mind.
      */
-    private halfAngleVector(v1: HalfEdge || null, v2: HalfEdge || null): { x: number, y: number } {
-      
-      // Looks like this code assumes, but does not check, that at least one of v1 and v2
-      // is not null.  
+    private halfAngleVector(v1: HalfEdge | null, v2: HalfEdge | null): Core.Point {
+      let v1startX, v1startY, v1endX, v1endY;
+      let v2startX, v2startY, v2endX, v2endY;
 
-      // make the best of things if we dont have prev or next
-      if (!v1) {
-        // basically pretend v1 is a wall in line with v2, ending at v2.start, 
-        // of the same length as v2
-        var v1startX = v2.getStart().x - (v2.getEnd().x - v2.getStart().x);
-        var v1startY = v2.getStart().y - (v2.getEnd().y - v2.getStart().y);
-        var v1endX = v2.getStart().x;
-        var v1endY = v2.getStart().y;
+      if (!v1 && v2) {
+        // make a pretend v1 ahead of v2
+        v1startX = v2.getStart().x - (v2.getEnd().x - v2.getStart().x);
+        v1startY = v2.getStart().y - (v2.getEnd().y - v2.getStart().y);
+        v1endX = v2.getStart().x;
+        v1endY = v2.getStart().y;
+        v2startX = v2.getStart().x;
+        v2startY = v2.getStart().y;
+        v2endX = v2.getEnd().x;
+        v2endY = v2.getEnd().y;
+      } else if (v1 && !v2) {
+        // make a pretend v2 after v1
+        v1startX = <number>v1.getStart().x;
+        v1startY = <number>v1.getStart().y;
+        v1endX = v1.getEnd().x;
+        v1endY = v1.getEnd().y;
+        v2startX = v1.getEnd().x;
+        v2startY = v1.getEnd().y;
+        v2endX = v1.getEnd().x + (v1.getEnd().x - v1.getStart().x);
+        v2endY = v1.getEnd().y + (v1.getEnd().y - v1.getStart().y);
+      } else if (v1 && v2) {
+        v1startX = <number>v1.getStart().x;
+        v1startY = <number>v1.getStart().y;
+        v1endX = v1.getEnd().x;
+        v1endY = v1.getEnd().y;
+        v2startX = v2.getStart().x;
+        v2startY = v2.getStart().y;
+        v2endX = v2.getEnd().x;
+        v2endY = v2.getEnd().y;
       } else {
-        var v1startX = <number>v1.getStart().x;
-        var v1startY = <number>v1.getStart().y;
-        var v1endX = v1.getEnd().x;
-        var v1endY = v1.getEnd().y;
+        throw Error("Can't do halfAngleVector on two null vectors");
       }
 
-      if (!v2) {
-        // pretend v2 is a wall in line with v2, starting at v1.end
-        var v2startX = v1.getEnd().x;
-        var v2startY = v1.getEnd().y;
-        var v2endX = v1.getEnd().x + (v1.getEnd().x - v1.getStart().x);
-        var v2endY = v1.getEnd().y + (v1.getEnd().y - v1.getStart().y);
-      } else {
-        var v2startX = v2.getStart().x;
-        var v2startY = v2.getStart().y;
-        var v2endX = v2.getEnd().x;
-        var v2endY = v2.getEnd().y;
-      }
 
       // CCW angle between edges
       var theta = Core.Utils.angle2pi(
