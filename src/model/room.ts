@@ -26,13 +26,13 @@ module BP3D.Model {
   export class Room {
 
     /** */
-    public interiorCorners: Corner[] = [];
+    public interiorCorners: Core.Point[] = [];
 
     /** */
-    private edgePointer = null;
+    private edgePointer: HalfEdge | null = null;
 
     /** floor plane for intersection testing */
-    public floorPlane: THREE.Mesh = null;
+    public floorPlane: THREE.Mesh | null = null;
 
     /** */
     private customTexture = false;
@@ -57,7 +57,7 @@ module BP3D.Model {
       return cornerUuids.join();
     }
 
-    public fireOnFloorChange(callback) {
+    public fireOnFloorChange(callback: () => void) {
       this.floorChangeCallbacks.add(callback);
     }
 
@@ -70,14 +70,14 @@ module BP3D.Model {
     /** 
      * textureStretch always true, just an argument for consistency with walls
      */
-    private setTexture(textureUrl: string, textureStretch, textureScale: number) {
+    private setTexture(textureUrl: string, textureStretch: boolean, textureScale: number) {
       var uuid = this.getUuid();
       this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
       this.floorChangeCallbacks.fire();
     }
 
     private generatePlane() {
-      var points = [];
+      var points: THREE.Vector2[] = [];
       this.interiorCorners.forEach((corner) => {
         points.push(new THREE.Vector2(
           corner.x,
@@ -94,7 +94,7 @@ module BP3D.Model {
       (<any>this.floorPlane).room = this; // js monkey patch
     }
 
-    private cycleIndex(index) {
+    private cycleIndex(index: number) {
       if (index < 0) {
         return index += this.corners.length;
       } else {
@@ -104,7 +104,7 @@ module BP3D.Model {
 
     private updateInteriorCorners() {
       var edge = this.edgePointer;
-      while (true) {
+      while (edge) {
         this.interiorCorners.push(edge.interiorStart());
         edge.generatePlane();
         if (edge.next === this.edgePointer) {
@@ -133,21 +133,28 @@ module BP3D.Model {
         var wallTo = firstCorner.wallTo(secondCorner);
         var wallFrom = firstCorner.wallFrom(secondCorner);
 
+        let edge = null;
         if (wallTo) {
-          var edge = new HalfEdge(this, wallTo, true);
+          edge = new HalfEdge(this, wallTo, true);
         } else if (wallFrom) {
-          var edge = new HalfEdge(this, wallFrom, false);
+          edge = new HalfEdge(this, wallFrom, false);
         } else {
           // something horrible has happened
-          console.log("corners arent connected by a wall, uh oh");
+          throw Error("corners arent connected by a wall, uh oh");
         }
 
         if (i == 0) {
           firstEdge = edge;
         } else {
+          if (prevEdge === null) {
+            throw Error("prevEdge was null");
+          }
           edge.prev = prevEdge;
           prevEdge.next = edge;
           if (i + 1 == this.corners.length) {
+            if (firstEdge == null) {
+              throw Error("firstEdge was null");
+            }
             firstEdge.prev = edge;
             edge.next = firstEdge;
           }

@@ -16,7 +16,7 @@ module BP3D.Model {
     public next: HalfEdge | null = null;
 
     /** The predecessor edge in CCW ??? direction. */
-    public prev: HalfEdge | null = null;;
+    public prev: HalfEdge | null = null;
 
     /** The "thickness" of the wall?  not sure */
     public offset: number;

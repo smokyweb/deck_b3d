@@ -91,9 +91,13 @@ module BP3D.Model {
     }
 
     private floorPlanes(): THREE.Mesh[] {
-      return Core.Utils.map(this.rooms, (room: Room) => {
-        return room.floorPlane;
+      let result: THREE.Mesh[] = [];
+      this.rooms.forEach((room: Room) => {
+        if (room.floorPlane) {
+          result.push(room.floorPlane);
+        }
       });
+      return result;
     }
 
     public fireOnNewWall(callback: (wall: Wall) => void) {

@@ -1,5 +1,6 @@
 /// <reference path="../../lib/three.d.ts" />
 /// <reference path="../../lib/jquery.d.ts" />
+/// <reference path="../items/item.ts" />
 /// <reference path="floorplan.ts" />
 /// <reference path="scene.ts" />
 
@@ -77,10 +78,11 @@ module BP3D.Model {
       return JSON.stringify(room);
     }
 
-    private newRoom(floorplan: string, items) {
+    // floorplan and items are parsed json from save file.
+    private newRoom(floorplan: any, items: any[]) {
       this.scene.clearItems();
       this.floorplan.loadFloorplan(floorplan);
-      items.forEach((item) => {
+      items.forEach((item: any) => {
         var position = new THREE.Vector3(
           item.xpos, item.ypos, item.zpos);
         var metadata = {
