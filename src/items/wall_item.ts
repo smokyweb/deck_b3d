@@ -174,7 +174,7 @@ namespace BP3D.Items {
       //         'faces' member.  Right now we know this geometry has a faces attribute 
       //         because we just made it, but the normal should really be calculated 
       //         independently.
-      if ('faces' in wallEdge.plane.geometry) {
+      if (wallEdge.plane?.geometry && 'faces' in wallEdge.plane?.geometry) {
         const faces = wallEdge.plane.geometry.faces;
         var normal3 = faces[0].normal;
         normal2.x = normal3.x;

@@ -13,19 +13,19 @@ module BP3D.Model {
   export class HalfEdge {
 
     /** The successor edge in CCW ??? direction. */
-    public next: HalfEdge;
+    public next: HalfEdge | null = null;
 
     /** The predecessor edge in CCW ??? direction. */
-    public prev: HalfEdge;
+    public prev: HalfEdge | null = null;;
 
-    /** */
+    /** The "thickness" of the wall?  not sure */
     public offset: number;
 
     /** */
     public height: number;
 
     /** used for intersection testing... not convinced this belongs here */
-    public plane: THREE.Mesh = null;
+    public plane: THREE.Mesh | null = null;
 
     /** transform from world coords to wall planes (z=0) */
     public interiorTransform = new THREE.Matrix4();
@@ -92,9 +92,9 @@ module BP3D.Model {
     /** 
      * this feels hacky, but need wall items
      */
-    public generatePlane = function () {
+    public generatePlane() {
 
-      function transformCorner(corner) {
+      function transformCorner(corner: Core.Point) {
         return new THREE.Vector3(corner.x, 0, corner.y);
       }
 
@@ -116,7 +116,8 @@ module BP3D.Model {
       this.plane = new THREE.Mesh(geometry,
         new THREE.MeshBasicMaterial());
       this.plane.visible = false;
-      this.plane.edge = this; // js monkey patch
+      // FIXME: monkey patches are bad
+      (this.plane as any).edge = this; // js monkey patch
 
       this.computeTransforms(
         this.interiorTransform, this.invInteriorTransform,
@@ -132,7 +133,8 @@ module BP3D.Model {
       return Core.Utils.distance(start.x, start.y, end.x, end.y);
     }
 
-    private computeTransforms(transform, invTransform, start, end) {
+    private computeTransforms(transform: THREE.Matrix4, invTransform: THREE.Matrix4, 
+                              start: Core.Point, end: Core.Point) {
 
       var v1 = start;
       var v2 = end;
@@ -186,7 +188,7 @@ module BP3D.Model {
     }
 
     // these return an object with attributes x, y
-    public interiorEnd(): {x: number, y: number} {
+    public interiorEnd(): Core.Point {
       var vec = this.halfAngleVector(this, this.next);
       return {
         x: this.getEnd().x + vec.x,
@@ -194,7 +196,7 @@ module BP3D.Model {
       }
     }
 
-    public interiorStart(): {x: number, y: number} {
+    public interiorStart(): Core.Point {
       var vec = this.halfAngleVector(this.prev, this);
       return {
         x: this.getStart().x + vec.x,
@@ -202,14 +204,14 @@ module BP3D.Model {
       }
     }
 
-    public interiorCenter(): {x: number, y: number} {
+    public interiorCenter(): Core.Point {
       return {
         x: (this.interiorStart().x + this.interiorEnd().x) / 2.0,
         y: (this.interiorStart().y + this.interiorEnd().y) / 2.0,
       }
     }
 
-    public exteriorEnd(): {x: number, y: number}  {
+    public exteriorEnd(): Core.Point  {
       var vec = this.halfAngleVector(this, this.next);
       return {
         x: this.getEnd().x - vec.x,
@@ -217,7 +219,7 @@ module BP3D.Model {
       }
     }
 
-    public exteriorStart(): {x: number, y: number}  {
+    public exteriorStart(): Core.Point  {
       var vec = this.halfAngleVector(this.prev, this);
       return {
         x: this.getStart().x - vec.x,
@@ -228,17 +230,33 @@ module BP3D.Model {
     /** Get the corners of the half edge.
      * @returns An array of x,y pairs.
      */
-    public corners(): {x: number, y: number}[] {
+    public corners(): Core.Point[] {
       return [this.interiorStart(), this.interiorEnd(),
         this.exteriorEnd(), this.exteriorStart()];
     }
 
     /** 
-     * Gets CCW angle from v1 to v2
+     * Original comment: "Gets CCW angle from v1 to v2".  This is obviously wrong.
+     *
+     * My evaluation:  v1 and v2 are supposed to be subsequent walls in a room.
+     * I.E.  v1.end is the same as v2.start.  The HalfEdge objects mark the
+     * boundary of the room, along the center of the wall.  The wall is supposed to 
+     * have thickness 2*this.offset.  This function returns the difference vector
+     * from the "elbow" (i.e. v1.end and v2.start) to the interior vertex of the
+     * miter join. (see 
+     * https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineJoin
+     * 
+     * this was written with the left-handed coordinate system in mind.
      */
-    private halfAngleVector(v1: HalfEdge, v2: HalfEdge): { x: number, y: number } {
+    private halfAngleVector(v1: HalfEdge || null, v2: HalfEdge || null): { x: number, y: number } {
+      
+      // Looks like this code assumes, but does not check, that at least one of v1 and v2
+      // is not null.  
+
       // make the best of things if we dont have prev or next
       if (!v1) {
+        // basically pretend v1 is a wall in line with v2, ending at v2.start, 
+        // of the same length as v2
         var v1startX = v2.getStart().x - (v2.getEnd().x - v2.getStart().x);
         var v1startY = v2.getStart().y - (v2.getEnd().y - v2.getStart().y);
         var v1endX = v2.getStart().x;
@@ -251,6 +269,7 @@ module BP3D.Model {
       }
 
       if (!v2) {
+        // pretend v2 is a wall in line with v2, starting at v1.end
         var v2startX = v1.getEnd().x;
         var v2startY = v1.getEnd().y;
         var v2endX = v1.getEnd().x + (v1.getEnd().x - v1.getStart().x);
@@ -264,10 +283,14 @@ module BP3D.Model {
 
       // CCW angle between edges
       var theta = Core.Utils.angle2pi(
-        v1startX - v1endX,
-        v1startY - v1endY,
-        v2endX - v1endX,
-        v2endY - v1endY);
+        v1startX - v1endX, // x1, reverse dx of first wall
+        v1startY - v1endY, // y1, reverse dy of first wall
+        v2endX - v1endX,   // x2, forward dx of second wall
+        v2endY - v1endY);  // y2, forward dy of second wall
+      // so it looks like this is measuring the angle between
+      // the reverse of the first wall and the forward of the second wall.  
+      // if the wall's edges go clockwise around the room, then this is the
+      // internal angle of the polygon.
 
       // cosine and sine of half angle
       var cs = Math.cos(theta / 2.0);
@@ -277,12 +300,16 @@ module BP3D.Model {
       var v2dx = v2endX - v2startX;
       var v2dy = v2endY - v2startY;
 
+      // this is a reverse angle transofrmation, 
+      // so (vx, vy) is (v2dx, v2dy) rotated clockwise by theta/2
       var vx = v2dx * cs - v2dy * sn;
       var vy = v2dx * sn + v2dy * cs;
 
       // normalize
       var mag = Core.Utils.distance(0, 0, vx, vy);
+      // FIXME: division by zero error
       var desiredMag = (this.offset) / sn;
+      // FIXME: division by zero error
       var scalar = desiredMag / mag;
 
       var halfAngleVector = {

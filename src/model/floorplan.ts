@@ -80,10 +80,10 @@ module BP3D.Model {
     public wallEdgePlanes(): THREE.Mesh[] {
       var planes: THREE.Mesh[] = [];
       this.walls.forEach((wall) => {
-        if (wall.frontEdge) {
+        if (wall.frontEdge?.plane) {
           planes.push(wall.frontEdge.plane);
         }
-        if (wall.backEdge) {
+        if (wall.backEdge?.plane) {
           planes.push(wall.backEdge.plane);
         }
       });
