@@ -180,11 +180,18 @@ module BP3D.Model {
     }
 
     private getOppositeEdge(): HalfEdge {
+      let result: HalfEdge | null = null;
       if (this.front) {
-        return this.wall.backEdge;
+        result = this.wall.backEdge;
       } else {
-        return this.wall.frontEdge;
+        result = this.wall.frontEdge;
       }
+      if (result === null) {
+        throw Error("in HalfEdge.getOppositeEdge:  wall edges are not populated");
+      } else {
+        return result;
+      }
+
     }
 
     // these return an object with attributes x, y

@@ -25,10 +25,10 @@ module BP3D.Model {
     public id: string;
 
     /** Front is the plane from start to end. */
-    public frontEdge: HalfEdge = null;
+    public frontEdge: HalfEdge | null= null;
 
     /** Back is the plane from end to start. */
-    public backEdge: HalfEdge = null;
+    public backEdge: HalfEdge| null = null;
 
     /** */
     public orphan = false;
@@ -89,23 +89,24 @@ module BP3D.Model {
       this.end.snapToAxis(tolerance);
     }
 
-    public fireOnMove(func) {
+    public fireOnMove(func: () => any) {
       this.moved_callbacks.add(func);
     }
 
-    public fireOnDelete(func) {
+    public fireOnDelete(func: (wall: Wall) => any) {
       this.deleted_callbacks.add(func);
     }
 
-    public dontFireOnDelete(func) {
+    public dontFireOnDelete(func: (wall: Wall) => any) {
       this.deleted_callbacks.remove(func);
     }
 
-    public fireOnAction(func) {
+    // FIXME:  looks like nothing ever uses action_callbacks.
+    public fireOnAction(func: (action: any) => any) {
       this.action_callbacks.add(func)
     }
 
-    public fireAction(action) {
+    public fireAction(action: any) {
       this.action_callbacks.fire(action)
     }
 
@@ -187,7 +188,7 @@ module BP3D.Model {
       } else if (this.end === corner) {
         return this.start;
       } else {
-        console.log('Wall does not connect to corner');
+        throw Error('Wall.oppositeCorner: Wall does not connect to corner');
       }
     }
   }

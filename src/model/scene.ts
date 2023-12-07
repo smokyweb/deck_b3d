@@ -31,8 +31,8 @@ module BP3D.Model {
     private itemRemovedCallbacks = $.Callbacks();
 
     /** rail item for future use */
-    private railGeom: THREE.Geometry = null; 
-    private railMat: THREE.Material[] = null;
+    private railGeom: THREE.Geometry | null = null; 
+    private railMat: THREE.Material[] | null = null;
 
     /**
      * Constructs a scene.
@@ -67,8 +67,8 @@ module BP3D.Model {
     {
       return { x: (p1.x + p2.x)*0.5, y: (p1.y + p2.y)*0.5 }
     }
-    public makeRailItem(wall: Model.Wall): Items.Item {
-      if (this.railGeom !== null) {
+    public makeRailItem(wall: Model.Wall): Items.Item | null {
+      if (this.railGeom !== null && this.railMat !== null) {
         const theClass = Items.Factory.getClass(8);
         const start = wall.getStart();
         const end = wall.getEnd();
@@ -169,7 +169,7 @@ module BP3D.Model {
      * @param scale The initial scaling.
      * @param fixed True if fixed.
      */
-    public addItem(itemType: number, fileName: string, metadata, position: THREE.Vector3, rotation: number, scale: THREE.Vector3, fixed: boolean) {
+    public addItem(itemType: number, fileName: string, metadata: any, position: THREE.Vector3, rotation: number, scale: THREE.Vector3, fixed: boolean) {
       itemType = itemType || 1;
       var scope = this;
       var loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
