@@ -3,9 +3,14 @@
 /// <reference path="../core/utils.ts" />
 
 module BP3D.Three {
-  export var Controller = function (three, model, camera, element, controls, hud) {
+  // TODO: Turn this into a proper class
+  export var Controller = function (three: typeof BP3D.Three.Main, 
+                      model: Model.Model, camera: THREE.Camera, 
+                      element: HTMLElement, controls: typeof Three.Controls, 
+                      hud: typeof Three.HUD) {
 
-    var scope = this;
+  
+    var scope: any = this;
 
     this.enabled = true;
 
