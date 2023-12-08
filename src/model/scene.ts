@@ -25,10 +25,12 @@ module BP3D.Model {
     private itemLoadingCallbacks = $.Callbacks();
 
     /** Item */
-    private itemLoadedCallbacks = $.Callbacks();
+    // FIXME: add public method boilerplate for this
+    public itemLoadedCallbacks = $.Callbacks();
 
     /** Item */
-    private itemRemovedCallbacks = $.Callbacks();
+    // FIXME: add public method boilerplate for this
+    public itemRemovedCallbacks = $.Callbacks();
 
     /** rail item for future use */
     private railGeom: THREE.Geometry | null = null; 

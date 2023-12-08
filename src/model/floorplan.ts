@@ -90,8 +90,9 @@ module BP3D.Model {
       return planes;
     }
 
-    private floorPlanes(): THREE.Mesh[] {
-      let result: THREE.Mesh[] = [];
+    // FIXME: This should return Three.Floor
+    public floorPlanes(): THREE.Object3D[] {
+      let result: THREE.Object3D[] = [];
       this.rooms.forEach((room: Room) => {
         if (room.floorPlane) {
           result.push(room.floorPlane);

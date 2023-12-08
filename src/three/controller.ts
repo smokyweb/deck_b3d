@@ -1,360 +1,363 @@
 /// <reference path="../../lib/jquery.d.ts" />
 /// <reference path="../../lib/three.d.ts" />
 /// <reference path="../core/utils.ts" />
+/// <reference path="../three/main.ts" />
 
+enum State {
+  UNSELECTED = 0, // no object selected
+  SELECTED = 1, // selected but inactive
+  DRAGGING = 2, // performing an action while mouse depressed
+  ROTATING = 3,  // rotating with mouse down
+  ROTATING_FREE = 4, // rotating with mouse up
+  PANNING = 5
+};
 module BP3D.Three {
   // TODO: Turn this into a proper class
-  export var Controller = function (three: typeof BP3D.Three.Main, 
-                      model: Model.Model, camera: THREE.Camera, 
-                      element: HTMLElement, controls: typeof Three.Controls, 
-                      hud: typeof Three.HUD) {
+  export class Controller {
+    private enabled: boolean = true;
+    private scene: Model.Scene;
+    private plane: THREE.Mesh | null = null;
+    private mouse = new THREE.Vector2();;
+    private intersectedObject: Items.Item | null = null;
+    private mouseoverObject: Items.Item | null = null;
+    private selectedObject: Items.Item | null = null;
+    private mouseDown: boolean = false;
+    private mouseMoved: boolean = false;
+    private rotateMouseOver: boolean = false;
+    private needsUpdate: boolean = true;
 
+    private state = State.UNSELECTED;
   
-    var scope: any = this;
+    // fixme:  three should be a Three.Main class
+    // fixme:  controls should be a class
+    // fixme:  hud should be a Three.HUD class
+    constructor(private three: any, 
+                private model: Model.Model, public camera: THREE.Camera, 
+                private element: JQuery, private controls: any, 
+                private hud: any) 
+    {
+      this.scene = model.scene;
 
-    this.enabled = true;
+      this.element.mousedown(this.mouseDownEvent);
+      this.element.mouseup(this.mouseUpEvent);
+      this.element.mousemove(this.mouseMoveEvent);
 
-    var three = three;
-    var model = model;
-    var scene = model.scene;
-    var element = element;
-    var camera = camera;
-    var controls = controls;
-    var hud = hud;
-
-    var plane; // ground plane used for intersection testing
-
-    var mouse;
-    var intersectedObject;
-    var mouseoverObject;
-    var selectedObject;
-
-    var mouseDown = false;
-    var mouseMoved = false; // has mouse moved since down click
-
-    var rotateMouseOver = false;
-
-    var states = {
-      UNSELECTED: 0, // no object selected
-      SELECTED: 1, // selected but inactive
-      DRAGGING: 2, // performing an action while mouse depressed
-      ROTATING: 3,  // rotating with mouse down
-      ROTATING_FREE: 4, // rotating with mouse up
-      PANNING: 5
-    };
-    var state = states.UNSELECTED;
-
-    this.needsUpdate = true;
-
-    function init() {
-      element.mousedown(mouseDownEvent);
-      element.mouseup(mouseUpEvent);
-      element.mousemove(mouseMoveEvent);
-
-      mouse = new THREE.Vector2();
-
-      scene.itemRemovedCallbacks.add(itemRemoved);
-      scene.itemLoadedCallbacks.add(itemLoaded);
-      setGroundPlane();
+      this.scene.itemRemovedCallbacks.add(this.itemRemoved);
+      this.scene.itemLoadedCallbacks.add(this.itemLoaded);
+      this.setGroundPlane();
     }
 
     // invoked via callback when item is loaded
-    function itemLoaded(item) {
+    public itemLoaded(item: Items.Item) {
       if (!item.position_set) {
-        scope.setSelectedObject(item);
-        switchState(states.DRAGGING);
+        this.setSelectedObject(item);
+        this.switchState(State.DRAGGING);
         var pos = item.position.clone();
         pos.y = 0;
-        var vec = three.projectVector(pos);
-        clickPressed(vec);
+        var vec = this.three.projectVector(pos);
+        this.clickPressed(vec);
       }
       item.position_set = true;
     }
 
-    function clickPressed(vec2?) {
-      vec2 = vec2 || mouse;
-      var intersection = scope.itemIntersection(mouse, selectedObject);
-      if (intersection) {
-        selectedObject.clickPressed(intersection);
-      }
-    }
-
-    function clickDragged(vec2?) {
-      vec2 = vec2 || mouse;
-      var intersection = scope.itemIntersection(mouse, selectedObject);
-      if (intersection) {
-        if (scope.isRotating()) {
-          selectedObject.rotate(intersection);
-        } else {
-          selectedObject.clickDragged(intersection);
+    public clickPressed(vec2?: THREE.Vector2) {
+      vec2 = vec2 || this.mouse;
+      const sel = this.selectedObject;
+      if (sel) {
+        var intersection = this.itemIntersection(this.mouse, sel);
+        if (intersection) {
+          sel.clickPressed(intersection);
         }
       }
     }
 
-    function itemRemoved(item) {
-      // invoked as a callback to event in Scene
-      if (item === selectedObject) {
-        selectedObject.setUnselected();
-        selectedObject.mouseOff();
-        scope.setSelectedObject(null);
+    public clickDragged(vec2?: THREE.Vector2) {
+      vec2 = vec2 || this.mouse;
+      const sel = this.selectedObject;
+      if (sel) {
+        var intersection = this.itemIntersection(this.mouse, sel);
+        if (intersection) {
+          if (this.isRotating()) {
+            sel.rotate(intersection);
+          } else {
+            sel.clickDragged(intersection);
+          }
+        }
       }
     }
 
-    function setGroundPlane() {
-      // ground plane used to find intersections
-      var size = 10000;
-      plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(size, size),
-        new THREE.MeshBasicMaterial());
-      plane.rotation.x = -Math.PI / 2;
-      plane.visible = false;
-      scene.add(plane);
+    public itemRemoved(item: Items.Item) {
+      // invoked as a callback to event in Scene
+      if (item === this.selectedObject) {
+        this.selectedObject.setUnselected();
+        this.selectedObject.mouseOff();
+        this.setSelectedObject(null);
+      }
     }
 
-    function checkWallsAndFloors(event?) {
+    public setGroundPlane() {
+      // ground plane used to find intersections
+      var size = 10000;
+      this.plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(size, size),
+        new THREE.MeshBasicMaterial());
+      this.plane.rotation.x = -Math.PI / 2;
+      this.plane.visible = false;
+      this.scene.add(this.plane);
+    }
+
+    public checkWallsAndFloors(event?: any) {
 
       // double click on a wall or floor brings up texture change modal
-      if (state == states.UNSELECTED && mouseoverObject == null) {
+      if (this.state == State.UNSELECTED && this.mouseoverObject === null) {
         // check walls
-        var wallEdgePlanes = model.floorplan.wallEdgePlanes();
-        var wallIntersects = scope.getIntersections(
-          mouse, wallEdgePlanes, true);
+        var wallEdgePlanes = this.model.floorplan.wallEdgePlanes();
+        var wallIntersects = this.getIntersections(
+          this.mouse, wallEdgePlanes, true);
         if (wallIntersects.length > 0) {
-          var wall = wallIntersects[0].object.edge;
-          three.wallClicked.fire(wall);
+          var wall = (wallIntersects[0].object as Items.WallItem).currentWallEdge;
+          this.three.wallClicked.fire(wall);
           return;
         }
 
         // check floors
-        var floorPlanes = model.floorplan.floorPlanes();
-        var floorIntersects = scope.getIntersections(
-          mouse, floorPlanes, false);
+        var floorPlanes = this.model.floorplan.floorPlanes();
+        var floorIntersects = this.getIntersections(
+          this.mouse, floorPlanes, false);
         if (floorIntersects.length > 0) {
-          var room = floorIntersects[0].object.room;
-          three.floorClicked.fire(room);
+          // FIXME:  floorPlanes should be Three.Floor
+          var room = (floorIntersects[0].object as any).room;
+          this.three.floorClicked.fire(room);
           return;
         }
 
-        three.nothingClicked.fire();
+        this.three.nothingClicked.fire();
       }
 
     }
 
-    function mouseMoveEvent(event) {
-      if (scope.enabled) {
+    // FIXME: any
+    public mouseMoveEvent(event: any) {
+      if (this.enabled) {
         event.preventDefault();
 
-        mouseMoved = true;
+        this.mouseMoved = true;
 
-        mouse.x = event.clientX;
-        mouse.y = event.clientY;
+        this.mouse.x = event.clientX;
+        this.mouse.y = event.clientY;
 
-        if (!mouseDown) {
-          updateIntersections();
+        if (!this.mouseDown) {
+          this.updateIntersections();
         }
 
-        switch (state) {
-          case states.UNSELECTED:
-            updateMouseover();
+        switch (this.state) {
+          case State.UNSELECTED:
+            this.updateMouseover();
             break;
-          case states.SELECTED:
-            updateMouseover();
+          case State.SELECTED:
+            this.updateMouseover();
             break;
-          case states.DRAGGING:
-          case states.ROTATING:
-          case states.ROTATING_FREE:
-            clickDragged();
-            hud.update();
-            scope.needsUpdate = true;
+          case State.DRAGGING:
+          case State.ROTATING:
+          case State.ROTATING_FREE:
+            this.clickDragged();
+            this.hud.update();
+            this.needsUpdate = true;
             break;
         }
       }
     }
 
-    this.isRotating = function () {
-      return (state == states.ROTATING || state == states.ROTATING_FREE);
+    public isRotating() {
+      return (this.state == State.ROTATING || this.state == State.ROTATING_FREE);
     }
 
-    function mouseDownEvent(event) {
-      if (scope.enabled) {
+    // FIXME: event needs a type
+    public mouseDownEvent(event: any) {
+      if (this.enabled) {
         event.preventDefault();
 
-        mouseMoved = false;
-        mouseDown = true;
+        this.mouseMoved = false;
+        this.mouseDown = true;
 
-        switch (state) {
-          case states.SELECTED:
-            if (rotateMouseOver) {
-              switchState(states.ROTATING);
-            } else if (intersectedObject != null) {
-              scope.setSelectedObject(intersectedObject);
-              if (!intersectedObject.fixed) {
-                switchState(states.DRAGGING);
+        switch (this.state) {
+          case State.SELECTED:
+            if (this.rotateMouseOver) {
+              this.switchState(State.ROTATING);
+            } else if (this.intersectedObject != null) {
+              this.setSelectedObject(this.intersectedObject);
+              if (!this.intersectedObject.fixed) {
+                this.switchState(State.DRAGGING);
               }
             }
             break;
-          case states.UNSELECTED:
-            if (intersectedObject != null) {
-              scope.setSelectedObject(intersectedObject);
-              if (!intersectedObject.fixed) {
-                switchState(states.DRAGGING);
+          case State.UNSELECTED:
+            if (this.intersectedObject != null) {
+              this.setSelectedObject(this.intersectedObject);
+              if (!this.intersectedObject.fixed) {
+                this.switchState(State.DRAGGING);
               }
             }
             break;
-          case states.DRAGGING:
-          case states.ROTATING:
+          case State.DRAGGING:
+          case State.ROTATING:
             break;
-          case states.ROTATING_FREE:
-            switchState(states.SELECTED);
+          case State.ROTATING_FREE:
+            this.switchState(State.SELECTED);
             break;
         }
       }
     }
 
-    function mouseUpEvent(event) {
-      if (scope.enabled) {
-        mouseDown = false;
+    // FIXME: event needs a type.
+    public mouseUpEvent(event: any) {
+      if (this.enabled) {
+        this.mouseDown = false;
 
-        switch (state) {
-          case states.DRAGGING:
-            selectedObject.clickReleased();
-            switchState(states.SELECTED);
+        switch (this.state) {
+          case State.DRAGGING:
+            if (!this.selectedObject) {
+              throw Error("selectedObject is not set");
+            }
+            this.selectedObject.clickReleased();
+            this.switchState(State.SELECTED);
             break;
-          case states.ROTATING:
-            if (!mouseMoved) {
-              switchState(states.ROTATING_FREE);
+          case State.ROTATING:
+            if (!this.mouseMoved) {
+              this.switchState(State.ROTATING_FREE);
             } else {
-              switchState(states.SELECTED);
+              this.switchState(State.SELECTED);
             }
             break;
-          case states.UNSELECTED:
-            if (!mouseMoved) {
-              checkWallsAndFloors();
+          case State.UNSELECTED:
+            if (!this.mouseMoved) {
+              this.checkWallsAndFloors();
             }
             break;
-          case states.SELECTED:
-            if (intersectedObject == null && !mouseMoved) {
-              switchState(states.UNSELECTED);
-              checkWallsAndFloors();
+          case State.SELECTED:
+            if (this.intersectedObject == null && !this.mouseMoved) {
+              this.switchState(State.UNSELECTED);
+              this.checkWallsAndFloors();
             }
             break;
-          case states.ROTATING_FREE:
+          case State.ROTATING_FREE:
             break;
         }
       }
     }
 
-    function switchState(newState) {
-      if (newState != state) {
-        onExit(state);
-        onEntry(newState);
+    public switchState(newState: State) {
+      if (newState != this.state) {
+        this.onExit(this.state);
+        this.onEntry(newState);
       }
-      state = newState;
-      hud.setRotating(scope.isRotating());
+      this.state = newState;
+      this.hud.setRotating(this.isRotating());
     }
 
-    function onEntry(state) {
-      switch (state) {
-        case states.UNSELECTED:
-          scope.setSelectedObject(null);
-        case states.SELECTED:
-          controls.enabled = true;
+    // FIXME:  state needs a type
+    public onEntry(state: any) {
+      switch (this.state) {
+        case State.UNSELECTED:
+          this.setSelectedObject(null);
+        case State.SELECTED:
+          this.controls.enabled = true;
           break;
-        case states.ROTATING:
-        case states.ROTATING_FREE:
-          controls.enabled = false;
+        case State.ROTATING:
+        case State.ROTATING_FREE:
+          this.controls.enabled = false;
           break;
-        case states.DRAGGING:
-          three.setCursorStyle("move");
-          clickPressed();
-          controls.enabled = false;
+        case State.DRAGGING:
+          this.three.setCursorStyle("move");
+          this.clickPressed();
+          this.controls.enabled = false;
           break;
       }
     }
 
-    function onExit(state) {
+    public onExit(state: State) {
       switch (state) {
-        case states.UNSELECTED:
-        case states.SELECTED:
+        case State.UNSELECTED:
+        case State.SELECTED:
           break;
-        case states.DRAGGING:
-          if (mouseoverObject) {
-            three.setCursorStyle("pointer");
+        case State.DRAGGING:
+          if (this.mouseoverObject) {
+            this.three.setCursorStyle("pointer");
           } else {
-            three.setCursorStyle("auto");
+            this.three.setCursorStyle("auto");
           }
           break;
-        case states.ROTATING:
-        case states.ROTATING_FREE:
+        case State.ROTATING:
+        case State.ROTATING_FREE:
           break;
       }
-    }
-
-    this.selectedObject = function () {
-      return selectedObject;
     }
 
     // updates the vector of the intersection with the plane of a given
     // mouse position, and the intersected object
     // both may be set to null if no intersection found
-    function updateIntersections() {
+    public updateIntersections() {
 
       // check the rotate arrow
-      var hudObject = hud.getObject();
+      var hudObject = this.hud.getObject();
       if (hudObject != null) {
-        var hudIntersects = scope.getIntersections(
-          mouse,
+        var hudIntersects = this.getIntersections(
+          this.mouse,
           hudObject,
           false, false, true);
         if (hudIntersects.length > 0) {
-          rotateMouseOver = true;
-          hud.setMouseover(true);
-          intersectedObject = null;
+          this.rotateMouseOver = true;
+          this.hud.setMouseover(true);
+          this.intersectedObject = null;
           return;
         }
       }
-      rotateMouseOver = false;
-      hud.setMouseover(false);
+      this.rotateMouseOver = false;
+      this.hud.setMouseover(false);
 
       // check objects
-      var items = model.scene.getItems();
-      var intersects = scope.getIntersections(
-        mouse,
+      var items = this.model.scene.getItems();
+      var intersects = this.getIntersections(
+        this.mouse,
         items,
         false, true);
 
       if (intersects.length > 0) {
-        intersectedObject = intersects[0].object;
+        // FIXME: this should not require a cast
+        this.intersectedObject = intersects[0].object as Items.Item;
       } else {
-        intersectedObject = null;
+        this.intersectedObject = null;
       }
     }
 
     // sets coords to -1 to 1
-    function normalizeVector2(vec2) {
+    public normalizeVector2(vec2: THREE.Vector2) {
       var retVec = new THREE.Vector2();
-      retVec.x = ((vec2.x - three.widthMargin) / (window.innerWidth - three.widthMargin)) * 2 - 1;
-      retVec.y = -((vec2.y - three.heightMargin) / (window.innerHeight - three.heightMargin)) * 2 + 1;
+      retVec.x = ((vec2.x - this.three.widthMargin) / (window.innerWidth - this.three.widthMargin)) * 2 - 1;
+      retVec.y = -((vec2.y - this.three.heightMargin) / (window.innerHeight - this.three.heightMargin)) * 2 + 1;
       return retVec;
     }
 
     //
-    function mouseToVec3(vec2) {
-      var normVec2 = normalizeVector2(vec2)
+    public mouseToVec3(vec2: THREE.Vector2) {
+      var normVec2 = this.normalizeVector2(vec2)
       var vector = new THREE.Vector3(
         normVec2.x, normVec2.y, 0.5);
-      vector.unproject(camera);
+      vector.unproject(this.camera);
       return vector;
     }
 
     // returns the first intersection object
-    this.itemIntersection = function (vec2, item) {
+    public itemIntersection(vec2: THREE.Vector2, item: Items.Item): Core.Intersection | null {
       var customIntersections = item.customIntersectionPlanes();
       var intersections = null;
       if (customIntersections && customIntersections.length > 0) {
         intersections = this.getIntersections(vec2, customIntersections, true);
       } else {
-        intersections = this.getIntersections(vec2, plane);
+        if (!this.plane) {
+          throw Error("this.plane is not set, but we need it for intersecting");
+        }
+        intersections = this.getIntersections(vec2, this.plane);
       }
       if (intersections.length > 0) {
         return intersections[0];
@@ -365,9 +368,11 @@ module BP3D.Three {
 
     // filter by normals will only return objects facing the camera
     // objects can be an array of objects or a single object
-    this.getIntersections = function (vec2, objects, filterByNormals, onlyVisible, recursive, linePrecision) {
+    public getIntersections(vec2: THREE.Vector2, objects: THREE.Object3D[] | THREE.Object3D, 
+          filterByNormals?: boolean, onlyVisible?: boolean, 
+          recursive?: boolean, linePrecision?: number) {
 
-      var vector = mouseToVec3(vec2);
+      var vector = this.mouseToVec3(vec2);
 
       onlyVisible = onlyVisible || false;
       filterByNormals = filterByNormals || false;
@@ -375,12 +380,12 @@ module BP3D.Three {
       linePrecision = linePrecision || 20;
 
 
-      var direction = vector.sub(camera.position).normalize();
+      var direction = vector.sub(this.camera.position).normalize();
       var raycaster = new THREE.Raycaster(
-        camera.position,
+        this.camera.position,
         direction);
       raycaster.linePrecision = linePrecision;
-      var intersections;
+      let intersections: Core.Intersection[] = [];
       if (objects instanceof Array) {
         intersections = raycaster.intersectObjects(objects, recursive);
       } else {
@@ -404,50 +409,51 @@ module BP3D.Three {
     }
 
     // manage the selected object
-    this.setSelectedObject = function (object) {
-      if (state === states.UNSELECTED) {
-        switchState(states.SELECTED);
+    public setSelectedObject(object: Items.Item | null) {
+      if (this.state === State.UNSELECTED) {
+        this.switchState(State.SELECTED);
       }
-      if (selectedObject != null) {
-        selectedObject.setUnselected();
+      if (this.selectedObject != null) {
+        this.selectedObject.setUnselected();
       }
       if (object != null) {
-        selectedObject = object;
-        selectedObject.setSelected();
-        three.itemSelectedCallbacks.fire(object);
+        this.selectedObject = object;
+        this.selectedObject.setSelected();
+        this.three.itemSelectedCallbacks.fire(object);
       } else {
-        selectedObject = null;
-        three.itemUnselectedCallbacks.fire();
+        this.selectedObject = null;
+        this.three.itemUnselectedCallbacks.fire();
       }
       this.needsUpdate = true;
     }
 
     // TODO: there MUST be simpler logic for expressing this
-    function updateMouseover() {
-      if (intersectedObject != null) {
-        if (mouseoverObject != null) {
-          if (mouseoverObject !== intersectedObject) {
-            mouseoverObject.mouseOff();
-            mouseoverObject = intersectedObject;
-            mouseoverObject.mouseOver();
-            scope.needsUpdate = true;
+    public updateMouseover() {
+      if (this.intersectedObject != null) {
+        if (this.mouseoverObject != null) {
+          if (this.mouseoverObject !== this.intersectedObject) {
+            this.mouseoverObject.mouseOff();
+            this.mouseoverObject = this.intersectedObject;
+            this.mouseoverObject.mouseOver();
+            this.needsUpdate = true;
           } else {
             // do nothing, mouseover already set
           }
         } else {
-          mouseoverObject = intersectedObject;
-          mouseoverObject.mouseOver();
-          three.setCursorStyle("pointer");
-          scope.needsUpdate = true;
+          this.mouseoverObject = this.intersectedObject;
+          if (this.mouseoverObject) {
+            this.mouseoverObject.mouseOver();
+          }
+          this.three.setCursorStyle("pointer");
+          this.needsUpdate = true;
         }
-      } else if (mouseoverObject != null) {
-        mouseoverObject.mouseOff();
-        three.setCursorStyle("auto");
-        mouseoverObject = null;
-        scope.needsUpdate = true;
+      } else if (this.mouseoverObject != null) {
+        this.mouseoverObject.mouseOff();
+        this.three.setCursorStyle("auto");
+        this.mouseoverObject = null;
+        this.needsUpdate = true;
       }
     }
 
-    init();
   }
 }

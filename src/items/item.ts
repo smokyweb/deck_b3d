@@ -41,7 +41,7 @@ module BP3D.Items {
     protected obstructFloorMoves = true;
 
     /** */
-    protected position_set: boolean;
+    public position_set: boolean;
 
     /** Show rotate option in context menu */
     protected allowRotate = true;

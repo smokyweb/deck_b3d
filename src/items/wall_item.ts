@@ -11,7 +11,7 @@ namespace BP3D.Items {
    */
   export abstract class WallItem extends Item {
     /** The currently applied wall edge. */
-    protected currentWallEdge: Model.HalfEdge | null = null;
+    public currentWallEdge: Model.HalfEdge | null = null;
     /* TODO:
        This caused a huge headache.
        HalfEdges get destroyed/created every time floorplan is edited.

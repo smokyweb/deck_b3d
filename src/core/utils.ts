@@ -11,7 +11,8 @@ module BP3D.Core {
   export type Intersection = {
     distance: number,
     point: THREE.Vector3,
-    object: THREE.Object3D
+    object: THREE.Object3D,
+    face: THREE.Face3
   };
 
   export class Utils {
