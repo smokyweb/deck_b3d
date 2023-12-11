@@ -80,7 +80,7 @@ module BP3D.Three {
       return roof;
     }
 
-    private addToScene() {
+    public addToScene() {
       this.scene.add(this.floorPlane);
       //scene.add(roofPlane);
       // hack so we can do intersect testing
@@ -89,7 +89,7 @@ module BP3D.Three {
       }
     }
 
-    private removeFromScene() {
+    public removeFromScene() {
       this.scene.remove(this.floorPlane);
       //scene.remove(roofPlane);
       if (this.room.floorPlane) {

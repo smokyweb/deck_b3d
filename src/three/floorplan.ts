@@ -1,43 +1,40 @@
 /// <reference path="../../lib/three.d.ts" />
 /// <reference path="floor.ts" />
+/// <reference path="../items/item.ts" />
 /// <reference path="edge.ts" />
 
 module BP3D.Three {
-  export var Floorplan = function (scene: Model.Scene, floorplan: Model.Floorplan, controls) {
-    console.log("THREE.Floorplan.init");
+  export class Floorplan {
 
-    var scope = this;
+    private floors: Three.Floor[] = [];
+    private edges: Three.Edge[] = [];
+    private kenObjects: Items.Item[] = [];
 
-    this.scene = scene;
-    this.floorplan = floorplan;
-    this.controls = controls;
+    constructor(private scene: Model.Scene, private floorplan: Model.Floorplan, private controls: Three.Controls) {
+      this.floorplan.fireOnUpdatedRooms(() => this.redraw());
+    }
 
-    this.floors = [];
-    this.edges = [];
-    this.kenObjects = [];
-
-    floorplan.fireOnUpdatedRooms(redraw);
-
-    function redraw() {
-      console.log("THREE.Floorplan.redraw() entry", scope.scene);
+    private redraw() {
+      console.log("THREE.Floorplan.redraw() entry", this.scene);
       // clear scene
-      scope.floors.forEach((floor) => {
+      this.floors.forEach((floor) => {
         floor.removeFromScene();
       });
-      scope.kenObjects.forEach((item) => {
-        scope.scene.removeItem(item);
+      this.kenObjects.forEach((item) => {
+        this.scene.removeItem(item);
       });
 
-      scope.edges.forEach((edge) => {
+      this.edges.forEach((edge) => {
         edge.remove();
       });
-      scope.floors = [];
-      scope.edges = [];
-      scope.kenObjects = [];
+      this.floors = [];
+      this.edges = [];
+      this.kenObjects = [];
 
+      const scope = this;
       // draw floors
-     scope.floorplan.getRooms().forEach((room) => {
-        var threeFloor = new Three.Floor(scene, room);
+      this.floorplan.getRooms().forEach((room) => {
+        var threeFloor = new Three.Floor(scope.scene, room);
         scope.floors.push(threeFloor);
         threeFloor.addToScene();
       });
@@ -45,9 +42,9 @@ module BP3D.Three {
       // not doing this since we have real rails now.
       if (false) {
         // draw edges
-        scope.floorplan.wallEdges().forEach((edge) => {
+        this.floorplan.wallEdges().forEach((edge) => {
           var threeEdge = new Three.Edge(
-            scene, edge, scope.controls);
+            scope.scene, edge, scope.controls);
           scope.edges.push(threeEdge);
         });
       }
@@ -61,7 +58,7 @@ module BP3D.Three {
       // 7: Items.InWallFloorItem,
       // 8: Items.OnFloorItem,
       // 9: Items.WallFloorItem
-      scope.floorplan.getWalls().forEach((wall) => {
+      this.floorplan.getWalls().forEach((wall) => {
         // this code mostly copied from model/scene/addItem, but 
         // can't use that call because it reloads the urls every time.
         const item = scope.scene.makeRailItem(wall);

@@ -13,7 +13,7 @@ module BP3D.Model {
     private scene: THREE.Scene;
 
     /** */
-    private items: Items.Item[] = [];
+    public items: Items.Item[] = [];
 
     /** */
     public needsUpdate = false;

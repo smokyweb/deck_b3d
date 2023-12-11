@@ -3,7 +3,7 @@
 /// <reference path="../core/utils.ts" />
 
 module BP3D.Three {
-  class Edge {
+  export class Edge {
     private wall: Model.Wall;
     private front: boolean;
 
@@ -24,7 +24,7 @@ module BP3D.Three {
       this.init();
     }
 
-    private remove() {
+    public remove() {
       this.edge.redrawCallbacks.remove(this.redrawHandler);
       this.controls.cameraMovedCallbacks.remove(this.updateVisibilityHandler);
       this.removeFromScene();
