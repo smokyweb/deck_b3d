@@ -61,7 +61,7 @@ module BP3D.Model {
       this.floorChangeCallbacks.add(callback);
     }
 
-    private getTexture() {
+    public getTexture() {
       var uuid = this.getUuid();
       var tex = this.floorplan.getFloorTexture(uuid);
       return tex || defaultRoomTexture;
