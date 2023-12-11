@@ -66,7 +66,7 @@ module BP3D.Three {
     private noKeys: Boolean = false;
 
 
-    private cameraMovedCallbacks = $.Callbacks();
+    public cameraMovedCallbacks = $.Callbacks();
 
     private needsUpdate: Boolean = true;
 
@@ -95,7 +95,7 @@ module BP3D.Three {
     // FIXME:  event needs a type
     private onMouseUpHandler = (event: any) => this.onMouseUp();
 
-    constructor(private object: THREE.Camera, domElement?: HTMLElement | Document) {
+    constructor(public object: THREE.Camera, domElement?: HTMLElement | Document) {
 
       this.object = object;
       if (domElement === document || domElement == undefined) {

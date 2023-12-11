@@ -53,7 +53,7 @@ module BP3D.Items {
     private dragOffset = new THREE.Vector3();
 
     /** */
-    protected halfSize: THREE.Vector3;
+    public halfSize: THREE.Vector3;
 
     /** Constructs an item. 
      * @param model TODO

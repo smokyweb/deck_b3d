@@ -89,7 +89,7 @@ namespace BP3D.Items {
     }
 
     /** */
-    private updateEdgeVisibility(visible: boolean, front: boolean) {
+    public updateEdgeVisibility(visible: boolean, front: boolean) {
       if (front) {
         this.frontVisible = visible;
       } else {
@@ -189,10 +189,10 @@ namespace BP3D.Items {
       // update currentWall
       this.currentWallEdge = wallEdge;
       if (this.addToWall) {
-        wallEdge.wall.items.push(this as unknown as Item);
+        wallEdge.wall.items.push(this);
         this.redrawWall();
       } else {
-        wallEdge.wall.onItems.push(this as unknown as Item);
+        wallEdge.wall.onItems.push(this);
       }
     }
 

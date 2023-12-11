@@ -34,10 +34,10 @@ module BP3D.Model {
     public orphan = false;
 
     /** Items attached to this wall */
-    public items: Items.Item[] = [];
+    public items: Items.WallItem[] = [];
 
     /** */
-    public onItems: Items.Item[] = [];
+    public onItems: Items.WallItem[] = [];
 
     /** The front-side texture. */
     public frontTexture = defaultWallTexture;

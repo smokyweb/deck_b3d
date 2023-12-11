@@ -3,71 +3,75 @@
 /// <reference path="../core/utils.ts" />
 
 module BP3D.Three {
-  export var Edge = function (scene, edge, controls) {
-    var scope = this;
-    var scene = scene;
-    var edge = edge;
-    var controls = controls;
-    var wall = edge.wall;
-    var front = edge.front;
+  class Edge {
+    private wall: Model.Wall;
+    private front: boolean;
 
-    var planes = [];
-    var basePlanes = []; // always visible
-    var texture = null;
+    private planes: THREE.Mesh[] = [];
+    private basePlanes: THREE.Mesh[] = []; // always visible
+    private texture?: THREE.Texture;
 
-    var lightMap = THREE.ImageUtils.loadTexture("rooms/textures/walllightmap.png");
-    var fillerColor = 0xdddddd;
-    var sideColor = 0xcccccc;
-    var baseColor = 0xdddddd;
+    private lightMap = THREE.ImageUtils.loadTexture("rooms/textures/walllightmap.png");
+    private fillerColor: number|string = 0xdddddd;
+    private sideColor: number|string = 0xcccccc;
+    private baseColor: number|string = 0xdddddd;
 
-    this.visible = false;
+    private visible = false;
 
-    this.remove = function () {
-      edge.redrawCallbacks.remove(redraw);
-      controls.cameraMovedCallbacks.remove(updateVisibility);
-      removeFromScene();
+    constructor(private scene: Model.Scene, private edge: Model.HalfEdge, private controls: Three.Controls) {
+      this.wall = edge.wall;
+      this.front = edge.front;
+      this.init();
     }
 
-    function init() {
-      edge.redrawCallbacks.add(redraw);
-      controls.cameraMovedCallbacks.add(updateVisibility);
-      updateTexture();
-      updatePlanes();
-      addToScene();
+    private remove() {
+      this.edge.redrawCallbacks.remove(this.redrawHandler);
+      this.controls.cameraMovedCallbacks.remove(this.updateVisibilityHandler);
+      this.removeFromScene();
     }
 
-    function redraw() {
-      removeFromScene();
-      updateTexture();
-      updatePlanes();
-      addToScene();
+    private init() {
+      this.edge.redrawCallbacks.add(this.redrawHandler);
+      this.controls.cameraMovedCallbacks.add(this.updateVisibilityHandler);
+      this.updateTexture();
+      this.updatePlanes();
+      this.addToScene();
     }
 
-    function removeFromScene() {
-      planes.forEach((plane) => {
-        scene.remove(plane);
+    private redrawHandler = () => this.redraw(); 
+    private redraw() {
+      this.removeFromScene();
+      this.updateTexture();
+      this.updatePlanes();
+      this.addToScene();
+    }
+
+    private removeFromScene() {
+      this.planes.forEach((plane) => {
+        this.scene.remove(plane);
       });
-      basePlanes.forEach((plane) => {
-        scene.remove(plane);
+      this.basePlanes.forEach((plane) => {
+        this.scene.remove(plane);
       });
-      planes = [];
-      basePlanes = [];
+      this.planes = [];
+      this.basePlanes = [];
     }
 
-    function addToScene() {
-      planes.forEach((plane) => {
-        scene.add(plane);
+    private  addToScene() {
+      this.planes.forEach((plane) => {
+        this.scene.add(plane);
       });
-      basePlanes.forEach((plane) => {
-        scene.add(plane);
+      this.basePlanes.forEach((plane) => {
+        this.scene.add(plane);
       });
-      updateVisibility();
+      this.updateVisibility();
     }
 
-    function updateVisibility() {
+    private updateVisibilityHandler = () => this.updateVisibility();
+    private updateVisibility() {
       // finds the normal from the specified edge
-      var start = edge.interiorStart();
-      var end = edge.interiorEnd();
+      var start = this.edge.interiorStart();
+      var end = this.edge.interiorEnd();
       var x = end.x - start.x;
       var y = end.y - start.y;
       // rotate 90 degrees CCW
@@ -75,7 +79,7 @@ module BP3D.Three {
       normal.normalize();
 
       // setup camera
-      var position = controls.object.position.clone();
+      var position = this.controls.object.position.clone();
       var focus = new THREE.Vector3(
         (start.x + end.x) / 2.0,
         0,
@@ -86,105 +90,103 @@ module BP3D.Three {
       var dot = normal.dot(direction);
 
       // update visible
-      scope.visible = (dot >= 0);
+      this.visible = (dot >= 0);
 
       // show or hide plans
-      planes.forEach((plane) => {
-        plane.visible = scope.visible;
+      this.planes.forEach((plane) => {
+        plane.visible = this.visible;
       });
 
-      updateObjectVisibility();
+      this.updateObjectVisibility();
     }
 
-    function updateObjectVisibility() {
-      wall.items.forEach((item) => {
-        item.updateEdgeVisibility(scope.visible, front);
+    private updateObjectVisibility() {
+      this.wall.items.forEach((item) => {
+        item.updateEdgeVisibility(this.visible, this.front);
       });
-      wall.onItems.forEach((item) => {
-        item.updateEdgeVisibility(scope.visible, front);
+      this.wall.onItems.forEach((item) => {
+        item.updateEdgeVisibility(this.visible, this.front);
       });
     }
 
-    function updateTexture(callback?) {
+    private updateTexture(callback?: () => void) {
       // callback is fired when texture loads
-      callback = callback || function () {
-        scene.needsUpdate = true;
-      }
-      var textureData = edge.getTexture();
+      callback = callback || ( () =>{ this.scene.needsUpdate = true; });
+      var textureData = this.edge.getTexture();
       var stretch = textureData.stretch;
       var url = textureData.url;
       var scale = textureData.scale;
-      texture = THREE.ImageUtils.loadTexture(url, null, callback);
+      this.texture = THREE.ImageUtils.loadTexture(url, undefined, callback);
       if (!stretch) {
-        var height = wall.height;
-        var width = edge.interiorDistance();
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.repeat.set(width / scale, height / scale);
-        texture.needsUpdate = true;
+        var height = this.wall.height;
+        var width = this.edge.interiorDistance();
+        this.texture.wrapT = THREE.RepeatWrapping;
+        this.texture.wrapS = THREE.RepeatWrapping;
+        this.texture.repeat.set(width / scale, height / scale);
+        this.texture.needsUpdate = true;
       }
     }
 
-    function updatePlanes() {
+    private updatePlanes() {
       var wallMaterial = new THREE.MeshBasicMaterial({
         color: 0xffffff,
         // ambientColor: 0xffffff, TODO_Ekki
         //ambient: scope.wall.color,
         side: THREE.FrontSide,
-        map: texture,
+        map: this.texture,
         // lightMap: lightMap TODO_Ekki
       });
 
       var fillerMaterial = new THREE.MeshBasicMaterial({
-        color: fillerColor,
+        color: this.fillerColor,
         side: THREE.DoubleSide
       });
 
       // exterior plane
-      planes.push(makeWall(
-        edge.exteriorStart(),
-        edge.exteriorEnd(),
-        edge.exteriorTransform,
-        edge.invExteriorTransform,
+      this.planes.push(this.makeWall(
+        this.edge.exteriorStart(),
+        this.edge.exteriorEnd(),
+        this.edge.exteriorTransform,
+        this.edge.invExteriorTransform,
         fillerMaterial));
 
       // interior plane
-      planes.push(makeWall(
-        edge.interiorStart(),
-        edge.interiorEnd(),
-        edge.interiorTransform,
-        edge.invInteriorTransform,
+      this.planes.push(this.makeWall(
+        this.edge.interiorStart(),
+        this.edge.interiorEnd(),
+        this.edge.interiorTransform,
+        this.edge.invInteriorTransform,
         wallMaterial));
 
       // bottom
       // put into basePlanes since this is always visible
-      basePlanes.push(buildFiller(
-        edge, 0,
-        THREE.BackSide, baseColor));
+      this.basePlanes.push(this.buildFiller(
+        this.edge, 0,
+        THREE.BackSide, this.baseColor));
 
       // top
-      planes.push(buildFiller(
-        edge, wall.height,
-        THREE.DoubleSide, fillerColor));
+      this.planes.push(this.buildFiller(
+        this.edge, this.wall.height,
+        THREE.DoubleSide, this.fillerColor));
 
       // sides
-      planes.push(buildSideFiller(
-        edge.interiorStart(), edge.exteriorStart(),
-        wall.height, sideColor));
+      this.planes.push(this.buildSideFiller(
+        this.edge.interiorStart(), this.edge.exteriorStart(),
+        this.wall.height, this.sideColor));
 
-      planes.push(buildSideFiller(
-        edge.interiorEnd(), edge.exteriorEnd(),
-        wall.height, sideColor));
+      this.planes.push(this.buildSideFiller(
+        this.edge.interiorEnd(), this.edge.exteriorEnd(),
+        this.wall.height, this.sideColor));
     }
 
     // start, end have x and y attributes (i.e. corners)
-    function makeWall(start, end, transform, invTransform, material) {
-      var v1 = toVec3(start);
-      var v2 = toVec3(end);
+    private makeWall(start: Core.Point, end: Core.Point, transform: THREE.Matrix4, invTransform: THREE.Matrix4, material: THREE.Material) {
+      var v1 = this.toVec3(start);
+      var v2 = this.toVec3(end);
       var v3 = v2.clone();
-      v3.y = wall.height;
+      v3.y = this.wall.height;
       var v4 = v1.clone();
-      v4.y = wall.height;
+      v4.y = this.wall.height;
 
       var points = [v1.clone(), v2.clone(), v3.clone(), v4.clone()];
 
@@ -200,7 +202,7 @@ module BP3D.Three {
       ]);
 
       // add holes for each wall item
-      wall.items.forEach((item) => {
+      this.wall.items.forEach((item) => {
         var pos = item.position.clone();
         pos.applyMatrix4(transform)
         var halfSize = item.halfSize;
@@ -227,10 +229,10 @@ module BP3D.Three {
 
       // make UVs
       var totalDistance = Core.Utils.distance(v1.x, v1.z, v2.x, v2.z);
-      var height = wall.height;
+      var height = this.wall.height;
       geometry.faceVertexUvs[0] = [];
 
-      function vertexToUv(vertex) {
+      const vertexToUv = (vertex: THREE.Vector3) => {
         var x = Core.Utils.distance(v1.x, v1.z, vertex.x, vertex.z) / totalDistance;
         var y = vertex.y / height;
         return new THREE.Vector2(x, y);
@@ -258,12 +260,12 @@ module BP3D.Three {
       return mesh;
     }
 
-    function buildSideFiller(p1, p2, height, color) {
+    private buildSideFiller(p1: Core.Point, p2: Core.Point, height: number, color: number|string) {
       var points = [
-        toVec3(p1),
-        toVec3(p2),
-        toVec3(p2, height),
-        toVec3(p1, height)
+        this.toVec3(p1),
+        this.toVec3(p2),
+        this.toVec3(p2, height),
+        this.toVec3(p1, height)
       ];
 
       var geometry = new THREE.Geometry();
@@ -282,12 +284,12 @@ module BP3D.Three {
       return filler;
     }
 
-    function buildFiller(edge, height, side, color) {
+    private buildFiller(edge: Model.HalfEdge, height: number, side: number, color: number|string) {
       var points = [
-        toVec2(edge.exteriorStart()),
-        toVec2(edge.exteriorEnd()),
-        toVec2(edge.interiorEnd()),
-        toVec2(edge.interiorStart())
+        this.toVec2(this.edge.exteriorStart()),
+        this.toVec2(this.edge.exteriorEnd()),
+        this.toVec2(this.edge.interiorEnd()),
+        this.toVec2(this.edge.interiorStart())
       ];
 
       var fillerMaterial = new THREE.MeshBasicMaterial({
@@ -304,15 +306,14 @@ module BP3D.Three {
       return filler;
     }
 
-    function toVec2(pos) {
+    private toVec2(pos: {x: number, y: number}) {
       return new THREE.Vector2(pos.x, pos.y);
     }
 
-    function toVec3(pos, height?) {
+    private toVec3(pos: Core.Point, height?: number) {
       height = height || 0;
       return new THREE.Vector3(pos.x, height, pos.y);
     }
 
-    init();
   }
 }
