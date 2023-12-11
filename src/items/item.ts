@@ -44,7 +44,7 @@ module BP3D.Items {
     public position_set: boolean;
 
     /** Show rotate option in context menu */
-    protected allowRotate = true;
+    public allowRotate = true;
 
     /** */
     public fixed = false;
