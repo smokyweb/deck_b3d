@@ -1,20 +1,15 @@
 /// <reference path="../../lib/three.d.ts" />
 
 module BP3D.Three {
-  export var Skybox = function (scene) {
+  export class Skybox {
+    private topColor: number = 0xffffff;//0xD8ECF9
+    private  bottomColor: number = 0xe9e9e9; //0xf9f9f9;//0x565e63
+    private verticalOffset: number = 500;
+    private sphereRadius: number = 4000;
+    private widthSegments: number = 32;
+    private heightSegments: number = 15;
 
-    var scope = this;
-
-    var scene = scene;
-
-    var topColor = 0xffffff;//0xD8ECF9
-    var bottomColor = 0xe9e9e9; //0xf9f9f9;//0x565e63
-    var verticalOffset = 500
-    var sphereRadius = 4000
-    var widthSegments = 32
-    var heightSegments = 15
-
-    var vertexShader = [
+    private vertexShader: string = [
       "varying vec3 vWorldPosition;",
       "void main() {",
       "  vec4 worldPosition = modelMatrix * vec4( position, 1.0 );",
@@ -23,7 +18,7 @@ module BP3D.Three {
       "}"
     ].join('\n');
 
-    var fragmentShader = [
+    private fragmentShader: string = [
       "uniform vec3 topColor;",
       "uniform vec3 bottomColor;",
       "uniform float offset;",
@@ -34,36 +29,34 @@ module BP3D.Three {
       "}"
     ].join('\n');
 
-    function init() {
+    constructor(private scene: Model.Scene) {
 
       var uniforms = {
         topColor: {
           type: "c",
-          value: new THREE.Color(topColor)
+          value: new THREE.Color(this.topColor)
         },
         bottomColor: {
           type: "c",
-          value: new THREE.Color(bottomColor)
+          value: new THREE.Color(this.bottomColor)
         },
         offset: {
           type: "f",
-          value: verticalOffset
+          value: this.verticalOffset
         }
       }
 
       var skyGeo = new THREE.SphereGeometry(
-        sphereRadius, widthSegments, heightSegments);
+        this.sphereRadius, this.widthSegments, this.heightSegments);
       var skyMat = new THREE.ShaderMaterial({
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
+        vertexShader: this.vertexShader,
+        fragmentShader: this.fragmentShader,
         uniforms: uniforms,
         side: THREE.BackSide
       });
 
       var sky = new THREE.Mesh(skyGeo, skyMat);
-      scene.add(sky);
+      this.scene.add(sky);
     }
-
-    init();
   }
 }
