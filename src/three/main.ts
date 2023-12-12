@@ -90,12 +90,12 @@ module BP3D.Three {
       // handle window resizing
       this.updateWindowSize();
       if (this.options.resize) {
-        $(window).resize(this.updateWindowSize);
+        $(window).resize(() => this.updateWindowSize());
       }
 
       // setup camera nicely
       this.centerCamera();
-      model.floorplan.fireOnUpdatedRooms(this.centerCamera);
+      model.floorplan.fireOnUpdatedRooms(() => this.centerCamera());
 
       var lights = new Three.Lights(this.scene, this.model.floorplan);
 

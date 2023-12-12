@@ -410,6 +410,9 @@ module BP3D.Three {
 
     // manage the selected object
     public setSelectedObject(object: Items.Item | null) {
+      if (object === null && this.state === State.UNSELECTED) {
+        return; // prevent infinite loop in this horrible code
+      }
       if (this.state === State.UNSELECTED) {
         this.switchState(State.SELECTED);
       }
