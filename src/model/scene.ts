@@ -102,8 +102,8 @@ module BP3D.Model {
     /** Adds a non-item, basically a mesh, to the scene.
      * @param mesh The mesh to be added.
      */
-    public add(mesh: THREE.Mesh) {
-      this.scene.add(mesh);
+    public add(obj: THREE.Object3D) {
+      this.scene.add(obj);
     }
 
     /** Removes a non-item, basically a mesh, from the scene.

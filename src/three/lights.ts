@@ -1,72 +1,76 @@
 /// <reference path="../../lib/three.d.ts" />
+/// <reference path="../model/scene.ts" />
+/// <reference path="../model/floorplan.ts" />
 
 module BP3D.Three {
-  export var Lights = function (scene, floorplan) {
+  export class Lights {
 
-    var scope = this;
-    var scene = scene;
-    var floorplan = floorplan;
+    private tol: number = 1;
+    private height: number = 300; // TODO: share with Blueprint.Wall
 
-    var tol = 1;
-    var height = 300; // TODO: share with Blueprint.Wall
+    private dirLight: THREE.DirectionalLight;
 
-    var dirLight;
 
-    this.getDirLight = function () {
-      return dirLight;
-    }
-
-    function init() {
+    // function contents here used to be in init()
+    constructor(private scene: Model.Scene, private floorplan: Model.Floorplan) {
       var light = new THREE.HemisphereLight(0xffffff, 0x888888, 1.1);
-      light.position.set(0, height, 0);
-      scene.add(light);
+      light.position.set(0, this.height, 0);
+      this.scene.add(light);
 
-      dirLight = new THREE.DirectionalLight(0xffffff, 0);
-      dirLight.color.setHSL(1, 1, 0.1);
+      this.dirLight = new THREE.DirectionalLight(0xffffff, 0);
+      this.dirLight.color.setHSL(1, 1, 0.1);
 
-      dirLight.castShadow = true;
+      this.dirLight.castShadow = true;
 
-      dirLight.shadowMapWidth = 1024;
-      dirLight.shadowMapHeight = 1024;
+      this.dirLight.shadowMapWidth = 1024;
+      this.dirLight.shadowMapHeight = 1024;
 
-      dirLight.shadowCameraFar = height + tol;
-      dirLight.shadowBias = -0.0001;
-      dirLight.shadowDarkness = 0.2;
-      dirLight.visible = true;
-      dirLight.shadowCameraVisible = false;
+      this.dirLight.shadowCameraFar = this.height + this.tol;
+      this.dirLight.shadowBias = -0.0001;
+      this.dirLight.shadowDarkness = 0.2;
+      this.dirLight.visible = true;
+      // FIXME: This is now "legacy".
+      //this.dirLight.shadowCameraVisible = false;
 
-      scene.add(dirLight);
-      scene.add(dirLight.target);
+      this.scene.add(this.dirLight);
+      this.scene.add(this.dirLight.target);
 
-      floorplan.fireOnUpdatedRooms(updateShadowCamera);
+      this.floorplan.fireOnUpdatedRooms(() => this.updateShadowCamera());
+    }
+    private getDirLight() {
+      return this.dirLight;
     }
 
-    function updateShadowCamera() {
+    private updateShadowCamera() {
 
-      var size = floorplan.getSize();
-      var d = (Math.max(size.z, size.x) + tol) / 2.0;
+      var size = this.floorplan.getSize();
+      var d = (Math.max(size.z, size.x) + this.tol) / 2.0;
 
-      var center = floorplan.getCenter();
+      var center = this.floorplan.getCenter();
       var pos = new THREE.Vector3(
-        center.x, height, center.z);
-      dirLight.position.copy(pos);
-      dirLight.target.position.copy(center);
+        center.x, this.height, center.z);
+      this.dirLight.position.copy(pos);
+      this.dirLight.target.position.copy(center);
       //dirLight.updateMatrix();
       //dirLight.updateWorldMatrix()
-      dirLight.shadowCameraLeft = -d;
-      dirLight.shadowCameraRight = d;
-      dirLight.shadowCameraTop = d;
-      dirLight.shadowCameraBottom = -d;
+      this.dirLight.shadowCameraLeft = -d;
+      this.dirLight.shadowCameraRight = d;
+      this.dirLight.shadowCameraTop = d;
+      this.dirLight.shadowCameraBottom = -d;
       // this is necessary for updates
-      if (dirLight.shadowCamera) {
-        dirLight.shadowCamera.left = dirLight.shadowCameraLeft;
-        dirLight.shadowCamera.right = dirLight.shadowCameraRight;
-        dirLight.shadowCamera.top = dirLight.shadowCameraTop;
-        dirLight.shadowCamera.bottom = dirLight.shadowCameraBottom;
-        dirLight.shadowCamera.updateProjectionMatrix();
+      const camera = this.dirLight?.shadow?.camera;
+      if (camera instanceof THREE.OrthographicCamera) {
+        // assume camera is orthographiccamera   
+        const c = camera as THREE.OrthographicCamera;
+        c.left = this.dirLight.shadowCameraLeft;
+        c.right = this.dirLight.shadowCameraRight;
+        c.top = this.dirLight.shadowCameraTop;
+        c.bottom = this.dirLight.shadowCameraBottom;
+        c.updateProjectionMatrix();
       }
     }
 
-    init();
+    // FIXME: This is extremely sketch.
+    //init();
   }
 }
