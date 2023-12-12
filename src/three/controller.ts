@@ -24,7 +24,7 @@ module BP3D.Three {
     private mouseDown: boolean = false;
     private mouseMoved: boolean = false;
     private rotateMouseOver: boolean = false;
-    private needsUpdate: boolean = true;
+    public needsUpdate: boolean = true;
 
     private state = State.UNSELECTED;
   

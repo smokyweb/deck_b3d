@@ -36,7 +36,7 @@ module BP3D.Three {
     private enabled: Boolean = true;
     // "target" sets the location of focus, where the control orbits around
     // and where it pans with respect to.
-    private target: THREE.Vector3 = new THREE.Vector3();
+    public target: THREE.Vector3 = new THREE.Vector3();
     // center is old, deprecated; use "target" instead
     private center: THREE.Vector3 = this.target;
     // This option actually enables dollying in and out; left as "zoom" for
@@ -68,7 +68,7 @@ module BP3D.Three {
 
     public cameraMovedCallbacks = $.Callbacks();
 
-    private needsUpdate: Boolean = true;
+    public needsUpdate: Boolean = true;
 
     private rotateStart: THREE.Vector2 = new THREE.Vector2();
     private rotateEnd: THREE.Vector2 = new THREE.Vector2();
@@ -132,7 +132,7 @@ module BP3D.Three {
       this.update();
     }
 
-    private rotateLeft(angle?: number) {
+    public rotateLeft(angle?: number) {
       if (angle === undefined) {
         angle = this.getAutoRotationAngle();
       }
@@ -224,7 +224,7 @@ module BP3D.Three {
       this.scale *= dollyScale;
     }
 
-    private update() {
+    public update() {
       var position = this.object.position;
       var offset = position.clone().sub(this.target);
 
