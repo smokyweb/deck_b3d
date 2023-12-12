@@ -20,10 +20,9 @@ module BP3D.Three {
     private hoverColor: number|string = "#f1c40f";
 
     private activeObject: THREE.Object3D | null = null;
-    // FIXME: three should be a Three.Main
-    constructor(private three: any) {
-      three.itemSelectedCallbacks.add(this.itemSelected);
-      three.itemUnselectedCallbacks.add(this.itemUnselected);
+    constructor(private three: Three.Main) {
+      three.itemSelectedCallbacks.add((item: Items.Item) => this.itemSelected(item));
+      three.itemUnselectedCallbacks.add(() => this.itemUnselected());
     }
 
     public getScene(): THREE.Scene {
@@ -77,7 +76,7 @@ module BP3D.Three {
           }
         });
       }
-      this.three.needsUpdate();
+      this.three.setNeedsUpdate();
     }
 
     private getColor() {

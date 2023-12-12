@@ -24,7 +24,8 @@
     "url": "https://github.com/Ekki/blueprint3d.git"
   },
   "scripts": {
-    "build": "browserify src/blueprint3d.js > example/js/blueprint3d.js --verbose"
+    "build": "tsc",
+    "serve": "cd example; ./serve"
   },
   "author": ""
 }

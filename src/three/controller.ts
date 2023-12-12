@@ -42,8 +42,8 @@ module BP3D.Three {
       this.element.mouseup(this.mouseUpEvent);
       this.element.mousemove(this.mouseMoveEvent);
 
-      this.scene.itemRemovedCallbacks.add(this.itemRemoved);
-      this.scene.itemLoadedCallbacks.add(this.itemLoaded);
+      this.scene.itemRemovedCallbacks.add((item: Items.Item) => this.itemRemoved(item));
+      this.scene.itemLoadedCallbacks.add((item: Items.Item) => this.itemLoaded(item));
       this.setGroundPlane();
     }
 

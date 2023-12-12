@@ -46,8 +46,8 @@ module BP3D.Three {
     private elementHeight: number = 10;
     private elementWidth: number = 10;
 
-    private itemSelectedCallbacks = $.Callbacks(); // item
-    private itemUnselectedCallbacks = $.Callbacks();
+    public itemSelectedCallbacks = $.Callbacks(); // item
+    public itemUnselectedCallbacks = $.Callbacks();
 
     private wallClicked = $.Callbacks(); // wall
     private floorClicked = $.Callbacks(); // floor
@@ -196,6 +196,9 @@ module BP3D.Three {
 
       this.renderer.setSize(this.elementWidth, this.elementHeight);
       this.needsUpdate = true;
+    }
+    public setNeedsUpdate() {
+        this.needsUpdate = true;
     }
 
     private centerCamera() {
