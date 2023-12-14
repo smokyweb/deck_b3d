@@ -22,10 +22,10 @@ This is a customizable application built on three.js that allows users to design
 
 ## Developing and Running Locally
 
-To get started, clone the repository and ensure you npm >= 3 and grunt installed, then run:
+To get started, clone the repository and ensure you npm >= 3, then run:
 
     npm install
-    grunt
+    npm run build
 
 The latter command generates `example/js/blueprint3d.js` from `src`.
 

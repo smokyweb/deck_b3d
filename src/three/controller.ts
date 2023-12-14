@@ -11,6 +11,18 @@ enum State {
   ROTATING_FREE = 4, // rotating with mouse up
   PANNING = 5
 };
+
+function stateName(s: State): string {
+  switch (s) {
+    case State.UNSELECTED: return "UNSELECTED";
+    case State.SELECTED: return "SELECTED";
+    case State.DRAGGING: return "DRAGGING";
+    case State.ROTATING: return "ROTATING";
+    case State.ROTATING_FREE: return "ROTATING_FREE";
+    case State.PANNING: return "PANNING";
+    default: throw Error(`stateName: invalid state ${s}`); 
+  }
+}
 module BP3D.Three {
   // TODO: Turn this into a proper class
   export class Controller {
@@ -65,6 +77,7 @@ module BP3D.Three {
       const sel = this.selectedObject;
       if (sel) {
         var intersection = this.itemIntersection(this.mouse, sel);
+        console.log("controller.clickPressed", intersection);
         if (intersection) {
           sel.clickPressed(intersection);
         }
@@ -255,8 +268,8 @@ module BP3D.Three {
       this.hud.setRotating(this.isRotating());
     }
 
-    // FIXME:  state needs a type
-    public onEntry(state: any) {
+    public onEntry(state: State) {
+      console.log("onEntry", stateName(state))
       switch (this.state) {
         case State.UNSELECTED:
           this.setSelectedObject(null);
@@ -276,6 +289,7 @@ module BP3D.Three {
     }
 
     public onExit(state: State) {
+      console.log("onExit", stateName(state))
       switch (state) {
         case State.UNSELECTED:
         case State.SELECTED:

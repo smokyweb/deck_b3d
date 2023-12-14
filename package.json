@@ -17,14 +17,15 @@
   },
   "devDependencies": {
     "browserify": "^8.0.2",
-    "matchdep": "^1.0.1"
+    "matchdep": "^1.0.1",
+    "typescript": "^5.0.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Ekki/blueprint3d.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npm exec tsc",
     "serve": "cd example; ./serve"
   },
   "author": ""
