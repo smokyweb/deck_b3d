@@ -53,7 +53,7 @@ module BP3D.Three {
     private floorClicked = $.Callbacks(); // floor
     private nothingClicked = $.Callbacks();
 
-    constructor(private model: Model.Model, element: string, private canvasElement: Element, opts: any) {
+    constructor(private model: Model.Model, element: string, private _canvasElement: any, opts: any) {
       this.element = $(element);
       // override with manually set options
       for (var opt in this.options) {

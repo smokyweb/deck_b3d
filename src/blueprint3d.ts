@@ -9,7 +9,7 @@ module BP3D {
     widget?: boolean;
 
     /** */
-    threeElement?: string;
+    threeElement: string;
 
     /** */
     threeCanvasElement? : string;
@@ -35,8 +35,7 @@ module BP3D {
      */
     constructor(options: Options) {
       this.model = new Model.Model(options.textureDir);
-      // FIXME: "as any" to avoid typescript type error
-      this.three = new (Three.Main as any)(this.model, options.threeElement, options.threeCanvasElement, {});
+      this.three = new Three.Main(this.model, options.threeElement, options.threeCanvasElement, {});
 
       if (options.floorplannerElement === undefined) {
         throw Error("can't construct Blueprint3d because no options.floorplannerElement");
