@@ -50,9 +50,9 @@ module BP3D.Three {
     {
       this.scene = model.scene;
 
-      this.element.mousedown(this.mouseDownEvent);
-      this.element.mouseup(this.mouseUpEvent);
-      this.element.mousemove(this.mouseMoveEvent);
+      this.element.mousedown((event: any) => this.mouseDownEvent(event));
+      this.element.mouseup((event: any) => this.mouseUpEvent(event));
+      this.element.mousemove((event: any) => this.mouseMoveEvent(event));
 
       this.scene.itemRemovedCallbacks.add((item: Items.Item) => this.itemRemoved(item));
       this.scene.itemLoadedCallbacks.add((item: Items.Item) => this.itemLoaded(item));
@@ -188,6 +188,7 @@ module BP3D.Three {
     // FIXME: event needs a type
     public mouseDownEvent(event: any) {
       if (this.enabled) {
+        console.log("controller mouseDown", event, stateName(this.state));
         event.preventDefault();
 
         this.mouseMoved = false;
