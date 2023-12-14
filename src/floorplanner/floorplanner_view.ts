@@ -68,10 +68,16 @@ module BP3D.Floorplanner {
     public handleWindowResize() {
       var canvasSel = $("#" + this.canvas);
       var parent = canvasSel.parent();
-      canvasSel.height(parent.innerHeight());
-      canvasSel.width(parent.innerWidth());
-      this.canvasElement.height = parent.innerHeight();
-      this.canvasElement.width = parent.innerWidth();
+      const ih = parent.innerHeight();
+      if (ih !== undefined) {
+        canvasSel.height(ih);
+        this.canvasElement.height = ih;
+      }
+      const iw = parent.innerWidth();
+      if (iw !== undefined) {
+        canvasSel.width(iw);
+        this.canvasElement.width = iw;
+      }
       this.draw();
     }
 

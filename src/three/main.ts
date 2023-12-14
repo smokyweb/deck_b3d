@@ -21,7 +21,7 @@ module BP3D.Three {
 
     private scene: Model.Scene;
 
-    private element: JQuery;
+    private element: JQuery<HTMLElement>;
     private domElement: HTMLElement;
 
     private camera: THREE.PerspectiveCamera;
@@ -63,7 +63,13 @@ module BP3D.Three {
       }
       THREE.ImageUtils.crossOrigin = "";
 
-      this.domElement = this.element.get(0) // Container
+      {
+        const e = this.element.get(0);
+        if (!(e instanceof HTMLElement)) {
+          throw Error(`Three.Main element '${element}' is not an HTMLElement`);
+        }
+        this.domElement = e;
+      }
       this.camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
       this.renderer = new THREE.WebGLRenderer({
         antialias: true,
@@ -181,14 +187,14 @@ module BP3D.Three {
     };
 
     private updateWindowSize() {
-      this.heightMargin = this.element.offset().top;
-      this.widthMargin = this.element.offset().left;
+      this.heightMargin = this.domElement.offsetTop;
+      this.widthMargin = this.domElement.offsetLeft;
 
-      this.elementWidth = this.element.innerWidth();
+      this.elementWidth = this.domElement.clientWidth;
       if (this.options.resize) {
         this.elementHeight = window.innerHeight - this.heightMargin;
       } else {
-        this.elementHeight = this.element.innerHeight();
+        this.elementHeight = this.domElement.clientHeight;
       }
 
       this.camera.aspect = this.elementWidth / this.elementHeight;

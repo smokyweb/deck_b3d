@@ -50,7 +50,7 @@ module BP3D.Three {
     {
       this.scene = model.scene;
 
-      this.element.mousedown((event: any) => this.mouseDownEvent(event));
+      this.element.mousedown((event: JQuery.MouseDownEvent) => this.mouseDownEvent(event));
       this.element.mouseup((event: any) => this.mouseUpEvent(event));
       this.element.mousemove((event: any) => this.mouseMoveEvent(event));
 

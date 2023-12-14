@@ -44,7 +44,7 @@ module BP3D.Floorplanner {
     private modeResetCallbacks = $.Callbacks();
 
     /** */
-    private canvasElement;
+    private canvasElement: JQuery<HTMLElement>;
 
     /** */
     private view: FloorplannerView;
@@ -169,15 +169,20 @@ module BP3D.Floorplanner {
     }
 
     /** */
-    private mousemove(event: JQueryMouseEventObject) {
+    private mousemove(event: JQuery.MouseMoveEvent) {
       this.mouseMoved = true;
 
       // update mouse
       this.rawMouseX = event.clientX;
       this.rawMouseY = event.clientY;
 
-      this.mouseX = (event.clientX - this.canvasElement.offset().left) * this.cmPerPixel + this.originX * this.cmPerPixel;
-      this.mouseY = (event.clientY - this.canvasElement.offset().top) * this.cmPerPixel + this.originY * this.cmPerPixel;
+      const offset = this.canvasElement.offset();
+      if (offset === undefined) {
+        throw Error("offset() is undefined");
+      }
+
+      this.mouseX = (event.clientX - offset.left) * this.cmPerPixel + this.originX * this.cmPerPixel;
+      this.mouseY = (event.clientY - offset.top) * this.cmPerPixel + this.originY * this.cmPerPixel;
 
       // update target (snapped position of actual mouse)
       if (this.mode == floorplannerModes.DRAW || (this.mode == floorplannerModes.MOVE && this.mouseDown)) {
@@ -280,8 +285,16 @@ module BP3D.Floorplanner {
 
     /** Sets the origin so that floorplan is centered */
     private resetOrigin() {
-      var centerX = this.canvasElement.innerWidth() / 2.0;
-      var centerY = this.canvasElement.innerHeight() / 2.0;
+      const iw = this.canvasElement.innerWidth();
+      const ih = this.canvasElement.innerHeight();
+      if (iw === undefined) {
+        throw Error("innerWidth() undefined");
+      }
+      if (ih === undefined) {
+        throw Error("innerHeight() undefined");
+      }
+      var centerX = iw / 2.0;
+      var centerY = ih / 2.0;
       var centerFloorplan = this.floorplan.getCenter();
       this.originX = centerFloorplan.x * this.pixelsPerCm - centerX;
       this.originY = centerFloorplan.z * this.pixelsPerCm - centerY;
