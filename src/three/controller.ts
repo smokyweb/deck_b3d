@@ -51,8 +51,8 @@ module BP3D.Three {
       this.scene = model.scene;
 
       this.element.mousedown((event: JQuery.MouseDownEvent) => this.mouseDownEvent(event));
-      this.element.mouseup((event: any) => this.mouseUpEvent(event));
-      this.element.mousemove((event: any) => this.mouseMoveEvent(event));
+      this.element.mouseup((event: JQuery.MouseUpEvent) => this.mouseUpEvent(event));
+      this.element.mousemove((event: JQuery.MouseMoveEvent) => this.mouseMoveEvent(event));
 
       this.scene.itemRemovedCallbacks.add((item: Items.Item) => this.itemRemoved(item));
       this.scene.itemLoadedCallbacks.add((item: Items.Item) => this.itemLoaded(item));
@@ -149,8 +149,7 @@ module BP3D.Three {
 
     }
 
-    // FIXME: any
-    public mouseMoveEvent(event: any) {
+    public mouseMoveEvent(event: JQuery.MouseMoveEvent) {
       if (this.enabled) {
         event.preventDefault();
 
@@ -223,8 +222,7 @@ module BP3D.Three {
       }
     }
 
-    // FIXME: event needs a type.
-    public mouseUpEvent(event: any) {
+    public mouseUpEvent(event: JQuery.MouseUpEvent) {
       if (this.enabled) {
         this.mouseDown = false;
 

@@ -102,7 +102,7 @@ module BP3D.Floorplanner {
       this.canvasElement.mousedown(() => {
         scope.mousedown();
       });
-      this.canvasElement.mousemove((event) => {
+      this.canvasElement.mousemove((event: JQuery.MouseMoveEvent) => {
         scope.mousemove(event);
       });
       this.canvasElement.mouseup(() => {
