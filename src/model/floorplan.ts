@@ -77,8 +77,8 @@ module BP3D.Model {
     }
 
     // hack
-    public wallEdgePlanes(): THREE.Mesh[] {
-      var planes: THREE.Mesh[] = [];
+    public wallEdgePlanes(): Core.EdgePlane[] {
+      var planes: Core.EdgePlane[] = [];
       this.walls.forEach((wall) => {
         if (wall.frontEdge?.plane) {
           planes.push(wall.frontEdge.plane);
@@ -90,9 +90,8 @@ module BP3D.Model {
       return planes;
     }
 
-    // FIXME: This should return Three.Floor
-    public floorPlanes(): THREE.Object3D[] {
-      let result: THREE.Object3D[] = [];
+    public floorPlanes(): Core.FloorPlane[] {
+      let result: Core.FloorPlane[] = [];
       this.rooms.forEach((room: Room) => {
         if (room.floorPlane) {
           result.push(room.floorPlane);

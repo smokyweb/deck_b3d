@@ -32,7 +32,7 @@ module BP3D.Model {
     private edgePointer: HalfEdge | null = null;
 
     /** floor plane for intersection testing */
-    public floorPlane: THREE.Mesh | null = null;
+    public floorPlane: Core.FloorPlane | null = null;
 
     /** */
     private customTexture = false;
@@ -85,13 +85,13 @@ module BP3D.Model {
       });
       var shape = new THREE.Shape(points);
       var geometry = new THREE.ShapeGeometry(shape);
-      this.floorPlane = new THREE.Mesh(geometry,
+      const mesh = new THREE.Mesh(geometry,
         new THREE.MeshBasicMaterial({
           side: THREE.DoubleSide
         }));
-      this.floorPlane.visible = false;
-      this.floorPlane.rotation.set(Math.PI / 2, 0, 0);
-      (<any>this.floorPlane).room = this; // js monkey patch
+      mesh.visible = false;
+      mesh.rotation.set(Math.PI / 2, 0, 0);
+      this.floorPlane = Object.assign(mesh, {room: this});
     }
 
     private cycleIndex(index: number) {

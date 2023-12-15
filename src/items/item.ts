@@ -203,12 +203,12 @@ module BP3D.Items {
     };
 
     /** intersection has attributes point (vec3) and object (THREE.Mesh) */
-    public clickPressed(intersection: BP3D.Core.Intersection) {
+    public clickPressed(intersection: BP3D.Core.Intersection<any>) {
       this.dragOffset.copy(intersection.point).sub(this.position);
     };
 
     /** */
-    public clickDragged(intersection: BP3D.Core.Intersection) {
+    public clickDragged<O>(intersection: BP3D.Core.Intersection<O>) {
       if (intersection) {
         this.moveToPosition(
           intersection.point.sub(this.dragOffset),
@@ -217,30 +217,28 @@ module BP3D.Items {
     };
 
     /** */
-    public rotate(intersection: BP3D.Core.Intersection) {
-      if (intersection) {
-        var angle = Core.Utils.angle(
-          0,
-          1,
-          intersection.point.x - this.position.x,
-          intersection.point.z - this.position.z);
+    public rotate(intersection: BP3D.Core.Intersection<any>) {
+      var angle = Core.Utils.angle(
+        0,
+        1,
+        intersection.point.x - this.position.x,
+        intersection.point.z - this.position.z);
 
-        var snapTolerance = Math.PI / 16.0;
+      var snapTolerance = Math.PI / 16.0;
 
-        // snap to intervals near Math.PI/2
-        for (var i = -4; i <= 4; i++) {
-          if (Math.abs(angle - (i * (Math.PI / 2))) < snapTolerance) {
-            angle = i * (Math.PI / 2);
-            break;
-          }
+      // snap to intervals near Math.PI/2
+      for (var i = -4; i <= 4; i++) {
+        if (Math.abs(angle - (i * (Math.PI / 2))) < snapTolerance) {
+          angle = i * (Math.PI / 2);
+          break;
         }
-
-        this.rotation.y = angle;
       }
+
+      this.rotation.y = angle;
     }
 
     /** */
-    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection) {
+    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection<any>) {
       this.position.copy(vec3);
     }
 

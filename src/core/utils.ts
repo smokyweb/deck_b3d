@@ -8,12 +8,15 @@ module BP3D.Core {
 
   */
   export type Point = { x: number, y: number };
-  export type Intersection = {
+  export type Intersection<O> = {
     distance: number,
     point: THREE.Vector3,
-    object: THREE.Object3D,
+    object: O,
     face: THREE.Face3
   };
+
+  export type EdgePlane = THREE.Mesh & { edge: Model.HalfEdge };
+  export type FloorPlane = THREE.Mesh & { room: Model.Room };
 
   export class Utils {
     /** Determines the distance of a point from a line.

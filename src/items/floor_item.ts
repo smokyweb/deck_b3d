@@ -28,7 +28,7 @@ module BP3D.Items {
     }
 
     /** */
-    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection) {
+    public moveToPosition<O>(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection<O>) {
       // keeps the position in the room and on the floor
       if (!this.isValidPosition(vec3)) {
         this.showError(vec3);

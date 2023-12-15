@@ -45,14 +45,22 @@ module BP3D.Three {
     // fixme:  hud should be a Three.HUD class
     constructor(private three: any, 
                 private model: Model.Model, public camera: THREE.Camera, 
-                private element: JQuery, private controls: any, 
+                element: JQuery, private controls: any, 
                 private hud: any) 
     {
       this.scene = model.scene;
+      const elt = element.get(0);
 
-      this.element.mousedown((event: JQuery.MouseDownEvent) => this.mouseDownEvent(event));
-      this.element.mouseup((event: JQuery.MouseUpEvent) => this.mouseUpEvent(event));
-      this.element.mousemove((event: JQuery.MouseMoveEvent) => this.mouseMoveEvent(event));
+      if (!elt) {
+        throw Error("Three.controller element is falsey");
+      }
+      if (!(elt instanceof HTMLElement)) {
+        throw Error("Three.controller element is not HTMLElement");
+      }
+
+      elt.addEventListener("mousedown", (event: MouseEvent) => this.mouseDownEvent(event));
+      elt.addEventListener("mouseup", (event: MouseEvent) => this.mouseUpEvent(event));
+      elt.addEventListener("mousemove", (event: MouseEvent) => this.mouseMoveEvent(event));
 
       this.scene.itemRemovedCallbacks.add((item: Items.Item) => this.itemRemoved(item));
       this.scene.itemLoadedCallbacks.add((item: Items.Item) => this.itemLoaded(item));
@@ -128,7 +136,7 @@ module BP3D.Three {
         var wallIntersects = this.getIntersections(
           this.mouse, wallEdgePlanes, true);
         if (wallIntersects.length > 0) {
-          var wall = (wallIntersects[0].object as Items.WallItem).currentWallEdge;
+          var wall = wallIntersects[0].object.edge.wall;
           this.three.wallClicked.fire(wall);
           return;
         }
@@ -149,7 +157,7 @@ module BP3D.Three {
 
     }
 
-    public mouseMoveEvent(event: JQuery.MouseMoveEvent) {
+    public mouseMoveEvent(event: MouseEvent) {
       if (this.enabled) {
         event.preventDefault();
 
@@ -184,8 +192,7 @@ module BP3D.Three {
       return (this.state == State.ROTATING || this.state == State.ROTATING_FREE);
     }
 
-    // FIXME: event needs a type
-    public mouseDownEvent(event: any) {
+    public mouseDownEvent(event: MouseEvent) {
       if (this.enabled) {
         console.log("controller mouseDown", event, stateName(this.state));
         event.preventDefault();
@@ -222,7 +229,7 @@ module BP3D.Three {
       }
     }
 
-    public mouseUpEvent(event: JQuery.MouseUpEvent) {
+    public mouseUpEvent(event: MouseEvent) {
       if (this.enabled) {
         this.mouseDown = false;
 
@@ -337,7 +344,7 @@ module BP3D.Three {
 
       if (intersects.length > 0) {
         // FIXME: this should not require a cast
-        this.intersectedObject = intersects[0].object as Items.Item;
+        this.intersectedObject = intersects[0].object;
       } else {
         this.intersectedObject = null;
       }
@@ -361,7 +368,7 @@ module BP3D.Three {
     }
 
     // returns the first intersection object
-    public itemIntersection(vec2: THREE.Vector2, item: Items.Item): Core.Intersection | null {
+    public itemIntersection(vec2: THREE.Vector2, item: Items.Item): Core.Intersection<Items.Item | THREE.Mesh> | null {
       var customIntersections = item.customIntersectionPlanes();
       var intersections = null;
       if (customIntersections && customIntersections.length > 0) {
@@ -381,7 +388,7 @@ module BP3D.Three {
 
     // filter by normals will only return objects facing the camera
     // objects can be an array of objects or a single object
-    public getIntersections(vec2: THREE.Vector2, objects: THREE.Object3D[] | THREE.Object3D, 
+    public getIntersections<O extends THREE.Mesh>(vec2: THREE.Vector2, objects: O[] | O, 
           filterByNormals?: boolean, onlyVisible?: boolean, 
           recursive?: boolean, linePrecision?: number) {
 
@@ -398,11 +405,11 @@ module BP3D.Three {
         this.camera.position,
         direction);
       raycaster.linePrecision = linePrecision;
-      let intersections: Core.Intersection[] = [];
+      let intersections: Core.Intersection<O>[] = [];
       if (objects instanceof Array) {
-        intersections = raycaster.intersectObjects(objects, recursive);
+        intersections = raycaster.intersectObjects(objects, recursive) as Core.Intersection<O>[];
       } else {
-        intersections = raycaster.intersectObject(objects, recursive);
+        intersections = raycaster.intersectObject(objects, recursive) as Core.Intersection<O>[];
       }
       // filter by visible, if true
       if (onlyVisible) {

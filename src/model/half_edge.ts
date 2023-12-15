@@ -25,7 +25,7 @@ module BP3D.Model {
     public height: number;
 
     /** used for intersection testing... not convinced this belongs here */
-    public plane: THREE.Mesh | null = null;
+    public plane: Core.EdgePlane | null = null;
 
     /** transform from world coords to wall planes (z=0) */
     public interiorTransform = new THREE.Matrix4();
@@ -113,11 +113,11 @@ module BP3D.Model {
       geometry.computeFaceNormals();
       geometry.computeBoundingBox();
 
-      this.plane = new THREE.Mesh(geometry,
+      const mesh = new THREE.Mesh(geometry,
         new THREE.MeshBasicMaterial());
+
+      this.plane = Object.assign(mesh, { edge: this });
       this.plane.visible = false;
-      // FIXME: monkey patches are bad
-      (this.plane as any).edge = this; // js monkey patch
 
       this.computeTransforms(
         this.interiorTransform, this.invInteriorTransform,
