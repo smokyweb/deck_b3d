@@ -106,15 +106,15 @@ module BP3D.Three {
         throw Error("domElement was instanceOf Document but !== document?");
       }
 
-      this.domElement.addEventListener('contextmenu', function (event) { event.preventDefault(); }, false);
-      this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
-      this.domElement.addEventListener('mousewheel', this.onMouseWheel.bind(this), false);
-      this.domElement.addEventListener('DOMMouseScroll', this.onMouseWheel.bind(this), false); // firefox
-      this.domElement.addEventListener('touchstart', this.touchstart.bind(this), false);
-      this.domElement.addEventListener('touchend', this.touchend.bind(this), false);
-      this.domElement.addEventListener('touchmove', this.touchmove.bind(this), false);
+      this.domElement.addEventListener('contextmenu', (event) => { event.preventDefault(); }, false);
+      this.domElement.addEventListener('mousedown', (event: MouseEvent) => this.onMouseDown(event), false);
+      // FIXME: Add support for scroll and scrollend events
+      this.domElement.addEventListener('wheel', (event: WheelEvent) => this.onMouseWheel(event), false);
+      this.domElement.addEventListener('touchstart', (event: TouchEvent) => this.touchstart(event), false);
+      this.domElement.addEventListener('touchend', (event: TouchEvent) => this.touchend(event), false);
+      this.domElement.addEventListener('touchmove', (event: TouchEvent) => this.touchmove(event), false);
 
-      window.addEventListener('keydown', this.onKeyDown.bind(this), false);
+      window.addEventListener('keydown', (event: KeyboardEvent) => this.onKeyDown(event), false);
     }
 
     private controlsActive(): Boolean {
@@ -208,20 +208,22 @@ module BP3D.Three {
       this.doPan(new THREE.Vector2(x, y));
     }
 
-    private dollyIn(dollyScale?: number) {
-      if (dollyScale === undefined) {
-        dollyScale = this.getZoomScale();
-      }
-
-      this.scale /= dollyScale;
-    }
-
     private dollyOut(dollyScale?: number) {
       if (dollyScale === undefined) {
         dollyScale = this.getZoomScale();
       }
 
+      this.scale /= dollyScale;
+      console.log("dollyOut, new scale is ", this.scale);
+    }
+
+    private dollyIn(dollyScale?: number) {
+      if (dollyScale === undefined) {
+        dollyScale = this.getZoomScale();
+      }
+
       this.scale *= dollyScale;
+      console.log("dollyIn, new scale is ", this.scale);
     }
 
     public update() {
@@ -281,7 +283,8 @@ module BP3D.Three {
     }
 
     // FIXME: event should have a type
-    private onMouseDown(event: any) {
+    // FIXME: Handle multiple button presses
+    private onMouseDown(event: MouseEvent) {
 
       if (this.enabled === false) { return; }
       event.preventDefault();
@@ -388,28 +391,25 @@ module BP3D.Three {
     }
 
     // FIXME: event needs a type
-    private onMouseWheel(event: any) {
+    private onMouseWheel(event: WheelEvent) {
       if (this.enabled === false || this.noZoom === true) return;
 
-      var delta = 0;
+      // negative zooms out, positive zooms in
+      // left (-x) zooms out and right (+x) zooms in
+      // up (-y, left-handed coordinates) zooms in and down (+y) zooms out
 
-      if (event.wheelDelta) { // WebKit / Opera / Explorer 9
-        delta = event.wheelDelta;
-      } else if (event.detail) { // Firefox
-        delta = - event.detail;
-      }
+      console.log("controls.onMouseWheel", event);
+      const delta = event.deltaX - event.deltaY + event.deltaZ;
 
-      if (delta > 0) {
+      if (delta < 0) {
         this.dollyOut();
-
       } else {
-
         this.dollyIn();
       }
       this.update();
     }
 
-    private onKeyDown(event: any) {
+    private onKeyDown(event: KeyboardEvent) {
 
       if (this.enabled === false) { return; }
       if (this.noKeys === true) { return; }
@@ -433,7 +433,7 @@ module BP3D.Three {
 
     }
 
-    private touchstart(event: any) {
+    private touchstart(event: TouchEvent) {
 
       if (this.enabled === false) { return; }
 
@@ -472,7 +472,8 @@ module BP3D.Three {
       }
     }
 
-    private touchmove(event: any) {
+    // FIXME: Handle mulitple touches somehow
+    private touchmove(event: TouchEvent) {
 
       if (this.enabled === false) { return; }
 
@@ -533,7 +534,7 @@ module BP3D.Three {
       }
     }
 
-    private touchend( /* event */) {
+    private touchend(event: TouchEvent) {
       if (this.enabled === false) {
         return;
       }
