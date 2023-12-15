@@ -91,7 +91,6 @@ module BP3D.Model {
           new THREE.Vector3(horizscale, vertscale, horizscale) 
         );
         item.initObject();
-        console.log("new deckRail item created", item);
         this.itemLoadedCallbacks.fire(item);
         return item;
       } else {

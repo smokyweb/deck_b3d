@@ -15,7 +15,6 @@ module BP3D.Three {
     }
 
     private redraw() {
-      console.log("THREE.Floorplan.redraw() entry", this.scene);
       // clear scene
       this.floors.forEach((floor) => {
         floor.removeFromScene();
@@ -63,17 +62,13 @@ module BP3D.Three {
         // can't use that call because it reloads the urls every time.
         const item = scope.scene.makeRailItem(wall);
         if (item) {
-          console.log("made rail item ", item);
-
           scope.kenObjects.push(item);
           scope.scene.items.push(item);
           scope.scene.add(item);
           scope.scene.itemLoadedCallbacks.fire(item);
         } else {
-          console.log("railItem not made");
         }
       });
-      console.log("THREE.Floorplan.redraw() exit", scope.scene);
     }
   }
 }
