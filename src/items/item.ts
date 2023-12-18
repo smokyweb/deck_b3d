@@ -203,12 +203,12 @@ module BP3D.Items {
     };
 
     /** intersection has attributes point (vec3) and object (THREE.Mesh) */
-    public clickPressed(intersection: BP3D.Core.Intersection<any>) {
+    public clickPressed(intersection: THREE.Intersection) {
       this.dragOffset.copy(intersection.point).sub(this.position);
     };
 
     /** */
-    public clickDragged<O>(intersection: BP3D.Core.Intersection<O>) {
+    public clickDragged<O>(intersection: THREE.Intersection) {
       if (intersection) {
         this.moveToPosition(
           intersection.point.sub(this.dragOffset),
@@ -217,7 +217,7 @@ module BP3D.Items {
     };
 
     /** */
-    public rotate(intersection: BP3D.Core.Intersection<any>) {
+    public rotate(intersection: THREE.Intersection) {
       var angle = Core.Utils.angle(
         0,
         1,
@@ -238,7 +238,7 @@ module BP3D.Items {
     }
 
     /** */
-    public moveToPosition(vec3: THREE.Vector3, intersection: BP3D.Core.Intersection<any>) {
+    public moveToPosition(vec3: THREE.Vector3, intersection: THREE.Intersection) {
       this.position.copy(vec3);
     }
 

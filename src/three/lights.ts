@@ -27,7 +27,8 @@ module BP3D.Three {
 
       this.dirLight.shadowCameraFar = this.height + this.tol;
       this.dirLight.shadowBias = -0.0001;
-      this.dirLight.shadowDarkness = 0.2;
+      // FIXME: shadowDarkness field has disappeared in 0.69 -> 0.81.  Fix?
+      //this.dirLight.shadowDarkness = 0.2;
       this.dirLight.visible = true;
       // FIXME: This is now "legacy".
       //this.dirLight.shadowCameraVisible = false;

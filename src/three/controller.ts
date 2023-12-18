@@ -136,9 +136,12 @@ module BP3D.Three {
         var wallIntersects = this.getIntersections(
           this.mouse, wallEdgePlanes, true);
         if (wallIntersects.length > 0) {
-          var wall = wallIntersects[0].object.edge.wall;
-          this.three.wallClicked.fire(wall);
-          return;
+          const obj = wallIntersects[0].object as any;
+          const wall = obj?.edge?.wall;
+          if (wall instanceof Model.Wall) {
+            this.three.wallClicked.fire(wall);
+            return;
+          }
         }
 
         // check floors
@@ -343,8 +346,10 @@ module BP3D.Three {
         false, true);
 
       if (intersects.length > 0) {
-        // FIXME: this should not require a cast
-        this.intersectedObject = intersects[0].object;
+        const obj = intersects[0].object;
+        if (obj instanceof Items.Item) {
+          this.intersectedObject = obj;
+        }
       } else {
         this.intersectedObject = null;
       }
@@ -368,7 +373,7 @@ module BP3D.Three {
     }
 
     // returns the first intersection object
-    public itemIntersection(vec2: THREE.Vector2, item: Items.Item): Core.Intersection<Items.Item | THREE.Mesh> | null {
+    public itemIntersection(vec2: THREE.Vector2, item: Items.Item): THREE.Intersection | null {
       var customIntersections = item.customIntersectionPlanes();
       var intersections = null;
       if (customIntersections && customIntersections.length > 0) {
@@ -388,7 +393,7 @@ module BP3D.Three {
 
     // filter by normals will only return objects facing the camera
     // objects can be an array of objects or a single object
-    public getIntersections<O extends THREE.Mesh>(vec2: THREE.Vector2, objects: O[] | O, 
+    public getIntersections(vec2: THREE.Vector2, objects: THREE.Object3D[] | THREE.Object3D, 
           filterByNormals?: boolean, onlyVisible?: boolean, 
           recursive?: boolean, linePrecision?: number) {
 
@@ -405,11 +410,11 @@ module BP3D.Three {
         this.camera.position,
         direction);
       raycaster.linePrecision = linePrecision;
-      let intersections: Core.Intersection<O>[] = [];
+      let intersections: THREE.Intersection[] = [];
       if (objects instanceof Array) {
-        intersections = raycaster.intersectObjects(objects, recursive) as Core.Intersection<O>[];
+        intersections = raycaster.intersectObjects(objects, recursive);
       } else {
-        intersections = raycaster.intersectObject(objects, recursive) as Core.Intersection<O>[];
+        intersections = raycaster.intersectObject(objects, recursive);
       }
       // filter by visible, if true
       if (onlyVisible) {
