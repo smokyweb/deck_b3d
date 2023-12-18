@@ -90,10 +90,8 @@ module BP3D.Three {
     private state: STATE = STATE.NONE;
     private domElement: HTMLElement;
 
-    // FIXME:  event needs a type
-    private onMouseMoveHandler = (event: any) => this.onMouseMove(event);
-    // FIXME:  event needs a type
-    private onMouseUpHandler = (event: any) => this.onMouseUp();
+    private onMouseMoveHandler = (event: MouseEvent) => this.onMouseMove(event);
+    private onMouseUpHandler = (event: MouseEvent) => this.onMouseUp();
 
     constructor(public object: THREE.Camera, domElement?: HTMLElement | Document) {
 
