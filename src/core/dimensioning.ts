@@ -1,5 +1,5 @@
 /// <reference path="../core/configuration.ts" />
-import * as Core from './configuration';
+import * as Cfg from './configuration';
 
 
 /** Dimensioning in Inch. */
@@ -21,7 +21,7 @@ export class Dimensioning {
    * @returns String representation.
    */
   public static cmToMeasure(cm: number): string {
-    switch (Core.Configuration.getStringValue(Core.configDimUnit)) {
+    switch (Cfg.Configuration.getStringValue(Cfg.configDimUnit)) {
       case dimInch:
         var realFeet = ((cm * 0.393700) / 12);
         var feet = Math.floor(realFeet);
