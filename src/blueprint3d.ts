@@ -1,7 +1,7 @@
 
-import { Model } from 'model/model';
-import { Main } from 'three/main';
-import { Floorplanner } from 'floorplanner/floorplanner';
+import { Model } from './model/model';
+import { Main } from './three/main';
+import { Floorplanner } from './floorplanner/floorplanner';
 
 module BP3D {
   /** Startup options. */

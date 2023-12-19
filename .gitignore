@@ -14,3 +14,4 @@ example/js/blueprint3d.js
 example/js/three.min.js
 .vimrc
 *.swp
+example/js/blueprint3d*

@@ -19,14 +19,18 @@
     "@types/node": "^20.10.5",
     "@types/three": "^0.81.1",
     "three": "^0.81.2",
-    "typescript": "^5.0.0"
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.3.3",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/Ekki/blueprint3d.git"
   },
   "scripts": {
-    "build": "npm exec tsc && cp node_modules/three/build/three.min.js example/js",
+    "build": "npx webpack",
     "serve": "cd example; ./serve"
   },
   "author": ""
