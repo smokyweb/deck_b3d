@@ -247,7 +247,7 @@ class SideMenu {
   constructor(private blueprint3d: Blueprint3d, private floorplanControls: ViewerFloorplanner, private modalEffects: ModalEffects) {
     for (const [name, elem] of Object.entries(this.tabs)) {
       console.log(`adding click respone for ${name}`);
-      $(elem).click((event: JQueryMouseEventObject) => this.tabClicked(name as TabName));
+      elem.click(this.tabClicked(name as TabName));
     }
 
     $("#update-floorplan").click((event: MouseEvent) => this.floorplanUpdate());
@@ -361,7 +361,7 @@ class SideMenu {
       }
 
       objscope.blueprint3d.model.scene.addItem(itemType, modelUrl, metadata);
-      objscope.setCurrentState(this.states.DESIGN);
+      objscope.setCurrentState(objscope.states.DESIGN);
     });
   }
 
