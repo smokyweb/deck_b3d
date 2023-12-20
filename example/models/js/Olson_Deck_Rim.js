@@ -21,7 +21,6 @@
 		"DbgIndex" : 0,
 		"DbgName" : "Beadboard.004",
 		"blending" : "NormalBlending",
-		"colorAmbient" : [0.6839216334212068, 0.4486271925065992, 0.28235280934501894],
 		"colorDiffuse" : [0.6839216334212068, 0.4486271925065992, 0.28235280934501894],
 		"colorSpecular" : [0.16500000655651093, 0.16500000655651093, 0.16500000655651093],
 		"depthTest" : true,
@@ -30,7 +29,7 @@
 		"mapDiffuseWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 50,
-		"transparency" : 1.0,
+		"opacity" : 1.0,
 		"transparent" : false,
 		"vertexColors" : false
 	}],

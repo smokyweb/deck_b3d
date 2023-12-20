@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Scene } from '../model/scene';
 import { Floorplan as ModelFloorplan } from '../model/floorplan';
 
@@ -21,11 +21,14 @@ export class Lights {
 
     this.dirLight.castShadow = true;
 
-    this.dirLight.shadowMapWidth = 1024;
-    this.dirLight.shadowMapHeight = 1024;
+    this.dirLight.shadow.mapSize.width = 1024;
+    this.dirLight.shadow.mapSize.height = 1024;
 
-    this.dirLight.shadowCameraFar = this.height + this.tol;
-    this.dirLight.shadowBias = -0.0001;
+    const camera = this.dirLight.shadow.camera;
+    if (camera instanceof THREE.OrthographicCamera || camera instanceof THREE.PerspectiveCamera) {
+      camera.far = this.height + this.tol;
+    }
+    this.dirLight.shadow.bias = -0.0001;
     // FIXME: shadowDarkness field has disappeared in 0.69 -> 0.81.  Fix?
     //this.dirLight.shadowDarkness = 0.2;
     this.dirLight.visible = true;
@@ -53,19 +56,16 @@ export class Lights {
     this.dirLight.target.position.copy(center);
     //dirLight.updateMatrix();
     //dirLight.updateWorldMatrix()
-    this.dirLight.shadowCameraLeft = -d;
-    this.dirLight.shadowCameraRight = d;
-    this.dirLight.shadowCameraTop = d;
-    this.dirLight.shadowCameraBottom = -d;
-    // this is necessary for updates
-    const camera = this.dirLight?.shadow?.camera;
-    if (camera instanceof THREE.OrthographicCamera) {
-      // assume camera is orthographiccamera   
-      const c = camera as THREE.OrthographicCamera;
-      c.left = this.dirLight.shadowCameraLeft;
-      c.right = this.dirLight.shadowCameraRight;
-      c.top = this.dirLight.shadowCameraTop;
-      c.bottom = this.dirLight.shadowCameraBottom;
+    const c = this.dirLight.shadow.camera;
+    if (c instanceof THREE.OrthographicCamera) {
+      c.left = -d;
+      c.right = d;
+      c.top = d;
+      c.bottom = -d;
+    } else {
+      throw Error("shadow camera is not OrthographicCamera");
+    }
+    if (typeof c?.updateProjectionMatrix === 'function') {
       c.updateProjectionMatrix();
     }
   }

@@ -3,7 +3,7 @@
 import { Floorplan } from '../model/floorplan';
 import { Corner } from '../model/corner';
 import { Wall } from '../model/wall';
-import { FloorplannerView, floorplannerModes } from './floorplanner_view';
+import { FloorplannerView, floorplannerMode } from './floorplanner_view';
 /** how much will we move a corner to make a wall axis aligned (cm) */
 const snapTolerance = 25;
 
@@ -40,7 +40,7 @@ export class Floorplanner {
   private wallWidth: number;
 
   /** */
-  private modeResetCallbacks = $.Callbacks();
+  public modeResetCallbacks = $.Callbacks();
 
   /** */
   private canvasElement: JQuery<HTMLElement>;
@@ -94,7 +94,7 @@ export class Floorplanner {
 
     // Initialization:
 
-    this.setMode(floorplannerModes.MOVE);
+    this.setMode(floorplannerMode.MOVE);
 
     var scope = this;
 
@@ -124,12 +124,12 @@ export class Floorplanner {
 
   /** */
   private escapeKey() {
-    this.setMode(floorplannerModes.MOVE);
+    this.setMode(floorplannerMode.MOVE);
   }
 
   /** */
   private updateTarget() {
-    if (this.mode == floorplannerModes.DRAW && this.lastNode) {
+    if (this.mode == floorplannerMode.DRAW && this.lastNode) {
       if (Math.abs(this.mouseX - this.lastNode.x) < snapTolerance) {
         this.targetX = this.lastNode.x;
       } else {
@@ -156,13 +156,13 @@ export class Floorplanner {
     this.lastY = this.rawMouseY;
 
     // delete
-    if (this.mode == floorplannerModes.DELETE) {
+    if (this.mode == floorplannerMode.DELETE) {
       if (this.activeCorner) {
         this.activeCorner.removeAll();
       } else if (this.activeWall) {
         this.activeWall.remove();
       } else {
-        this.setMode(floorplannerModes.MOVE);
+        this.setMode(floorplannerMode.MOVE);
       }
     }
   }
@@ -184,12 +184,12 @@ export class Floorplanner {
     this.mouseY = (event.clientY - offset.top) * this.cmPerPixel + this.originY * this.cmPerPixel;
 
     // update target (snapped position of actual mouse)
-    if (this.mode == floorplannerModes.DRAW || (this.mode == floorplannerModes.MOVE && this.mouseDown)) {
+    if (this.mode == floorplannerMode.DRAW || (this.mode == floorplannerMode.MOVE && this.mouseDown)) {
       this.updateTarget();
     }
 
     // update object target
-    if (this.mode != floorplannerModes.DRAW && !this.mouseDown) {
+    if (this.mode != floorplannerMode.DRAW && !this.mouseDown) {
       var hoverCorner = this.floorplan.overlappedCorner(this.mouseX, this.mouseY);
       var hoverWall = this.floorplan.overlappedWall(this.mouseX, this.mouseY);
       var draw = false;
@@ -221,7 +221,7 @@ export class Floorplanner {
     }
 
     // dragging
-    if (this.mode == floorplannerModes.MOVE && this.mouseDown) {
+    if (this.mode == floorplannerMode.MOVE && this.mouseDown) {
       if (this.activeCorner) {
         this.activeCorner.move(this.mouseX, this.mouseY);
         this.activeCorner.snapToAxis(snapTolerance);
@@ -243,13 +243,13 @@ export class Floorplanner {
     this.mouseDown = false;
 
     // drawing
-    if (this.mode == floorplannerModes.DRAW && !this.mouseMoved) {
+    if (this.mode == floorplannerMode.DRAW && !this.mouseMoved) {
       var corner = this.floorplan.newCorner(this.targetX, this.targetY);
       if (this.lastNode != null) {
         this.floorplan.newWall(this.lastNode, corner);
       }
       if (corner.mergeWithIntersected() && this.lastNode != null) {
-        this.setMode(floorplannerModes.MOVE);
+        this.setMode(floorplannerMode.MOVE);
       }
       this.lastNode = corner;
     }
@@ -262,20 +262,20 @@ export class Floorplanner {
   }
 
   /** */
-  private reset() {
+  public reset() {
     this.resizeView();
-    this.setMode(floorplannerModes.MOVE);
+    this.setMode(floorplannerMode.MOVE);
     this.resetOrigin();
     this.view.draw();
   }
 
   /** */
-  private resizeView() {
+  public resizeView() {
     this.view.handleWindowResize();
   }
 
   /** */
-  private setMode(mode: number) {
+  public setMode(mode: number) {
     this.lastNode = null;
     this.mode = mode;
     this.modeResetCallbacks.fire(mode);

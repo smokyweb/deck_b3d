@@ -1,6 +1,6 @@
 /// <reference path="../../lib/jquery.d.ts" />
 
-import THREE from 'three';
+import * as THREE from 'three';
 
 import { HalfEdge } from './half_edge';
 import { Utils, FloorPlane, EdgePlane } from '../core/utils';
@@ -232,6 +232,7 @@ export class Floorplan {
   }
 
   public loadFloorplan(floorplan: any) {
+    console.log("loadFloorplan", floorplan);
     this.reset();
 
     var corners : {[index: string]: Corner} = {};
@@ -240,14 +241,17 @@ export class Floorplan {
       !("corners" in floorplan) ||
       !("walls" in floorplan)
     ) {
+      console.log("floorplan lacks something");
       return;
     }
     for (var id in floorplan.corners) {
+      console.log("adding corner");
       var corner = floorplan.corners[id];
       corners[id] = this.newCorner(corner.x, corner.y, id);
     }
     var scope = this;
     floorplan.walls.forEach((wall: any) => {
+      console.log("adding wall");
       var newWall = scope.newWall(
         corners[wall.corner1 as string],
         corners[wall.corner2 as string]

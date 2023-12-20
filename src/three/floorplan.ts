@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Floor } from './floor';
 import { Item } from '../items/item';
 import { Edge } from './edge';

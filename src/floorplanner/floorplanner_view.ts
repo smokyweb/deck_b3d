@@ -11,10 +11,10 @@ import { Floorplanner } from './floorplanner';
 
 
 /** */
-export const floorplannerModes = {
-  MOVE: 0,
-  DRAW: 1,
-  DELETE: 2
+export enum floorplannerMode {
+  MOVE,
+  DRAW,
+  DELETE
 };
 
 // grid parameters
@@ -102,7 +102,7 @@ export class FloorplannerView {
       this.drawCorner(corner);
     });
 
-    if (this.viewmodel.mode == floorplannerModes.DRAW) {
+    if (this.viewmodel.mode == floorplannerMode.DRAW) {
       this.drawTarget(this.viewmodel.targetX, this.viewmodel.targetY);
     }
 
@@ -131,7 +131,7 @@ export class FloorplannerView {
   private drawWall(wall: Wall) {
     var hover = (wall === this.viewmodel.activeWall);
     var color = wallColor;
-    if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
+    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {
       color = wallColorHover;
@@ -180,7 +180,7 @@ export class FloorplannerView {
   /** */
   private drawEdge(edge: HalfEdge, hover: boolean) {
     var color = edgeColor;
-    if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
+    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {
       color = edgeColorHover;
@@ -222,7 +222,7 @@ export class FloorplannerView {
   private drawCorner(corner: Corner) {
     var hover = (corner === this.viewmodel.activeCorner);
     var color = cornerColor;
-    if (hover && this.viewmodel.mode == floorplannerModes.DELETE) {
+    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {
       color = cornerColorHover;

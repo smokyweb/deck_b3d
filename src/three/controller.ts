@@ -1,5 +1,5 @@
 /// <reference path="../../lib/jquery.d.ts" />
-import THREE from 'three';
+import * as THREE from 'three';
 import { Utils } from '../core/utils';
 import { Main } from '../three/main';
 import { Scene } from '../model/scene';

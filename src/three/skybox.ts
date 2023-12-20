@@ -1,5 +1,5 @@
 
-import THREE from 'three';
+import * as THREE from 'three';
 import { Scene } from '../model/scene';
 
 export class Skybox {

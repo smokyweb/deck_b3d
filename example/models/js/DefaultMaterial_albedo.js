@@ -21,7 +21,6 @@
 		"DbgIndex" : 0,
 		"DbgName" : "DefaultMaterial",
 		"blending" : "NormalBlending",
-		"colorAmbient" : [0.480000026226044, 0.480000026226044, 0.480000026226044],
 		"colorDiffuse" : [0.480000026226044, 0.480000026226044, 0.480000026226044],
 		"colorSpecular" : [0.5, 0.5, 0.5],
 		"depthTest" : true,
@@ -32,7 +31,7 @@
 		"mapLightWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 1,
-		"transparency" : 1.0,
+		"opacity" : 1.0,
 		"transparent" : false,
 		"vertexColors" : false
 	}],

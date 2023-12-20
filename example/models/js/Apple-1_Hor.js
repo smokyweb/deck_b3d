@@ -21,7 +21,6 @@
 		"DbgIndex" : 0,
 		"DbgName" : "initialShadingGroup",
 		"blending" : "NormalBlending",
-		"colorAmbient" : [0.6400000190734865, 0.6400000190734865, 0.6400000190734865],
 		"colorDiffuse" : [0.6400000190734865, 0.6400000190734865, 0.6400000190734865],
 		"colorSpecular" : [0.5, 0.5, 0.5],
 		"depthTest" : true,
@@ -30,7 +29,7 @@
 		"mapDiffuseWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 50,
-		"transparency" : 1.0,
+		"opacity" : 1.0,
 		"transparent" : false,
 		"vertexColors" : false
 	}],

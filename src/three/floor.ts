@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Utils } from '../core/utils';
 import { Scene } from '../model/scene';
 import { Room } from '../model/room';

@@ -9,7 +9,7 @@ Contributors:
  */
 
 /// <reference path="../../lib/jquery.d.ts" />
-import THREE from 'three';
+import * as THREE from 'three';
 
 const EPS = 0.000001;
 // The four arrow keys

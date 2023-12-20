@@ -28,7 +28,6 @@
 		"DbgIndex" : 1,
 		"DbgName" : "wood",
 		"blending" : "NormalBlending",
-		"colorAmbient" : [0.6400000190734865, 0.6400000190734865, 0.6400000190734865],
 		"colorDiffuse" : [0.6400000190734865, 0.6400000190734865, 0.6400000190734865],
 		"colorEmissive" : [0.0, 0.0, 0.0],
 		"colorSpecular" : [0.5, 0.5, 0.5],
@@ -38,7 +37,7 @@
 		"mapDiffuseWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 50,
-		"transparency" : 1.0,
+		"opacity" : 1.0,
 		"transparent" : false,
 		"vertexColors" : false
 	}],

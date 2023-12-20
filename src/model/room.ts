@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 /// <reference path="../../lib/jquery.d.ts" />
 import { Utils, Point, FloorPlane } from '../core/utils';
 import { Corner } from './corner';

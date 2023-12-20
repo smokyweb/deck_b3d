@@ -1,4 +1,4 @@
-import THREE from 'three';
+import * as THREE from 'three';
 import { Utils } from '../core/utils';
 import { Factory } from '../items/factory';
 import { Item } from '../items/item';
@@ -24,7 +24,7 @@ export class Scene {
   private loader: THREE.JSONLoader;
 
   /** */
-  private itemLoadingCallbacks = $.Callbacks();
+  public itemLoadingCallbacks = $.Callbacks();
 
   /** Item */
   // FIXME: add public method boilerplate for this
@@ -172,7 +172,7 @@ export class Scene {
    * @param scale The initial scaling.
    * @param fixed True if fixed.
    */
-  public addItem(itemType: number, fileName: string, metadata: any, position: THREE.Vector3, rotation: number, scale: THREE.Vector3, fixed: boolean) {
+  public addItem(itemType: number, fileName: string, metadata: any, position?: THREE.Vector3, rotation?: number, scale?: THREE.Vector3, fixed?: boolean) {
     itemType = itemType || 1;
     var scope = this;
     var loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {

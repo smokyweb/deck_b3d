@@ -21,7 +21,6 @@
 		"DbgIndex" : 0,
 		"DbgName" : "bake_mat",
 		"blending" : "NormalBlending",
-		"colorAmbient" : [1.0, 1.0, 1.0],
 		"colorDiffuse" : [1.0, 1.0, 1.0],
 		"colorEmissive" : [0.0, 0.0, 0.0],
 		"colorSpecular" : [0.5, 0.5, 0.5],
@@ -31,7 +30,7 @@
 		"mapDiffuseWrap" : ["repeat", "repeat"],
 		"shading" : "Lambert",
 		"specularCoef" : 50,
-		"transparency" : 1.0,
+		"opacity" : 1.0,
 		"transparent" : false,
 		"vertexColors" : false
 	}],

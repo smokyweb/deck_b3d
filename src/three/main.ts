@@ -1,6 +1,6 @@
 /// <reference path="../../lib/jquery.d.ts" />
 
-import THREE from 'three';
+import * as THREE from 'three';
 import { Controller } from './controller';
 import { Floorplan } from './floorplan';
 import { Lights } from './lights';
@@ -78,10 +78,10 @@ export class Main {
       preserveDrawingBuffer: true // required to support .toDataURL()
     });
     this.renderer.autoClear = false,
-    this.renderer.shadowMapEnabled = true;
+    this.renderer.shadowMap.enabled = true;
     // FIXME: not in three.js 81
     //this.renderer.shadowMapSoft = true;
-    this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.scene = model.scene;
     var skybox = new Skybox(this.scene);
@@ -165,7 +165,12 @@ export class Main {
     }
   }
 
+  private nrenders: number = 0;
   private render() {
+    if (this.nrenders < 10) {
+      //console.log("Three.Main.render() scene=", this.scene, " camera=", this.camera);
+    }
+    this.nrenders++;
     this.spin();
     if (this.shouldRender()) {
       this.renderer.clear();
