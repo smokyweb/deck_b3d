@@ -1,11 +1,13 @@
 /// <reference path="../../lib/jquery.d.ts" />
 import * as THREE from 'three';
 import { Utils } from '../core/utils';
-import { Main } from '../three/main';
+import { Main as ThreeMain } from '../three/main';
 import { Scene } from '../model/scene';
 import { Item } from '../items/item';
 import { Model } from '../model/model';
 import { Wall } from '../model/wall';
+import { Controls } from './controls';
+import { HUD } from './hud';
 
 enum State {
   UNSELECTED = 0, // no object selected
@@ -27,7 +29,7 @@ function stateName(s: State): string {
     default: throw Error(`stateName: invalid state ${s}`); 
   }
 }
-// TODO: Turn this into a proper class
+
 export class Controller {
   private enabled: boolean = true;
   private scene: Scene;
@@ -44,12 +46,10 @@ export class Controller {
   private state = State.UNSELECTED;
 
   // fixme:  three should be a Three.Main class
-  // fixme:  controls should be a class
-  // fixme:  hud should be a Three.HUD class
-  constructor(private three: any, 
+  constructor(private three: ThreeMain, 
               private model: Model, public camera: THREE.Camera, 
-              element: JQuery, private controls: any, 
-              private hud: any) 
+              element: JQuery, private controls: Controls, 
+              private hud: HUD) 
   {
     this.scene = model.scene;
     const elt = element.get(0);
@@ -284,9 +284,10 @@ export class Controller {
     console.log("onEntry", stateName(state))
     switch (this.state) {
       case State.UNSELECTED:
-        this.setSelectedObject(null);
-      case State.SELECTED:
         this.controls.enabled = true;
+        break;
+      case State.SELECTED:
+        this.controls.enabled = false;
         break;
       case State.ROTATING:
       case State.ROTATING_FREE:
@@ -438,22 +439,22 @@ export class Controller {
 
   // manage the selected object
   public setSelectedObject(object: Item | null) {
-    if (object === null && this.state === State.UNSELECTED) {
-      return; // prevent infinite loop in this horrible code
+    if (this.selectedObject === object) {
+      return; // anything else would be redundant
     }
-    if (this.state === State.UNSELECTED) {
-      this.switchState(State.SELECTED);
-    }
+
     if (this.selectedObject != null) {
       this.selectedObject.setUnselected();
+      this.three.itemUnselectedCallbacks.fire();
+      this.selectedObject = null;
     }
     if (object != null) {
       this.selectedObject = object;
+      this.switchState(State.SELECTED);
       this.selectedObject.setSelected();
       this.three.itemSelectedCallbacks.fire(object);
     } else {
-      this.selectedObject = null;
-      this.three.itemUnselectedCallbacks.fire();
+      this.switchState(State.UNSELECTED);
     }
     this.needsUpdate = true;
   }

@@ -32,7 +32,7 @@ enum STATE {
 
 export class Controls {
   // Set to false to disable this control
-  private enabled: Boolean = true;
+  public enabled: Boolean = true;
   // "target" sets the location of focus, where the control orbits around
   // and where it pans with respect to.
   public target: THREE.Vector3 = new THREE.Vector3();
@@ -90,7 +90,7 @@ export class Controls {
   private domElement: HTMLElement;
 
   private onMouseMoveHandler = (event: MouseEvent) => this.onMouseMove(event);
-  private onMouseUpHandler = (event: MouseEvent) => this.onMouseUp();
+  private onMouseUpHandler = (event: MouseEvent) => this.onMouseUp(event);
 
   constructor(public object: THREE.Camera, domElement?: HTMLElement | Document) {
 
@@ -201,11 +201,11 @@ export class Controls {
     this.update()
   };
 
-  private panXY(x: number, y: number) {
+  public panXY(x: number, y: number) {
     this.doPan(new THREE.Vector2(x, y));
   }
 
-  private dollyOut(dollyScale?: number) {
+  public dollyOut(dollyScale?: number) {
     if (dollyScale === undefined) {
       dollyScale = this.getZoomScale();
     }
@@ -214,7 +214,7 @@ export class Controls {
     console.log("dollyOut, new scale is ", this.scale);
   }
 
-  private dollyIn(dollyScale?: number) {
+  public dollyIn(dollyScale?: number) {
     if (dollyScale === undefined) {
       dollyScale = this.getZoomScale();
     }
@@ -258,6 +258,8 @@ export class Controls {
     offset.y = radius * Math.cos(phi);
     offset.z = radius * Math.sin(phi) * Math.cos(theta);
 
+    // this is the position member of the camera object
+    // so it actually changes the camera.
     position.copy(this.target).add(offset);
 
     this.object.lookAt(this.target);
@@ -279,9 +281,9 @@ export class Controls {
     return Math.pow(0.95, this.zoomSpeed);
   }
 
-  // FIXME: event should have a type
   // FIXME: Handle multiple button presses
   private onMouseDown(event: MouseEvent) {
+    console.log("three/controls.onMouseDown", event);
 
     if (this.enabled === false) { return; }
     event.preventDefault();
@@ -317,8 +319,8 @@ export class Controls {
     this.domElement.addEventListener('mouseup', this.onMouseUpHandler, false);
   }
 
-  // FIXME:  event needs a type
-  private onMouseMove(event: any) {
+  private onMouseMove(event: MouseEvent) {
+    console.log("Three.Controls.onMouseMove", event);
 
     if (this.enabled === false) return;
 
@@ -373,7 +375,8 @@ export class Controls {
     this.update();
   }
 
-  private onMouseUp( /* event */) {
+  private onMouseUp(event: MouseEvent) {
+    console.log("Three.Controls.onMouseUp", event);
     if (this.enabled === false) return;
 
     // FIXME: Yet another crime against humanity.  This doesn't work when multiple

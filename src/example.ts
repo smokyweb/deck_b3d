@@ -6,6 +6,7 @@ import { Item } from './items/item';
 import { Main as ThreeMain } from './three/main';
 import { HalfEdge } from './model/half_edge';
 import { Room } from './model/room';
+import { Controls as OrbitControls } from './three/controls';
 
 /*
  * Camera Buttons
@@ -13,8 +14,8 @@ import { Room } from './model/room';
 
 class CameraButtons {
 
-  private orbitControls;
-  private three;
+  private orbitControls: OrbitControls;
+  private three: ThreeMain;
 
   private panSpeed = 30;
   private directions = {
@@ -33,7 +34,7 @@ class CameraButtons {
     $("#zoom-in").dblclick((e: MouseEvent) => this.preventDefault(e));
     $("#zoom-out").dblclick((e: MouseEvent) => this.preventDefault(e));
 
-    $("#reset-view").click((e: MouseEvent) => this.three.centerCamera(e))
+    $("#reset-view").click((e: MouseEvent) => this.three.centerCamera())
 
     $("#move-left").click((e: MouseEvent) => this.pan(this.directions.LEFT));
     $("#move-right").click((e: MouseEvent) => this.pan(this.directions.RIGHT));

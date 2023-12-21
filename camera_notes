@@ -1,0 +1,60 @@
+Places where the camera is messed with:
+
+in example.ts, camera buttons are implemented.  They defer to Three/Controls.
+
+Three/Controls "is a modified version of THREE.OrbitControls".
+  public interface:
+    target: Vector3
+    needsUpdate: Boolean
+    rotateLeft(angle: number) // only used by three/main for spin
+      modifies thetaDelta, does not mark as needing update
+
+    cameraMovedCallbacks
+    panXY(x, y)
+    dollyOut: changes this.scale
+    dollyIn: changes this.scale
+    update: 
+      Takes current camera position, orientation, and target
+      calculates theta, phi, and radius between camera and targett
+      adds in thetaDelta, phiDelta to angles
+      multiplies radius by scale
+      calculates new offset vector from theta, phi, and radius
+      adds in pan to target.
+      zeros out thetaDelta, phiDelta, scale, pan
+      positions camera at target + offset, looks at target
+  private interface:
+    pan: represents a delta x and y to be added to 'target' when camera is updated
+    panTo: Modifies 'pan' and immediately updates
+    rotateUp modifies phiDelta
+    panLeft: looks at camera matrix, figures out left direction, adds multiple to this.pan
+    panUp: same as panLeft but up.
+    doPan: does a bunch of math then calls panLeft and panUp , then forces update
+    panXY: defers to doPan
+    onMouseDown:
+      does preventDefault()
+      buttons 0,1,2 begin rotate, dolly, pan respectively.
+        rotate: state = ROTATE and initialize rotateStart
+        dolly: state = DOLLY and initialize dollyStart
+        pan: state = PAN and initialize panStart
+      CRIME AGAINST HUMANITY:  adds in mousemove and mouseup handlers to domElement
+    onMouseMove:
+      preventDefault
+        rotate: set rotateEnd, set rotateDelta = end - start, calls rotateLeft and rotateUp based on
+              rotateDelta.x and y respectively.  Then sets rotateStart = rotateEnd
+        dolly: set dollyEnd.  calc dollyDelta = end - start, calls dollyIn or dollyOut depending on 
+            sign of dollyDelta, sets dollyStart=dollyEnd
+        pan:  set panEnd, calc panDelta = panEnd - start, cal doPan(panDelta), set panStart=panEnd
+    onMouseUp:
+      CRIME AGAINST HUMANITY: remove mousemove and mouseup handlers
+             
+
+Three/controller.ts
+  modes are UNSELECTED, SELECTED, DRAGGING, ROTATING, ROTATING_FREE, PANNING
+  also adds mousedown, mouseup, and mousemove handlers to HTMLElement
+
+
+
+
+
+
+

@@ -58,12 +58,12 @@ export class HUD {
     this.resetSelectedItem();
   }
 
-  private setRotating(isRotating: boolean) {
+  public setRotating(isRotating: boolean) {
     this.rotating = isRotating;
     this.setColor();
   }
 
-  private setMouseover(isMousedOver: boolean) {
+  public setMouseover(isMousedOver: boolean) {
     this.mouseover = isMousedOver;
     this.setColor();
   }
@@ -85,7 +85,7 @@ export class HUD {
     return (this.mouseover || this.rotating) ? this.hoverColor : this.color;
   }
 
-  private update() {
+  public update() {
     if (this.activeObject && this.selectedItem) {
       this.activeObject.rotation.y = this.selectedItem.rotation.y;
       this.activeObject.position.x = this.selectedItem.position.x;

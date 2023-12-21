@@ -43,17 +43,17 @@ export class Main {
   private hud: HUD;
 
   // FIXME:  These aren't properly initialized
-  private heightMargin: number = 10;
-  private widthMargin: number = 10;
+  public heightMargin: number = 10;
+  public widthMargin: number = 10;
   private elementHeight: number = 10;
   private elementWidth: number = 10;
 
   public itemSelectedCallbacks = $.Callbacks(); // item
   public itemUnselectedCallbacks = $.Callbacks();
 
-  private wallClicked = $.Callbacks(); // wall
-  private floorClicked = $.Callbacks(); // floor
-  private nothingClicked = $.Callbacks();
+  public wallClicked = $.Callbacks(); // wall
+  public floorClicked = $.Callbacks(); // floor
+  public nothingClicked = $.Callbacks();
 
   constructor(private model: Model, element: string, private _canvasElement: any, opts: any) {
     this.element = $(element);
@@ -189,7 +189,7 @@ export class Main {
     this.render();
   };
 
-  private setCursorStyle(cursorStyle: string) {
+  public setCursorStyle(cursorStyle: string) {
     this.domElement.style.cursor = cursorStyle;
   };
 
@@ -214,7 +214,7 @@ export class Main {
       this.needsUpdate = true;
   }
 
-  private centerCamera() {
+  public centerCamera() {
     var yOffset = 150.0;
 
     var pan = this.model.floorplan.getCenter();
@@ -234,7 +234,7 @@ export class Main {
 
   // projects the object's center point into x,y screen coords
   // x,y are relative to top left corner of viewer
-  projectVector(vec3: THREE.Vector3, ignoreMargin: boolean) {
+  projectVector(vec3: THREE.Vector3, ignoreMargin?: boolean) {
     ignoreMargin = ignoreMargin || false;
 
     var widthHalf = this.elementWidth / 2;
