@@ -1,4 +1,3 @@
-/// <reference path="../../lib/jquery.d.ts" />
 
 import { Floorplan } from '../model/floorplan';
 import { Corner } from '../model/corner';

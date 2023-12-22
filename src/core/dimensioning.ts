@@ -1,4 +1,3 @@
-/// <reference path="../core/configuration.ts" />
 import * as Cfg from './configuration';
 
 

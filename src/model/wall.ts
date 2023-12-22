@@ -1,6 +1,3 @@
-/// <reference path="../../lib/three.d.ts" />
-/// <reference path="../../lib/jquery.d.ts" />
-
 import * as Cfg  from '../core/configuration';
 import { Utils } from '../core/utils';
 import { Item } from '../items/item';

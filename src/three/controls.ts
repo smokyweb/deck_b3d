@@ -8,7 +8,6 @@ Contributors:
  * @author erich666 / http://erichaines.com
  */
 
-/// <reference path="../../lib/jquery.d.ts" />
 import * as THREE from 'three';
 
 const EPS = 0.000001;
@@ -32,7 +31,14 @@ enum STATE {
 
 export class Controls {
   // Set to false to disable this control
-  public enabled: Boolean = true;
+  private _enabled: boolean = true;
+  get enabled(): boolean {
+    return this._enabled;
+  }
+  set enabled(v: boolean) {
+    console.log("Controls.enabled", v);
+    this._enabled = v;
+  }
   // "target" sets the location of focus, where the control orbits around
   // and where it pans with respect to.
   public target: THREE.Vector3 = new THREE.Vector3();
@@ -283,7 +289,7 @@ export class Controls {
 
   // FIXME: Handle multiple button presses
   private onMouseDown(event: MouseEvent) {
-    console.log("three/controls.onMouseDown", event);
+    console.log("three/controls.onMouseDown event:", event, "enabled:", this.enabled);
 
     if (this.enabled === false) { return; }
     event.preventDefault();

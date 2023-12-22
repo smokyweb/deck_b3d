@@ -1,4 +1,3 @@
-/// <reference path="../../lib/jquery.d.ts" />
 import * as THREE from 'three';
 import { Utils } from '../core/utils';
 import { Main as ThreeMain } from '../three/main';
@@ -35,7 +34,16 @@ export class Controller {
   private scene: Scene;
   private plane: THREE.Mesh | null = null;
   private mouse = new THREE.Vector2();;
-  private intersectedObject: Item | null = null;
+  private _intersectedObject: Item | null = null;
+  get intersectedObject(): Item | null {
+    return this._intersectedObject;
+  }
+  set intersectedObject(obj: Item | null) {
+    if (obj !== this._intersectedObject) {
+      console.log("intersectedObject changed: from=", this._intersectedObject, "to=", obj);
+    }
+    this._intersectedObject = obj;
+  }
   private mouseoverObject: Item | null = null;
   private selectedObject: Item | null = null;
   private mouseDown: boolean = false;
@@ -74,7 +82,6 @@ export class Controller {
   public itemLoaded(item: Item) {
     if (!item.position_set) {
       this.setSelectedObject(item);
-      this.switchState(State.DRAGGING);
       var pos = item.position.clone();
       pos.y = 0;
       var vec = this.three.projectVector(pos);
@@ -90,23 +97,41 @@ export class Controller {
       var intersection = this.itemIntersection(this.mouse, sel);
       console.log("controller.clickPressed", intersection);
       if (intersection) {
+        console.log("controller.clickPressed found intersection");
         sel.clickPressed(intersection);
+      } else {
+        console.log("controller.clickPressed missed");
       }
     }
   }
 
   public clickDragged(vec2?: THREE.Vector2) {
+    console.log("controller clickDragged");
     vec2 = vec2 || this.mouse;
     const sel = this.selectedObject;
+    let didnothing = true;
     if (sel) {
       var intersection = this.itemIntersection(this.mouse, sel);
       if (intersection) {
         if (this.isRotating()) {
+          console.log("controller.clickDragged is rotating");
           sel.rotate(intersection);
+          didnothing = false;
         } else {
+          console.log("controller.clickDragged is moving an item");
           sel.clickDragged(intersection);
+          didnothing = false;
         }
+      } else {
+        console.log("controller.clickDragged got null intersection");
       }
+
+    } else {
+      console.log("controller.clickDragged got null selection");
+    }
+
+    if (didnothing) {
+      console.log("controller.clickDragged did nothing");
     }
   }
 
@@ -130,7 +155,7 @@ export class Controller {
     this.scene.add(this.plane);
   }
 
-  public checkWallsAndFloors(event?: any) {
+  public checkWallsAndFloors(event?: MouseEvent) {
 
     // double click on a wall or floor brings up texture change modal
     if (this.state == State.UNSELECTED && this.mouseoverObject === null) {
@@ -165,6 +190,7 @@ export class Controller {
 
   public mouseMoveEvent(event: MouseEvent) {
     if (this.enabled) {
+      console.log("controller mouseMove", event, stateName(this.state));
       event.preventDefault();
 
       this.mouseMoved = true;
@@ -178,10 +204,7 @@ export class Controller {
 
       switch (this.state) {
         case State.UNSELECTED:
-          this.updateMouseover();
-          break;
         case State.SELECTED:
-          this.updateMouseover();
           break;
         case State.DRAGGING:
         case State.ROTATING:
@@ -202,6 +225,8 @@ export class Controller {
     if (this.enabled) {
       console.log("controller mouseDown", event, stateName(this.state));
       event.preventDefault();
+
+      this.updateIntersections(event);
 
       this.mouseMoved = false;
       this.mouseDown = true;
@@ -255,16 +280,7 @@ export class Controller {
           }
           break;
         case State.UNSELECTED:
-          if (!this.mouseMoved) {
-            this.checkWallsAndFloors();
-          }
-          break;
         case State.SELECTED:
-          if (this.intersectedObject == null && !this.mouseMoved) {
-            this.switchState(State.UNSELECTED);
-            this.checkWallsAndFloors();
-          }
-          break;
         case State.ROTATING_FREE:
           break;
       }
@@ -272,6 +288,7 @@ export class Controller {
   }
 
   public switchState(newState: State) {
+    console.trace(`switchState from ${stateName(this.state)} to ${stateName(newState)}`);
     if (newState != this.state) {
       this.onExit(this.state);
       this.onEntry(newState);
@@ -323,7 +340,12 @@ export class Controller {
   // updates the vector of the intersection with the plane of a given
   // mouse position, and the intersected object
   // both may be set to null if no intersection found
-  public updateIntersections() {
+  public updateIntersections(event?: MouseEvent) {
+    console.log("updateIntersections entry");
+    if (event) {
+      this.mouse.x = event.clientX;
+      this.mouse.y = event.clientY;
+    }
 
     // check the rotate arrow
     var hudObject = this.hud.getObject();
@@ -333,6 +355,7 @@ export class Controller {
         hudObject,
         false, false, true);
       if (hudIntersects.length > 0) {
+        console.log("updateIntersections: hud object selected");
         this.rotateMouseOver = true;
         this.hud.setMouseover(true);
         this.intersectedObject = null;
@@ -348,32 +371,26 @@ export class Controller {
       this.mouse,
       items,
       false, true);
+    console.log("intersects: ", intersects);
 
     if (intersects.length > 0) {
       const obj = intersects[0].object;
       if (obj instanceof Item) {
+        console.log("updateIntersections: item selected", obj);
         this.intersectedObject = obj;
       }
     } else {
+      console.log("updateIntersections: no item selected");
       this.intersectedObject = null;
     }
   }
 
   // sets coords to -1 to 1
-  public normalizeVector2(vec2: THREE.Vector2) {
+  public screenNormalPointer(vec2: THREE.Vector2) {
     var retVec = new THREE.Vector2();
-    retVec.x = ((vec2.x - this.three.widthMargin) / (window.innerWidth - this.three.widthMargin)) * 2 - 1;
-    retVec.y = -((vec2.y - this.three.heightMargin) / (window.innerHeight - this.three.heightMargin)) * 2 + 1;
+    retVec.x = (vec2.x / window.innerWidth) * 2 - 1;
+    retVec.y = -(vec2.y / window.innerHeight) * 2 + 1;
     return retVec;
-  }
-
-  //
-  public mouseToVec3(vec2: THREE.Vector2) {
-    var normVec2 = this.normalizeVector2(vec2)
-    var vector = new THREE.Vector3(
-      normVec2.x, normVec2.y, 0.5);
-    vector.unproject(this.camera);
-    return vector;
   }
 
   // returns the first intersection object
@@ -399,27 +416,30 @@ export class Controller {
   // objects can be an array of objects or a single object
   public getIntersections(vec2: THREE.Vector2, objects: THREE.Object3D[] | THREE.Object3D, 
         filterByNormals?: boolean, onlyVisible?: boolean, 
-        recursive?: boolean, linePrecision?: number) {
+        recursive?: boolean, linePrecision?: number): THREE.Intersection[] {
 
-    var vector = this.mouseToVec3(vec2);
 
     onlyVisible = onlyVisible || false;
     filterByNormals = filterByNormals || false;
     recursive = recursive || false;
-    linePrecision = linePrecision || 20;
 
+    var raycaster = new THREE.Raycaster();
+    const normPointer = this.screenNormalPointer(vec2);
+    raycaster.setFromCamera(normPointer, this.camera);
+    
 
-    var direction = vector.sub(this.camera.position).normalize();
-    var raycaster = new THREE.Raycaster(
-      this.camera.position,
-      direction);
-    raycaster.linePrecision = linePrecision;
+    if (typeof linePrecision !== 'undefined') {
+      raycaster.linePrecision = linePrecision;
+    }
     let intersections: THREE.Intersection[] = [];
     if (objects instanceof Array) {
+      console.log("array", objects);
       intersections = raycaster.intersectObjects(objects, recursive);
     } else {
+      console.log("singular", objects);
       intersections = raycaster.intersectObject(objects, recursive);
     }
+    console.log("getIntersections", intersections);
     // filter by visible, if true
     if (onlyVisible) {
       intersections = Utils.removeIf(intersections, function (intersection) {
@@ -430,10 +450,11 @@ export class Controller {
     // filter by normals, if true
     if (filterByNormals) {
       intersections = Utils.removeIf(intersections, function (intersection) {
-        var dot = intersection.face.normal.dot(direction);
+        var dot = intersection.face.normal.dot(raycaster.ray.direction);
         return (dot > 0)
       });
     }
+    console.log("getIntersections after filtering", intersections);
     return intersections;
   }
 

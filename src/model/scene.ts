@@ -4,7 +4,7 @@ import { Factory } from '../items/factory';
 import { Item } from '../items/item';
 import { Model } from './model';
 import { Wall } from './wall';
-/// <reference path="../../lib/jquery.d.ts" />
+import { Metadata } from '../items/metadata';
 
 /**
  * The Scene is a manager of Items and also links to a ThreeJS scene.
@@ -172,9 +172,10 @@ export class Scene {
    * @param scale The initial scaling.
    * @param fixed True if fixed.
    */
-  public addItem(itemType: number, fileName: string, metadata: any, position?: THREE.Vector3, rotation?: number, scale?: THREE.Vector3, fixed?: boolean) {
+  public addItem(itemType: number, fileName: string, metadata: Metadata, position?: THREE.Vector3, rotation?: number, scale?: THREE.Vector3, fixed?: boolean) {
     itemType = itemType || 1;
     var scope = this;
+    // FIXME:  Make this an arrow function, get rid of scope
     var loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
       var item = new (Factory.getClass(itemType))(
         scope.model,

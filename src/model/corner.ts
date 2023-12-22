@@ -1,4 +1,3 @@
-/// <reference path="../../lib/jquery.d.ts" />
 
 import { Utils } from '../core/utils';
 import { Floorplan } from './floorplan';

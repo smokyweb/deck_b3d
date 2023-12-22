@@ -1,4 +1,3 @@
-/// <reference path="../../lib/jquery.d.ts" />
 import * as THREE from 'three';
 import { Utils, Point } from '../core/utils';
 import { Scene } from '../model/scene';

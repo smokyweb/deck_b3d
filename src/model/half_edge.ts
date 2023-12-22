@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-/// <reference path="../../lib/jquery.d.ts" />
 import { Utils, EdgePlane, Point } from '../core/utils';
 import { Room } from './room';
 import { Wall } from './wall';
