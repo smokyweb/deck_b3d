@@ -69,7 +69,7 @@ export class Room {
   /** 
    * textureStretch always true, just an argument for consistency with walls
    */
-  private setTexture(textureUrl: string, textureStretch: boolean, textureScale: number) {
+  public setTexture(textureUrl: string, textureStretch: boolean, textureScale: number) {
     var uuid = this.getUuid();
     this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
     this.floorChangeCallbacks.fire();

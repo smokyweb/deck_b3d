@@ -476,9 +476,9 @@ export class Utils {
   }
 
   /** Returns in the unique elemnts in arr */
-  static unique<T>(arr: T[], hashFunc: (arg: T) => PropertyKey): T[] {
+  static unique<T>(arr: T[], hashFunc: (arg: T) => string): T[] {
     var tResults = [];
-    var tMap: any = {};
+    var tMap: { [index: string]: boolean} = {};
     for (var tI = 0; tI < arr.length; tI++) {
       const pk = hashFunc(arr[tI]);
       if (!tMap.hasOwnProperty(pk)) {

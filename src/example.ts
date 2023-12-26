@@ -378,7 +378,7 @@ class TextureSelector {
   // FIXME: Make sure this is unnecessary
   // private isAdmin = isAdmin;
 
-  private currentTarget: any | null = null;
+  private currentTarget: HalfEdge | Room | null = null;
 
   private initTextureSelectors() {
     const objscope = this;
@@ -388,7 +388,7 @@ class TextureSelector {
       var textureStretch = ($(eltscope).attr("texture-stretch") == "true");
       var textureScale = parseInt($(eltscope).attr("texture-scale") || "1");
       const t = objscope.currentTarget;
-      if (t && t?.setTexture && typeof t.setTexture === "function") {
+      if (t && textureUrl) { 
         t.setTexture(textureUrl, textureStretch, textureScale);
       }
       event.preventDefault();

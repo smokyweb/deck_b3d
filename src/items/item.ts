@@ -17,7 +17,16 @@ export abstract class Item extends THREE.Mesh {
   private errorGlow = new THREE.Mesh();
 
   /** */
-  private hover = false;
+  private _hover: boolean = false;
+  get hover(): boolean {
+    return this._hover;
+  }
+  set hover(b: boolean) {
+    if (b != this._hover) {
+      this._hover = b;
+      this.scene.needsUpdate = true;
+    }
+  }
 
   /** */
   private selected = false;

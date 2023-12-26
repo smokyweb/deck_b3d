@@ -1,6 +1,6 @@
 
 import { Model } from './model/model';
-import { Main } from './three/main';
+import { Main as ThreeMain } from './three/main';
 import { Floorplanner } from './floorplanner/floorplanner';
 
 /** Startup options. */
@@ -12,7 +12,7 @@ export interface Options {
   threeElement: string;
 
   /** */
-  threeCanvasElement? : string;
+  threeCanvasElement : string;
 
   /** */
   floorplannerElement?: string;
@@ -26,7 +26,7 @@ export class Blueprint3d {
   
   public model: Model;
 
-  public three: any; // Main;
+  public three: ThreeMain; 
 
   public floorplanner: Floorplanner | null = null;
 
@@ -35,7 +35,7 @@ export class Blueprint3d {
    */
   constructor(options: Options) {
     this.model = new Model(options.textureDir);
-    this.three = new Main(this.model, options.threeElement, options.threeCanvasElement, {});
+    this.three = new ThreeMain(this.model, options.threeElement, options.threeCanvasElement, {});
 
     if (options.floorplannerElement === undefined) {
       throw Error("can't construct Blueprint3d because no options.floorplannerElement");

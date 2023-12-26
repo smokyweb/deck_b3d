@@ -27,7 +27,7 @@ export class Main {
 
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
-  private controls: Controls;
+  public controls: Controls;
   // apparently superfluous
   //private canvas: Three.Canvas;
   private controller: Controller;
@@ -54,7 +54,7 @@ export class Main {
   public floorClicked = $.Callbacks(); // floor
   public nothingClicked = $.Callbacks();
 
-  constructor(private model: Model, element: string, private _canvasElement: any, opts: any) {
+  constructor(private model: Model, element: string, private canvasElement: string, opts: any) {
     this.element = $(element);
     // override with manually set options
     for (var opt in this.options) {
@@ -89,10 +89,10 @@ export class Main {
 
     this.hud = new HUD(this);
 
-    this.controller = new Controller(
-      this, model, this.camera, this.element, this.controls, this.hud);
-
     this.domElement.appendChild(this.renderer.domElement);
+
+    this.controller = new Controller(
+      this, model, this.camera, this.renderer.domElement, this.controls, this.hud);
 
     // handle window resizing
     this.updateWindowSize();
@@ -131,7 +131,7 @@ export class Main {
     return dataUrl;
   }
 
-  private stopSpin() {
+  public stopSpin() {
     this.hasClicked = true;
   }
 
@@ -143,7 +143,7 @@ export class Main {
     return this.scene;
   }
 
-  private getController() {
+  public getController() {
     return this.controller;
   }
 
@@ -192,7 +192,7 @@ export class Main {
     this.domElement.style.cursor = cursorStyle;
   };
 
-  private updateWindowSize() {
+  public updateWindowSize() {
     this.heightMargin = this.domElement.offsetTop;
     this.widthMargin = this.domElement.offsetLeft;
 

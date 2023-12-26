@@ -30,9 +30,9 @@ function stateName(s: State): string {
 }
 
 export class Controller {
-  private enabled: boolean = true;
+  public enabled: boolean = true;
   private scene: Scene;
-  private plane: THREE.Mesh | null = null;
+  private groundPlane: THREE.Mesh | null = null;
   private mouse = new THREE.Vector2();;
   private _intersectedObject: Item | null = null;
   get intersectedObject(): Item | null {
@@ -40,7 +40,7 @@ export class Controller {
   }
   set intersectedObject(obj: Item | null) {
     if (obj !== this._intersectedObject) {
-      console.log("intersectedObject changed: from=", this._intersectedObject, "to=", obj);
+      //console.log("intersectedObject changed: from=", this._intersectedObject, "to=", obj);
     }
     this._intersectedObject = obj;
   }
@@ -56,19 +56,11 @@ export class Controller {
   // fixme:  three should be a Three.Main class
   constructor(private three: ThreeMain, 
               private model: Model, public camera: THREE.Camera, 
-              element: JQuery, private controls: Controls, 
+              private htmlElement: HTMLElement, private controls: Controls, 
               private hud: HUD) 
   {
     this.scene = model.scene;
-    const elt = element.get(0);
-
-    if (!elt) {
-      throw Error("Three.controller element is falsey");
-    }
-    if (!(elt instanceof HTMLElement)) {
-      throw Error("Three.controller element is not HTMLElement");
-    }
-
+    const elt = this.htmlElement;
     elt.addEventListener("mousedown", (event: MouseEvent) => this.mouseDownEvent(event));
     elt.addEventListener("mouseup", (event: MouseEvent) => this.mouseUpEvent(event));
     elt.addEventListener("mousemove", (event: MouseEvent) => this.mouseMoveEvent(event));
@@ -147,12 +139,12 @@ export class Controller {
   public setGroundPlane() {
     // ground plane used to find intersections
     var size = 10000;
-    this.plane = new THREE.Mesh(
+    this.groundPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial());
-    this.plane.rotation.x = -Math.PI / 2;
-    this.plane.visible = false;
-    this.scene.add(this.plane);
+    this.groundPlane.rotation.x = -Math.PI / 2;
+    this.groundPlane.visible = false;
+    this.scene.add(this.groundPlane);
   }
 
   public checkWallsAndFloors(event?: MouseEvent) {
@@ -398,12 +390,12 @@ export class Controller {
     var customIntersections = item.customIntersectionPlanes();
     var intersections = null;
     if (customIntersections && customIntersections.length > 0) {
-      intersections = this.getIntersections(vec2, customIntersections, true);
+      intersections = this.getIntersections(mouseEvent, customIntersections, true);
     } else {
-      if (!this.plane) {
-        throw Error("this.plane is not set, but we need it for intersecting");
+      if (!this.groundPlane) {
+        throw Error("this.groundPlane is not set, but we need it for intersecting");
       }
-      intersections = this.getIntersections(vec2, this.plane);
+      intersections = this.getIntersections(vec2, this.groundPlane);
     }
     if (intersections.length > 0) {
       return intersections[0];
@@ -433,13 +425,13 @@ export class Controller {
     }
     let intersections: THREE.Intersection[] = [];
     if (objects instanceof Array) {
-      console.log("array", objects);
+      //console.log("array", objects);
       intersections = raycaster.intersectObjects(objects, recursive);
     } else {
-      console.log("singular", objects);
+      //console.log("singular", objects);
       intersections = raycaster.intersectObject(objects, recursive);
     }
-    console.log("getIntersections", intersections);
+    //console.log("getIntersections", intersections);
     // filter by visible, if true
     if (onlyVisible) {
       intersections = Utils.removeIf(intersections, function (intersection) {
