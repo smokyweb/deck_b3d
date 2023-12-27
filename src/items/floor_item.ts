@@ -29,7 +29,7 @@ export abstract class FloorItem extends Item {
 
   /** */
   public moveToPosition<O>(vec3: THREE.Vector3, intersection: THREE.Intersection) {
-    console.log("floor_item moveToPosition", vec3, intersection);
+    //console.log("floor_item moveToPosition", vec3, intersection);
     // keeps the position in the room and on the floor
     if (!this.isValidPosition(vec3)) {
       this.showError(vec3);
@@ -39,7 +39,7 @@ export abstract class FloorItem extends Item {
       vec3.y = this.position.y; // keep it on the floor!
       const oldpos = this.position.clone();
       this.position.copy(vec3);
-      console.log("moved from ", oldpos, "to", this.position);
+      //console.log("moved from ", oldpos, "to", this.position);
     }
   }
 

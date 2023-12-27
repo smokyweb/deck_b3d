@@ -36,8 +36,10 @@ export class Controls {
     return this._enabled;
   }
   set enabled(v: boolean) {
-    console.log("Controls.enabled", v);
-    this._enabled = v;
+    if (v != this._enabled) {
+      console.trace("Controls.enabled", v);
+      this._enabled = v;
+    }
   }
   // "target" sets the location of focus, where the control orbits around
   // and where it pans with respect to.

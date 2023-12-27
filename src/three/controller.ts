@@ -39,7 +39,7 @@ export class Controller {
   }
   set intersectedObject(obj: Item | null) {
     if (obj !== this._intersectedObject) {
-      console.log("intersectedObject changed: from=", this._intersectedObject, "to=", obj);
+      //console.log("intersectedObject changed: from=", this._intersectedObject, "to=", obj);
     }
     this._intersectedObject = obj;
   }
@@ -99,7 +99,7 @@ export class Controller {
     //console.log("controller clickDragged");
     const sel = this.selectedObject;
     let didnothing = true;
-    if (sel) {
+    if (sel && !sel.fixed) {
       var intersection = this.itemIntersection(event, sel);
       if (intersection) {
         if (this.isRotating()) {
@@ -135,7 +135,7 @@ export class Controller {
 
   public setGroundPlane() {
     // ground plane used to find intersections
-    var size = 10000;
+    var size = 100000;
     this.groundPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
       new THREE.MeshBasicMaterial());
@@ -178,6 +178,14 @@ export class Controller {
   }
 
   public mouseMoveEvent(event: MouseEvent) {
+//    for(const item of this.scene.items) {
+//      const intersections = this.getIntersections(event, item);
+//      if (intersections.length > 0) {
+//        item.mouseOver();
+//      } else {
+//        item.mouseOff();
+//      }
+//    }
     if (this.enabled) {
       //console.log("controller mouseMove", event, stateName(this.state));
       event.preventDefault();
@@ -224,6 +232,7 @@ export class Controller {
           } else if (this.intersectedObject != null) {
             this.setSelectedObject(this.intersectedObject);
             if (!this.intersectedObject.fixed) {
+              this.clickPressed(event);
               this.switchState(State.DRAGGING);
             }
           }
@@ -283,14 +292,12 @@ export class Controller {
     this.hud.setRotating(this.isRotating());
   }
 
-  public onEntry(state: State) {
+  public onEntry(newState: State) {
     //console.log("onEntry", stateName(state))
-    switch (this.state) {
+    switch (newState) {
       case State.UNSELECTED:
-        this.controls.enabled = true;
-        break;
       case State.SELECTED:
-        this.controls.enabled = false;
+        this.controls.enabled = true;
         break;
       case State.ROTATING:
       case State.ROTATING_FREE:
@@ -337,7 +344,7 @@ export class Controller {
         hudObject,
         false, false, true);
       if (hudIntersects.length > 0) {
-        console.log("updateIntersections: hud object selected");
+        //console.log("updateIntersections: hud object selected");
         this.rotateMouseOver = true;
         this.hud.setMouseover(true);
         this.intersectedObject = null;
@@ -384,12 +391,18 @@ export class Controller {
     var customIntersections = item.customIntersectionPlanes();
     var intersections = null;
     if (customIntersections && customIntersections.length > 0) {
+      //console.log("custom intersections");
       intersections = this.getIntersections(event, customIntersections, true);
     } else {
       if (!this.groundPlane) {
         throw Error("this.groundPlane is not set, but we need it for intersecting");
       }
+      //console.log("ground plane intersection");
+      // FIXME: This is horrible.  Raycaster only intersects with visible objects
+      this.groundPlane.visible = true;
       intersections = this.getIntersections(event, this.groundPlane);
+      // FIXME: This is horrible.  Raycaster only intersects with visible objects
+      this.groundPlane.visible = false;
     }
     if (intersections.length > 0) {
       return intersections[0];
@@ -447,18 +460,21 @@ export class Controller {
   // manage the selected object
   public setSelectedObject(object: Item | null) {
     if (this.selectedObject === object) {
+      //console.log("setSelectedObject idempotent");
       return; // anything else would be redundant
     }
 
     if (this.selectedObject != null) {
+      //console.log("de-selecting ", this.selectedObject);
       this.selectedObject.setUnselected();
       this.three.itemUnselectedCallbacks.fire();
       this.selectedObject = null;
     }
     if (object != null) {
+      //console.log("selecting ", object);
       this.selectedObject = object;
       this.switchState(State.SELECTED);
-      this.selectedObject.setSelected();
+      //this.selectedObject.setSelected();
       this.three.itemSelectedCallbacks.fire(object);
     } else {
       this.switchState(State.UNSELECTED);

@@ -141,7 +141,9 @@ export abstract class Item extends THREE.Mesh {
 
   /** */
   public setFixed(fixed: boolean) {
+    console.log(`setFixed(${fixed})`);
     this.fixed = fixed;
+    
   }
 
   /** Subclass can define to take action after a resize. */

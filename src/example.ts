@@ -100,9 +100,13 @@ class ContextMenu {
 
     this.initResize();
 
-    $("#fixed").click((e: MouseEvent) => {
-        var checked = $(this).prop('checked');
-        this.selectedItem?.setFixed(checked);
+    const cmscope = this;
+    $("#fixed").click(function(e: MouseEvent) {
+      const target = e.target;
+      if (target instanceof HTMLInputElement) {
+        const checked: boolean = target.checked;
+        cmscope.selectedItem?.setFixed(checked);
+      }
     });
   }
 
