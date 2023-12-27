@@ -80,15 +80,18 @@ export class Scene {
       // of legacy confusion with left and right handed coordinates.
       const rotation = -Math.atan2(end.y - start.y, end.x - start.x);
       const wallLength = Utils.distance(start.x, start.y, end.x, end.y);
-      const railBox = this.railGeom.boundingBox;
+      const geom = this.railGeom.clone();
+      geom.computeBoundingBox();
+      const mat = this.railMat.map((m) => m.clone());
+      const railBox = geom.boundingBox;
       const horizscale = wallLength / (railBox.max.x - railBox.min.x);
       const railHeight = railBox.max.y - railBox.min.y;
       const vertscale = wall.height / railHeight;
       const pos = this.midpoint(start, end);
       const item = new (theClass)(
         this.model,
-        {}, this.railGeom,
-        new THREE.MeshFaceMaterial(this.railMat),
+        {}, geom,
+        new THREE.MeshFaceMaterial(mat),
         new THREE.Vector3(pos.x, 0, pos.y), rotation, 
         new THREE.Vector3(horizscale, vertscale, horizscale) 
       );
