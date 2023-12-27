@@ -127,8 +127,8 @@ export class Controller {
   public itemRemoved(item: Item) {
     // invoked as a callback to event in Scene
     if (item === this.selectedObject) {
-      this.selectedObject.setUnselected();
-      this.selectedObject.mouseOff();
+      this.selectedObject.selected = false;
+      this.selectedObject.hover = false;
       this.setSelectedObject(null);
     }
   }
@@ -466,7 +466,7 @@ export class Controller {
 
     if (this.selectedObject != null) {
       //console.log("de-selecting ", this.selectedObject);
-      this.selectedObject.setUnselected();
+      this.selectedObject.selected = false;
       this.three.itemUnselectedCallbacks.fire();
       this.selectedObject = null;
     }
@@ -474,7 +474,7 @@ export class Controller {
       //console.log("selecting ", object);
       this.selectedObject = object;
       this.switchState(State.SELECTED);
-      //this.selectedObject.setSelected();
+      this.selectedObject.selected = true;
       this.three.itemSelectedCallbacks.fire(object);
     } else {
       this.switchState(State.UNSELECTED);
@@ -487,9 +487,9 @@ export class Controller {
     if (this.intersectedObject != null) {
       if (this.mouseoverObject != null) {
         if (this.mouseoverObject !== this.intersectedObject) {
-          this.mouseoverObject.mouseOff();
+          this.mouseoverObject.hover = false;
           this.mouseoverObject = this.intersectedObject;
-          this.mouseoverObject.mouseOver();
+          this.mouseoverObject.hover = true;
           this.needsUpdate = true;
         } else {
           // do nothing, mouseover already set
@@ -497,13 +497,13 @@ export class Controller {
       } else {
         this.mouseoverObject = this.intersectedObject;
         if (this.mouseoverObject) {
-          this.mouseoverObject.mouseOver();
+          this.mouseoverObject.hover = true;
         }
         this.three.setCursorStyle("pointer");
         this.needsUpdate = true;
       }
     } else if (this.mouseoverObject != null) {
-      this.mouseoverObject.mouseOff();
+      this.mouseoverObject.hover = false;
       this.three.setCursorStyle("auto");
       this.mouseoverObject = null;
       this.needsUpdate = true;

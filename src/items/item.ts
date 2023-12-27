@@ -24,15 +24,22 @@ export abstract class Item extends THREE.Mesh {
   set hover(b: boolean) {
     if (b != this._hover) {
       this._hover = b;
-      this.scene.needsUpdate = true;
+      this.updateHighlight();
     }
   }
 
   /** */
-  private selected = false;
+  private _selected = false;
+  get selected(): boolean {
+    return this._selected;
+  }
+  set selected(s: boolean) {
+    if (s != this._selected) {
+      this._selected = s;
+      this.updateHighlight();
+    }
+  }
 
-  /** */
-  private highlighted = false;
 
   /** */
   private error = false;
@@ -65,13 +72,6 @@ export abstract class Item extends THREE.Mesh {
   public halfSize: THREE.Vector3;
 
   /** Constructs an item. 
-   * @param model TODO
-   * @param metadata TODO
-   * @param geometry TODO
-   * @param material TODO
-   * @param position TODO
-   * @param rotation TODO
-   * @param scale TODO 
    */
   constructor(protected model: Model, public metadata: Metadata, geometry: THREE.Geometry, material: THREE.MeshFaceMaterial, position: THREE.Vector3, rotation: number, scale: THREE.Vector3) {
     super();
@@ -181,37 +181,15 @@ export abstract class Item extends THREE.Mesh {
   /** on is a bool */
   public updateHighlight() {
     var on = this.hover || this.selected;
-    this.highlighted = on;
     var hex = on ? this.emissiveColor : 0x000000;
     (<THREE.MeshFaceMaterial>this.material).materials.forEach((material) => {
       // TODO_Ekki emissive doesn't exist anymore?
       (<any>material).emissive.setHex(hex);
     });
+    this.scene.needsUpdate = true;
   }
 
-  /** */
-  public mouseOver() {
-    this.hover = true;
-    this.updateHighlight();
-  };
 
-  /** */
-  public mouseOff() {
-    this.hover = false;
-    this.updateHighlight();
-  };
-
-  /** */
-  public setSelected() {
-    this.selected = true;
-    this.updateHighlight();
-  };
-
-  /** */
-  public setUnselected() {
-    this.selected = false;
-    this.updateHighlight();
-  };
 
   /** intersection has attributes point (vec3) and object (THREE.Mesh) */
   public clickPressed(intersection: THREE.Intersection) {
