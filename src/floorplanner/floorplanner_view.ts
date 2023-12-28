@@ -7,6 +7,7 @@ import { Wall } from '../model/wall';
 import { Room } from '../model/room';
 import { Corner } from '../model/corner';
 import { Floorplanner } from './floorplanner';
+import { Point } from '../core/utils';
 
 
 /** */
@@ -187,34 +188,13 @@ export class FloorplannerView {
     var corners = edge.corners();
 
     var scope = this;
-    this.drawPolygon(
-      Utils.map(corners, function (corner) {
-        return scope.viewmodel.convertX(corner.x);
-      }),
-      Utils.map(corners, function (corner) {
-        return scope.viewmodel.convertY(corner.y);
-      }),
-      false,
-      null,
-      true,
-      color,
-      edgeWidth
-    );
+    this.drawPolygon(corners, false, null, true, color, edgeWidth);
   }
 
   /** */
   private drawRoom(room: Room) {
     var scope = this;
-    this.drawPolygon(
-      Utils.map(room.corners, (corner: Corner) => {
-        return scope.viewmodel.convertX(corner.x);
-      }),
-      Utils.map(room.corners, (corner: Corner) =>  {
-        return scope.viewmodel.convertY(corner.y);
-      }),
-      true,
-      roomColor
-    );
+    this.drawPolygon(room.corners, true, roomColor);
   }
 
   /** */
@@ -269,12 +249,14 @@ export class FloorplannerView {
   }
 
   /** */
-  private drawPolygon(xArr: number[], yArr: number[], 
+  private drawPolygon(corners: Point[],
                       fill: boolean, fillColor: string | null, 
                       stroke?: boolean, strokeColor?: string, strokeWidth?: number) {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
+    const xArr = corners.map((corner) => this.viewmodel.convertX(corner.x));
+    const yArr = corners.map((corner) => this.viewmodel.convertY(corner.y));
     if (this.context) {
       this.context.beginPath();
       this.context.moveTo(xArr[0], yArr[0]);

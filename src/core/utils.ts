@@ -438,14 +438,6 @@ export class Utils {
     }
   }
 
-  static map<T, U>(array: T[], func: (arg: T) => U): U[] {
-    var tResult: U[] = [];
-    array.forEach((element) => {
-      tResult.push(func(element));
-    });
-    return tResult;
-  }
-
   /** Like 'filter', except the sense of the predicate is reversed and
       the name is stupid.  The original array is not modified so nothing
       is actually removed.

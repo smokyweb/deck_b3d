@@ -49,9 +49,7 @@ export class Room {
   }
 
   public getUuid(): string {
-    var cornerUuids = Utils.map(this.corners, function (c) {
-      return c.id;
-    });
+    var cornerUuids = this.corners.map((c) => c.id);
     cornerUuids.sort();
     return cornerUuids.join();
   }

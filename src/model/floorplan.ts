@@ -288,9 +288,7 @@ export class Floorplan {
 
   /** clear out obsolete floor textures */
   private updateFloorTextures() {
-    var uuids = Utils.map(this.rooms, function (room) {
-      return room.getUuid();
-    });
+    var uuids = this.rooms.map((room) => room.getUuid());
     for (var uuid in this.floorTextures) {
       if (!Utils.hasValue(uuids, uuid)) {
         delete this.floorTextures[uuid];
@@ -428,7 +426,7 @@ export class Floorplan {
         let str = null;
         for (var j = 0; j < room.length; j++) {
           var roomShift = Utils.cycle(room, j);
-          str = Utils.map(roomShift, hashFunc).join(sep);
+          str = roomShift.map(hashFunc).join(sep);
           if (lookup.hasOwnProperty(str)) {
             add = false;
           }
