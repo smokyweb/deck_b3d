@@ -179,14 +179,6 @@ class ModalEffects {
 
   private itemsLoading = 0;
 
-/*
-  // FIXME: Just delete this, I think it's vestigal.
-  private setActionItem(active: boolean) {
-    itemSelected = active;
-    this.update();
-  }
-  */
-
   private update() {
     if (this.itemsLoading > 0) {
       $("#loading-modal").show();
