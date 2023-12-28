@@ -426,26 +426,8 @@ export class Utils {
 
   // arrays
 
-  static forEach<T>(array: T[], action: (arg: T) => any) {
-    for (var tI = 0; tI < array.length; tI++) {
-      action(array[tI]);
-    }
-  }
-
-  static forEachIndexed<T>(array: T[], action: (idx: number, arg: T) => any) {
-    for (var tI = 0; tI < array.length; tI++) {
-      action(tI, array[tI]);
-    }
-  }
-
-  /** Like 'filter', except the sense of the predicate is reversed and
-      the name is stupid.  The original array is not modified so nothing
-      is actually removed.
-      This function creates a new array with all the elements that are not
-      matched by the predicate.
-  */
-
   /** Shift the items in an array by shift (positive integer) */
+  // FIXME: Algorithm is dumb, but this is hardly ever used.
   static cycle<T>(arr: T[], shift: number): T[] {
     var tReturn: T[] = arr.slice(0);
     if (tReturn.length > 0) {
