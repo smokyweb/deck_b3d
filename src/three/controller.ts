@@ -441,16 +441,14 @@ export class Controller {
     //console.log("getIntersections", intersections);
     // filter by visible, if true
     if (onlyVisible) {
-      intersections = Utils.removeIf(intersections, function (intersection) {
-        return !intersection.object.visible;
-      });
+      intersections = intersections.filter((intersection) => intersection.object.visible);
     }
 
     // filter by normals, if true
     if (filterByNormals) {
-      intersections = Utils.removeIf(intersections, function (intersection) {
+      intersections = intersections.filter((intersection) => {
         var dot = intersection.face.normal.dot(raycaster.ray.direction);
-        return (dot > 0)
+        return (dot <= 0); // camera ray and surface normal are generally opposite
       });
     }
     //console.log("getIntersections after filtering", intersections);

@@ -290,7 +290,7 @@ export class Floorplan {
   private updateFloorTextures() {
     var uuids = this.rooms.map((room) => room.getUuid());
     for (var uuid in this.floorTextures) {
-      if (!Utils.hasValue(uuids, uuid)) {
+      if (uuids.includes(uuid)) {
         delete this.floorTextures[uuid];
       }
     }
@@ -527,10 +527,7 @@ export class Floorplan {
     // remove duplicates
     var uniqueLoops = _removeDuplicateRooms(loops);
     //remove CW loops
-    var uniqueCCWLoops = Utils.removeIf(
-      uniqueLoops,
-      Utils.isClockwise
-    );
+    var uniqueCCWLoops = uniqueLoops.filter((loop) => !Utils.isClockwise(loop));
 
     return uniqueCCWLoops;
   }

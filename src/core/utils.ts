@@ -444,15 +444,6 @@ export class Utils {
       This function creates a new array with all the elements that are not
       matched by the predicate.
   */
-  static removeIf<T>(array: T[], func: (arg: T) => boolean): T[] {
-    var tResult: T[] = [];
-    array.forEach((element) => {
-      if (!func(element)) {
-        tResult.push(element);
-      }
-    });
-    return tResult;
-  }
 
   /** Shift the items in an array by shift (positive integer) */
   static cycle<T>(arr: T[], shift: number): T[] {
@@ -482,28 +473,18 @@ export class Utils {
   }
 
   /** Remove value from array, if it is present */
-  static removeValue<T>(array: T[], value: object) {
-    for (var tI = array.length - 1; tI >= 0; tI--) {
-      if (array[tI] === value) {
-        array.splice(tI, 1);
+  static removeValue<T>(array: T[], value: T) {
+    let i = 0;
+    do {
+      i = array.indexOf(value, i);
+      if (i >= 0) {
+        array.splice(i, 1);
       }
-    }
+    } while (i != -1);
   }
-
-  /** Checks if value is in array */
-  static hasValue = function<T>(array: T[], value: T): boolean {
-    for (var tI = 0; tI < array.length; tI++) {
-      if (array[tI] === value) {
-        return true;
-      }
-    }
-    return false;
-  };
 
   /** Subtracts the elements in subArray from array */
   static subtract<T>(array: T[], subArray: T[]) {
-    return Utils.removeIf(array, function (el) {
-      return Utils.hasValue(subArray, el);
-    });
+    return array.filter((el: T) => !subArray.includes(el));
   }
 }
