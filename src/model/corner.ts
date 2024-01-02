@@ -1,4 +1,5 @@
 
+import * as THREE from 'three';
 import { Utils } from '../core/utils';
 import { Floorplan } from './floorplan';
 import { Wall } from './wall';
@@ -76,6 +77,9 @@ export class Corner {
     return this.y;
   }
 
+  public position(): THREE.Vector2 {
+    return new THREE.Vector2(this.x, this.y);
+  }
   /**
    * 
    */
@@ -109,9 +113,10 @@ export class Corner {
     this.move(this.x + dx, this.y + dy);
   }
 
-  private fireAction(action: any) {
-    this.action_callbacks.fire(action)
-  }
+// FIXME: delete this
+//  private fireAction(action: any) {
+//    this.action_callbacks.fire(action)
+//  }
 
   /** Remove callback. Fires the delete callbacks. */
   public remove() {

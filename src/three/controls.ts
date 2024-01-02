@@ -44,8 +44,6 @@ export class Controls {
   // "target" sets the location of focus, where the control orbits around
   // and where it pans with respect to.
   public target: THREE.Vector3 = new THREE.Vector3();
-  // center is old, deprecated; use "target" instead
-  private center: THREE.Vector3 = this.target;
   // This option actually enables dollying in and out; left as "zoom" for
   // backwards compatibility
   private noZoom: Boolean = false;
@@ -120,21 +118,6 @@ export class Controls {
     this.domElement.addEventListener('touchmove', (event: TouchEvent) => this.touchmove(event), false);
 
     window.addEventListener('keydown', (event: KeyboardEvent) => this.onKeyDown(event), false);
-  }
-
-  private controlsActive(): Boolean {
-    return (this.state === STATE.NONE);
-  }
-
-  private setPan(vec3: THREE.Vector3) {
-    this.pan = vec3;
-  }
-
-  private panTo(vec3: THREE.Vector3) {
-    var newTarget = new THREE.Vector3(vec3.x, this.target.y, vec3.z);
-    var delta = this.target.clone().sub(newTarget);
-    this.pan.sub(delta);
-    this.update();
   }
 
   public rotateLeft(angle?: number) {
@@ -542,7 +525,7 @@ export class Controls {
     }
   }
 
-  private touchend(event: TouchEvent) {
+  private touchend(_event: TouchEvent) {
     if (this.enabled === false) {
       return;
     }

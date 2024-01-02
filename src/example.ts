@@ -1,5 +1,5 @@
 
-import { Blueprint3d, Options } from './blueprint3d';
+import { Blueprint3d } from './blueprint3d';
 import { floorplannerMode } from './floorplanner/floorplanner_view';
 import { Floorplanner } from './floorplanner/floorplanner';
 import { Item } from './items/item';
@@ -29,25 +29,25 @@ class CameraButtons {
     this.orbitControls = this.blueprint3d.three.controls;
     this.three = this.blueprint3d.three;
     // Camera controls
-    $("#zoom-in").click((e: MouseEvent) => this.zoomIn(e));
-    $("#zoom-out").click((e: MouseEvent) => this.zoomOut(e));  
-    $("#zoom-in").dblclick((e: MouseEvent) => this.preventDefault(e));
-    $("#zoom-out").dblclick((e: MouseEvent) => this.preventDefault(e));
+    $("#zoom-in").click((e: JQuery.ClickEvent) => this.zoomIn(e)); 
+    $("#zoom-out").click((e: JQuery.ClickEvent) => this.zoomOut(e));  
+    $("#zoom-in").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
+    $("#zoom-out").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
 
-    $("#reset-view").click((e: MouseEvent) => this.three.centerCamera())
+    $("#reset-view").click((_e: JQuery.ClickEvent) => this.three.centerCamera())
 
-    $("#move-left").click((e: MouseEvent) => this.pan(this.directions.LEFT));
-    $("#move-right").click((e: MouseEvent) => this.pan(this.directions.RIGHT));
-    $("#move-up").click((e: MouseEvent) => this.pan(this.directions.UP));
-    $("#move-down").click((e: MouseEvent) => this.pan(this.directions.DOWN));
+    $("#move-left").click((_e: JQuery.ClickEvent) => this.pan(this.directions.LEFT));
+    $("#move-right").click((_e: JQuery.ClickEvent) => this.pan(this.directions.RIGHT));
+    $("#move-up").click((_e: JQuery.ClickEvent) => this.pan(this.directions.UP));
+    $("#move-down").click((_e: JQuery.ClickEvent) => this.pan(this.directions.DOWN));
 
-    $("#move-left").dblclick((e: MouseEvent) => this.preventDefault(e));
-    $("#move-right").dblclick((e: MouseEvent) => this.preventDefault(e));
-    $("#move-up").dblclick((e: MouseEvent) => this.preventDefault(e));
-    $("#move-down").dblclick((e: MouseEvent) => this.preventDefault(e));
+    $("#move-left").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
+    $("#move-right").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
+    $("#move-up").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
+    $("#move-down").dblclick((e: JQuery.DoubleClickEvent) => this.preventDefault(e));
   }
 
-  private preventDefault(e: MouseEvent) {
+  private preventDefault(e: JQuery.MouseEventBase) {
     e.preventDefault();
     e.stopPropagation();
   }
@@ -69,14 +69,14 @@ class CameraButtons {
     }
   }
 
-  private zoomIn(e: MouseEvent) {
+  private zoomIn(e: JQuery.ClickEvent) {
     e.preventDefault();
     this.orbitControls.dollyIn(1.1);
     this.orbitControls.update();
   }
 
-  private zoomOut(e: MouseEvent) {
-    e.preventDefault;
+  private zoomOut(e: JQuery.ClickEvent) {
+    e.preventDefault();
     this.orbitControls.dollyOut(1.1);
     this.orbitControls.update();
   }
@@ -91,7 +91,7 @@ class ContextMenu {
   private three: ThreeMain;
 
   constructor(private blueprint3d: Blueprint3d) {
-    $("#context-menu-delete").click((event: MouseEvent) => {
+    $("#context-menu-delete").click((_event: JQuery.ClickEvent) => {
         this.selectedItem?.remove();
     });
     this.three = this.blueprint3d.three;
@@ -100,12 +100,11 @@ class ContextMenu {
 
     this.initResize();
 
-    const cmscope = this;
-    $("#fixed").click(function(e: MouseEvent) {
+    $("#fixed").click((e: JQuery.ClickEvent) => {
       const target = e.target;
       if (target instanceof HTMLInputElement) {
         const checked: boolean = target.checked;
-        cmscope.selectedItem?.setFixed(checked);
+        this.selectedItem?.setFixed(checked);
       }
     });
   }
@@ -124,9 +123,24 @@ class ContextMenu {
     if (item.metadata.itemName) {
       $("#context-menu-name").text(item.metadata.itemName);
     }
+    function cmToIn(cm: number): number {
+      return cm / 2.54;
+    }
 
+    function setupField(selector: string, resizable: boolean, cm: number) {
+      const jq = $(selector);
+      const elem = jq.get(0);
+      if (elem instanceof HTMLInputElement) {
+        elem.disabled = !resizable;
+      }
+      jq.val(cmToIn(cm).toFixed(0));
+    }
+    
+    setupField('#item-width', item.resizable, this.selectedItem.getWidth());
     $("#item-width").val(this.cmToIn(this.selectedItem.getWidth()).toFixed(0));
+    setupField('#item-height', item.resizable, this.selectedItem.getHeight());
     $("#item-height").val(this.cmToIn(this.selectedItem.getHeight()).toFixed(0));
+    setupField('#item-depth', item.resizable, this.selectedItem.getDepth());
     $("#item-depth").val(this.cmToIn(this.selectedItem.getDepth()).toFixed(0));
 
     $("#context-menu").show();
@@ -187,7 +201,7 @@ class ModalEffects {
     }
   }
 
-  constructor(private blueprint3d: Blueprint3d) {
+  constructor(blueprint3d: Blueprint3d) {
     blueprint3d.model.scene.itemLoadingCallbacks.add(() => {
       this.itemsLoading += 1;
       this.update();
@@ -241,13 +255,13 @@ class SideMenu {
   // sidebar state
   private currentState: TabState = this.states.FLOORPLAN;
 
-  constructor(private blueprint3d: Blueprint3d, private floorplanControls: ViewerFloorplanner, private modalEffects: ModalEffects) {
+  constructor(private blueprint3d: Blueprint3d, private floorplanControls: ViewerFloorplanner, _modalEffects: ModalEffects) {
     for (const [name, elem] of Object.entries(this.tabs)) {
       console.log(`adding click respone for ${name}`);
       elem.click(this.tabClicked(name as TabName));
     }
 
-    $("#update-floorplan").click((event: MouseEvent) => this.floorplanUpdate());
+    $("#update-floorplan").click((_event: JQuery.ClickEvent) => this.floorplanUpdate());
 
     this.initLeftMenu();
 
@@ -266,7 +280,7 @@ class SideMenu {
   }
 
   private tabClicked(name: TabName) {
-    return ((event: MouseEvent) => {
+    return ((_event: JQuery.ClickEvent) => {
       console.log(`tabClicked(${name})`);
       // Stop three from spinning
       this.blueprint3d.three.stopSpin();
@@ -343,15 +357,19 @@ class SideMenu {
   // TODO: this doesn't really belong here
   private initItems() {
     const objscope = this;
-    $("#add-items").find(".add-item").mousedown(function (event: JQueryMouseEventObject) {
+    $("#add-items").find(".add-item").mousedown(function (_event: JQuery.MouseDownEvent) {
       const eltscope = this as Element;
       var modelUrl: string = String($(eltscope).attr("model-url"));
       var itemType: number = parseInt(String($(eltscope).attr("model-type")));
       if (typeof modelUrl === "undefined" || typeof itemType === "undefined") {
         throw Error("Item metadata is bad for url=${modelUrl} type=${itemType}");
       }
+      const modelName = $(eltscope).attr("model-name");
+      if (typeof modelName === 'undefined') {
+        throw Error("modelNname is not defined");
+      }
       var metadata = {
-        itemName: $(eltscope).attr("model-name"),
+        itemName: modelName,
         resizable: true,
         modelUrl: modelUrl,
         itemType: itemType
@@ -378,7 +396,7 @@ class TextureSelector {
 
   private initTextureSelectors() {
     const objscope = this;
-    $(".texture-select-thumbnail").click(function (event: JQueryMouseEventObject) {
+    $(".texture-select-thumbnail").click(function (event: JQuery.ClickEvent) {
       const eltscope = this as Element;
       var textureUrl = $(eltscope).attr("texture-url");
       var textureStretch = ($(eltscope).attr("texture-stretch") == "true");
@@ -391,7 +409,7 @@ class TextureSelector {
     });
   }
 
-  constructor (private blueprint3d: Blueprint3d, private sideMenu: SideMenu) {
+  constructor (blueprint3d: Blueprint3d, sideMenu: SideMenu) {
     this.three = blueprint3d.three;
     this.three.wallClicked.add((halfedge: HalfEdge) => this.wallClicked(halfedge));
     this.three.floorClicked.add((room: Room) => this.floorClicked(room));
@@ -505,7 +523,7 @@ class MainControls {
   private loadDesign() {
     const files: FileList | null = ($("#loadFile")?.get(0) as HTMLInputElement)?.files;
     const reader  = new FileReader();
-    reader.onload = (event: ProgressEvent) => { 
+    reader.onload = (_event: ProgressEvent) => { 
         var data = reader.result as string; // readAsText() sticks a string in here
         this.blueprint3d.model.loadSerialized(data);
     }
@@ -585,15 +603,15 @@ $(document).ready(function() {
     textureDir: "models/textures/",
     widget: false
   }
-  var blueprint3d = new Blueprint3d(opts);
+  const blueprint3d = new Blueprint3d(opts);
 
-  var modalEffects = new ModalEffects(blueprint3d);
-  var viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
-  var contextMenu = new ContextMenu(blueprint3d);
-  var sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
-  var textureSelector = new TextureSelector(blueprint3d, sideMenu);        
-  var cameraButtons = new CameraButtons(blueprint3d);
-  var mainControls = new MainControls(blueprint3d);
+  const modalEffects = new ModalEffects(blueprint3d);
+  const viewerFloorplanner = new ViewerFloorplanner(blueprint3d);
+  new ContextMenu(blueprint3d);
+  const sideMenu = new SideMenu(blueprint3d, viewerFloorplanner, modalEffects);
+  new TextureSelector(blueprint3d, sideMenu);        
+  new CameraButtons(blueprint3d);
+  new MainControls(blueprint3d);
 
   // This serialization format needs work
   // Load a simple rectangle room

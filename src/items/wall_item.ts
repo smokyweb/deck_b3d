@@ -74,7 +74,7 @@ export abstract class WallItem extends Item {
   }
 
   /** */
-  public removed() {
+  public override removed() {
     if (this.currentWallEdge != null && this.addToWall) {
       Utils.removeValue(this.currentWallEdge.wall.items, this as unknown as Item);
       this.redrawWall();
@@ -138,7 +138,7 @@ export abstract class WallItem extends Item {
 
   /** */
   // FIXME:  Figure out proper type of intersection arg
-  public moveToPosition(vec3: THREE.Vector3, intersection: any) {
+  public override moveToPosition(vec3: THREE.Vector3, intersection: any) {
     this.changeWallEdge(intersection.object.edge);
     this.boundMove(vec3);
     this.position.copy(vec3);
@@ -198,7 +198,7 @@ export abstract class WallItem extends Item {
 
   /** Returns an array of planes to use other than the ground plane
    * for passing intersection to clickPressed and clickDragged */
-  public customIntersectionPlanes(): THREE.Mesh[] {
+  public override customIntersectionPlanes(): THREE.Mesh[] {
     return this.model.floorplan.wallEdgePlanes();
   }
 

@@ -36,9 +36,6 @@ export class Floorplanner {
   public lastNode: (Corner | null) = null;
 
   /** */
-  private wallWidth: number;
-
-  /** */
   public modeResetCallbacks = $.Callbacks();
 
   /** */
@@ -88,8 +85,6 @@ export class Floorplanner {
     var pixelsPerFoot = 15.0;
     this.cmPerPixel = cmPerFoot * (1.0 / pixelsPerFoot);
     this.pixelsPerCm = 1.0 / this.cmPerPixel;
-
-    this.wallWidth = 10.0 * this.pixelsPerCm;
 
     // Initialization:
 
@@ -293,9 +288,9 @@ export class Floorplanner {
     }
     var centerX = iw / 2.0;
     var centerY = ih / 2.0;
-    var centerFloorplan = this.floorplan.getCenter();
+    const centerFloorplan = this.floorplan.getCenter2();
     this.originX = centerFloorplan.x * this.pixelsPerCm - centerX;
-    this.originY = centerFloorplan.z * this.pixelsPerCm - centerY;
+    this.originY = centerFloorplan.y * this.pixelsPerCm - centerY;
   }
 
   /** Convert from THREEjs coords to canvas coords. */

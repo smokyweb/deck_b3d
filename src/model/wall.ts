@@ -1,6 +1,5 @@
 import * as Cfg  from '../core/configuration';
 import { Utils } from '../core/utils';
-import { Item } from '../items/item';
 import { Corner } from './corner';
 import { HalfEdge } from './half_edge';
 import { WallItem } from '../items/wall_item';
@@ -176,17 +175,17 @@ export class Wall {
       this.getEndX(), this.getEndY());
   }
 
-  /** Return the corner opposite of the one provided.
-   * @param corner The given corner.
-   * @returns The opposite corner.
-   */
-  private oppositeCorner(corner: Corner): Corner {
-    if (this.start === corner) {
-      return this.end;
-    } else if (this.end === corner) {
-      return this.start;
-    } else {
-      throw Error('Wall.oppositeCorner: Wall does not connect to corner');
-    }
-  }
+//  /** Return the corner opposite of the one provided.
+//   * @param corner The given corner.
+//   * @returns The opposite corner.
+//   */
+//  private oppositeCorner(corner: Corner): Corner {
+//    if (this.start === corner) {
+//      return this.end;
+//    } else if (this.end === corner) {
+//      return this.start;
+//    } else {
+//      throw Error('Wall.oppositeCorner: Wall does not connect to corner');
+//    }
+//  }
 }

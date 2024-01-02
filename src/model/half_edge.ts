@@ -48,7 +48,8 @@ export class HalfEdge {
    * @param wall The corresponding wall.
    * @param front True if front side.
    */
-  constructor(private room: Room | null, public wall: Wall, public front: boolean) {
+  // FIXME: get rid of room parameter
+  constructor(_room: Room | null, public wall: Wall, public front: boolean) {
     this.front = front || false;
 
     this.offset = wall.thickness / 2.0;
@@ -179,20 +180,21 @@ export class HalfEdge {
     }
   }
 
-  private getOppositeEdge(): HalfEdge {
-    let result: HalfEdge | null = null;
-    if (this.front) {
-      result = this.wall.backEdge;
-    } else {
-      result = this.wall.frontEdge;
-    }
-    if (result === null) {
-      throw Error("in HalfEdge.getOppositeEdge:  wall edges are not populated");
-    } else {
-      return result;
-    }
-
-  }
+// FIXME: delete
+//  private getOppositeEdge(): HalfEdge {
+//    let result: HalfEdge | null = null;
+//    if (this.front) {
+//      result = this.wall.backEdge;
+//    } else {
+//      result = this.wall.frontEdge;
+//    }
+//    if (result === null) {
+//      throw Error("in HalfEdge.getOppositeEdge:  wall edges are not populated");
+//    } else {
+//      return result;
+//    }
+//
+//  }
 
   // these return an object with attributes x, y
   public interiorEnd(): Point {

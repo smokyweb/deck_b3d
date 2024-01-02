@@ -3,11 +3,12 @@ import * as THREE from 'three';
 import { Controller } from './controller';
 import { Floorplan } from './floorplan';
 import { Lights } from './lights';
-import { Skybox } from './skybox';
 import { Controls } from './controls';
 import { HUD } from './hud';
 import { Scene } from '../model/scene';
 import { Model } from '../model/model';
+import { Utils } from '../core/utils';
+import { Skybox } from './skybox';
 
 export class Main {
   private options: any = {
@@ -31,6 +32,8 @@ export class Main {
   // apparently superfluous
   //private canvas: Three.Canvas;
   private controller: Controller;
+  // FIXME: extinguish this eldrich horror of a member variable
+  // @ts-ignore: don't want to figure this out right now
   private floorplan: Floorplan;
 
   private needsUpdate: boolean = false;
@@ -54,7 +57,7 @@ export class Main {
   public floorClicked = $.Callbacks(); // floor
   public nothingClicked = $.Callbacks();
 
-  constructor(private model: Model, element: string, private canvasElement: string, opts: any) {
+  constructor(private model: Model, element: string, _canvasElement: string, opts: any) {
     this.element = $(element);
     // override with manually set options
     for (var opt in this.options) {
@@ -83,7 +86,7 @@ export class Main {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.scene = model.scene;
-    var skybox = new Skybox(this.scene);
+    new Skybox(this.scene);
 
     this.controls = new Controls(this.camera, this.domElement);
 
@@ -104,7 +107,7 @@ export class Main {
     this.centerCamera();
     model.floorplan.fireOnUpdatedRooms(() => this.centerCamera());
 
-    var lights = new Lights(this.scene, this.model.floorplan);
+    new Lights(this.scene, this.model.floorplan);
 
     this.floorplan = new Floorplan(this.scene,
       this.model.floorplan, this.controls);
@@ -126,29 +129,12 @@ export class Main {
     }
   }
 
-  private dataUrl() {
-    var dataUrl = this.renderer.domElement.toDataURL("image/png");
-    return dataUrl;
-  }
-
   public stopSpin() {
     this.hasClicked = true;
   }
 
-  private getModel() {
-    return this.model;
-  }
-
-  private getScene() {
-    return this.scene;
-  }
-
   public getController() {
     return this.controller;
-  }
-
-  private getCamera() {
-    return this.camera;
   }
 
   private shouldRender() {
@@ -216,12 +202,12 @@ export class Main {
   public centerCamera() {
     var yOffset = 150.0;
 
-    var pan = this.model.floorplan.getCenter();
-    pan.y = yOffset;
+    const pan2 = this.model.floorplan.getCenter2();
+    const pan = Utils.deflatten(pan2, yOffset);
 
     this.controls.target = pan;
 
-    var distance = this.model.floorplan.getSize().z * 1.5;
+    var distance = this.model.floorplan.getSize2().y * 1.5;
 
     var offset = pan.clone().add(
       new THREE.Vector3(0, distance, distance));

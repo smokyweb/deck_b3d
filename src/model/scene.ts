@@ -43,7 +43,7 @@ export class Scene {
    * @param model The associated model.
    * @param textureDir The directory from which to load the textures.
    */
-  constructor(public model: Model, private textureDir: string) {
+  constructor(public model: Model, _textureDir: string) {
     this.scene = new THREE.Scene();
 
     // init item loader
@@ -141,10 +141,9 @@ export class Scene {
 
   /** Removes all items. */
   public clearItems() {
-    var items_copy = this.items
-    var scope = this;
-    this.items.forEach((item) => {
-      scope.removeItem(item, true);
+    const items_copy = this.items.slice()
+    items_copy.forEach((item) => {
+      this.removeItem(item, true);
     });
     this.items = []
   }

@@ -51,7 +51,7 @@ export abstract class Item extends THREE.Mesh {
   private errorColor = 0xff0000;
 
   /** */
-  private resizable: boolean;
+  resizable: boolean;
 
   /** Does this object affect other floor items */
   protected obstructFloorMoves = true;
@@ -117,7 +117,7 @@ export abstract class Item extends THREE.Mesh {
   };
 
   /** */
-  public remove() {
+  public override remove() {
     this.scene.removeItem(this);
   };
 
@@ -197,7 +197,7 @@ export abstract class Item extends THREE.Mesh {
   };
 
   /** */
-  public clickDragged<O>(intersection: THREE.Intersection) {
+  public clickDragged(intersection: THREE.Intersection) {
     if (intersection) {
       this.moveToPosition(
         intersection.point.sub(this.dragOffset),
@@ -227,7 +227,7 @@ export abstract class Item extends THREE.Mesh {
   }
 
   /** */
-  public moveToPosition(vec3: THREE.Vector3, intersection: THREE.Intersection) {
+  public moveToPosition(vec3: THREE.Vector3, _intersection: THREE.Intersection) {
     this.position.copy(vec3);
   }
 
@@ -254,7 +254,7 @@ export abstract class Item extends THREE.Mesh {
    * TODO: handle rotated objects better!
    * FIXME: xDim and yDim are presumed 'x' and 'z' respectively, actual args ignored
    */
-  public getCorners(xDim: PropertyKey, yDim: PropertyKey, position: THREE.Vector3) {
+  public getCorners(_xDim: PropertyKey, _yDim: PropertyKey, position: THREE.Vector3) {
 
     position = position || this.position;
 

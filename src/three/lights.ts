@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Scene } from '../model/scene';
 import { Floorplan as ModelFloorplan } from '../model/floorplan';
+import { Utils } from '../core/utils';
 
 export class Lights {
 
@@ -40,20 +41,17 @@ export class Lights {
 
     this.floorplan.fireOnUpdatedRooms(() => this.updateShadowCamera());
   }
-  private getDirLight() {
-    return this.dirLight;
-  }
-
   private updateShadowCamera() {
 
-    var size = this.floorplan.getSize();
-    var d = (Math.max(size.z, size.x) + this.tol) / 2.0;
+    var size2 = this.floorplan.getSize2();
+    var d = (Math.max(size2.x, size2.y) + this.tol) / 2.0;
 
-    var center = this.floorplan.getCenter();
-    var pos = new THREE.Vector3(
-      center.x, this.height, center.z);
+    const center2 = this.floorplan.getCenter2();
+    
+    // FIXME: CoordinateConfusion
+    const pos = Utils.deflatten(center2, this.height);
     this.dirLight.position.copy(pos);
-    this.dirLight.target.position.copy(center);
+    this.dirLight.target.position.copy(Utils.deflatten(center2));
     //dirLight.updateMatrix();
     //dirLight.updateWorldMatrix()
     const c = this.dirLight.shadow.camera;

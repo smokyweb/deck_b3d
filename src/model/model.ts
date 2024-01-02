@@ -1,8 +1,7 @@
 
-import { Item } from '../items/item';
 import { Floorplan } from './floorplan';
 import { Scene } from './scene';
-import $ from 'jquery';
+import * as $ from 'jquery';
 /** 
  * A Model connects a Floorplan and a Scene. 
  */
@@ -19,12 +18,6 @@ export class Model {
 
   /** */
   private roomLoadedCallbacks = $.Callbacks();
-
-  /** name */
-  private roomSavedCallbacks = $.Callbacks();
-
-  /** success (bool), copy (bool) */
-  private roomDeletedCallbacks = $.Callbacks();
 
   /** Constructs a new model.
    * @param textureDir The directory containing the textures.

@@ -15,9 +15,10 @@ export abstract class FloorItem extends Item {
   /** */
   public placeInRoom() {
     if (!this.position_set) {
-      var center = this.model.floorplan.getCenter();
-      this.position.x = center.x;
-      this.position.z = center.z;
+      const center2 = this.model.floorplan.getCenter2();
+      // FIXME: CoordinateConfusion
+      this.position.x = center2.x;
+      this.position.z = center2.y;
       this.position.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y);
     }
   };
@@ -28,7 +29,7 @@ export abstract class FloorItem extends Item {
   }
 
   /** */
-  public moveToPosition<O>(vec3: THREE.Vector3, intersection: THREE.Intersection) {
+  public override moveToPosition(vec3: THREE.Vector3, _intersection: THREE.Intersection) {
     //console.log("floor_item moveToPosition", vec3, intersection);
     // keeps the position in the room and on the floor
     if (!this.isValidPosition(vec3)) {
@@ -37,7 +38,7 @@ export abstract class FloorItem extends Item {
     } else {
       this.hideError();
       vec3.y = this.position.y; // keep it on the floor!
-      const oldpos = this.position.clone();
+      //const oldpos = this.position.clone();
       this.position.copy(vec3);
       //console.log("moved from ", oldpos, "to", this.position);
     }

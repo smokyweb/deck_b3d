@@ -1,18 +1,15 @@
 import * as THREE from 'three';
-import { Utils } from '../core/utils';
 import { Scene } from '../model/scene';
 import { Room } from '../model/room';
 
 export class Floor {
 
   private floorPlane: THREE.Mesh;
-  private roofPlane: THREE.Mesh | null = null;
 
   constructor(private scene: Scene, private room: Room) {
     this.room.fireOnFloorChange(() => this.redraw);
     this.floorPlane = this.buildFloor();
     // roofs look weird, so commented out
-    //roofPlane = buildRoof();
   }
 
   private redraw() {
@@ -59,31 +56,30 @@ export class Floor {
     return floor;
   }
 
-  private buildRoof() {
-    // setup texture
-    var roofMaterial = new THREE.MeshBasicMaterial({
-      side: THREE.FrontSide,
-      color: 0xe5e5e5
-    });
-
-    var points: THREE.Vector2[] = [];
-    this.room.interiorCorners.forEach((corner) => {
-      points.push(new THREE.Vector2(
-        corner.x,
-        corner.y));
-    });
-    var shape = new THREE.Shape(points);
-    var geometry = new THREE.ShapeGeometry(shape);
-    var roof = new THREE.Mesh(geometry, roofMaterial);
-
-    roof.rotation.set(Math.PI / 2, 0, 0);
-    roof.position.y = 250;
-    return roof;
-  }
+//  private buildRoof() {
+//    // setup texture
+//    var roofMaterial = new THREE.MeshBasicMaterial({
+//      side: THREE.FrontSide,
+//      color: 0xe5e5e5
+//    });
+//
+//    var points: THREE.Vector2[] = [];
+//    this.room.interiorCorners.forEach((corner) => {
+//      points.push(new THREE.Vector2(
+//        corner.x,
+//        corner.y));
+//    });
+//    var shape = new THREE.Shape(points);
+//    var geometry = new THREE.ShapeGeometry(shape);
+//    var roof = new THREE.Mesh(geometry, roofMaterial);
+//
+//    roof.rotation.set(Math.PI / 2, 0, 0);
+//    roof.position.y = 250;
+//    return roof;
+//  }
 
   public addToScene() {
     this.scene.add(this.floorPlane);
-    //scene.add(roofPlane);
     // hack so we can do intersect testing
     if (this.room.floorPlane) {
       this.scene.add(this.room.floorPlane);
@@ -92,7 +88,6 @@ export class Floor {
 
   public removeFromScene() {
     this.scene.remove(this.floorPlane);
-    //scene.remove(roofPlane);
     if (this.room.floorPlane) {
       this.scene.remove(this.room.floorPlane);
     }

@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Utils } from '../core/utils';
 import { Main as ThreeMain } from '../three/main';
 import { Scene } from '../model/scene';
 import { Item } from '../items/item';
@@ -17,6 +16,7 @@ enum State {
   PANNING = 5
 };
 
+// @ts-ignore: this function is used when debugging
 function stateName(s: State): string {
   switch (s) {
     case State.UNSELECTED: return "UNSELECTED";
@@ -75,7 +75,7 @@ export class Controller {
       this.setSelectedObject(item);
       var pos = item.position.clone();
       pos.y = 0;
-      var vec = this.three.projectVector(pos);
+      //var vec = this.three.projectVector(pos);
       //this.clickPressed(vec);
     }
     item.position_set = true;
@@ -255,7 +255,7 @@ export class Controller {
     }
   }
 
-  public mouseUpEvent(event: MouseEvent) {
+  public mouseUpEvent(_event: MouseEvent) {
     if (this.enabled) {
       this.mouseDown = false;
 

@@ -14,7 +14,7 @@ export class Edge {
   private basePlanes: THREE.Mesh[] = []; // always visible
   private texture?: THREE.Texture;
 
-  private lightMap = THREE.ImageUtils.loadTexture("rooms/textures/walllightmap.png");
+  //private lightMap = THREE.ImageUtils.loadTexture("rooms/textures/walllightmap.png");
   private fillerColor: number|string = 0xdddddd;
   private sideColor: number|string = 0xcccccc;
   private baseColor: number|string = 0xdddddd;
@@ -131,14 +131,17 @@ export class Edge {
   }
 
   private updatePlanes() {
-    var wallMaterial = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      // ambientColor: 0xffffff, TODO_Ekki
-      //ambient: scope.wall.color,
-      side: THREE.FrontSide,
-      map: this.texture,
-      // lightMap: lightMap TODO_Ekki
-    });
+    let wallMaterial: THREE.MeshBasicMaterial | null = null;
+    if (this.texture) {
+      wallMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        // ambientColor: 0xffffff, TODO_Ekki
+        //ambient: scope.wall.color,
+        side: THREE.FrontSide,
+        map: this.texture,
+        // lightMap: lightMap TODO_Ekki
+      });
+    }
 
     var fillerMaterial = new THREE.MeshBasicMaterial({
       color: this.fillerColor,
@@ -154,12 +157,14 @@ export class Edge {
       fillerMaterial));
 
     // interior plane
-    this.planes.push(this.makeWall(
-      this.edge.interiorStart(),
-      this.edge.interiorEnd(),
-      this.edge.interiorTransform,
-      this.edge.invInteriorTransform,
-      wallMaterial));
+    if (wallMaterial) {
+      this.planes.push(this.makeWall(
+        this.edge.interiorStart(),
+        this.edge.interiorEnd(),
+        this.edge.interiorTransform,
+        this.edge.invInteriorTransform,
+        wallMaterial));
+    }
 
     // bottom
     // put into basePlanes since this is always visible
@@ -287,7 +292,7 @@ export class Edge {
     return filler;
   }
 
-  private buildFiller(edge: HalfEdge, height: number, side: number, color: number|string) {
+  private buildFiller(_edge: HalfEdge, height: number, side: number, color: number|string) {
     var points = [
       this.toVec2(this.edge.exteriorStart()),
       this.toVec2(this.edge.exteriorEnd()),

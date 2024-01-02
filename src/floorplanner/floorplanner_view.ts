@@ -1,8 +1,6 @@
 import { Dimensioning } from '../core/dimensioning';
-import { Utils } from '../core/utils';
 import { Floorplan } from '../model/floorplan';
 import { HalfEdge } from '../model/half_edge';
-import { Model } from '../model/model';
 import { Wall } from '../model/wall';
 import { Room } from '../model/room';
 import { Corner } from '../model/corner';
@@ -187,13 +185,11 @@ export class FloorplannerView {
     }
     var corners = edge.corners();
 
-    var scope = this;
     this.drawPolygon(corners, false, null, true, color, edgeWidth);
   }
 
   /** */
   private drawRoom(room: Room) {
-    var scope = this;
     this.drawPolygon(room.corners, true, roomColor);
   }
 

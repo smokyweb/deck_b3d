@@ -7,6 +7,7 @@
 
 */
 
+import * as THREE from 'three';
 import { Room } from '../model/room';
 import { HalfEdge } from '../model/half_edge';
 
@@ -140,6 +141,9 @@ export class Utils {
       const p1 = points[i];
       const inext = (i+1) % points.length;
       const p2 = points[inext];
+      if (!p1 || !p2) {
+        throw Error("isClockwise passed null points");
+      }
       sum += (p2.x - p1.x) * (p1.y + p2.y);
     }
     return sum >= 0;
@@ -190,6 +194,12 @@ export class Utils {
       } else {
         tSecondCorner = firstCorners[tI + 1];
       }
+      if (!tFirstCorner) {
+        throw Error("tFirstCorner not there");
+      }
+      if (!tSecondCorner) {
+        throw Error("tSecondCorner not there");
+      }
 
       if (
         Utils.linePolygonIntersect(
@@ -226,6 +236,12 @@ export class Utils {
         tSecondCorner = corners[0];
       } else {
         tSecondCorner = corners[tI + 1];
+      }
+      if (!tFirstCorner) {
+        throw Error("tFirstCorner not there");
+      }
+      if (!tSecondCorner) {
+        throw Error("tSecondCorner not there");
       }
 
       if (
@@ -331,8 +347,8 @@ export class Utils {
 
     if (startX === undefined || startY === undefined) {
       for (var tI = 0; tI < corners.length; tI++) {
-        tMinX = Math.min(tMinX, corners[tI].x);
-        tMinY = Math.min(tMinX, corners[tI].y);
+        tMinX = Math.min(tMinX, corners[tI]!.x);
+        tMinY = Math.min(tMinX, corners[tI]!.y);
       }
       startX = tMinX - 10;
       startY = tMinY - 10;
@@ -468,5 +484,10 @@ export class Utils {
   /** Subtracts the elements in subArray from array */
   static subtract<T>(array: T[], subArray: T[]) {
     return array.filter((el: T) => !subArray.includes(el));
+  }
+  // convert working 2-d coordinate into corresponding 3-d space coordinate
+  static deflatten(c: THREE.Vector2, height?: number): THREE.Vector3 {
+    height = height || 0;
+    return new THREE.Vector3(c.x, height, c.y);
   }
 }

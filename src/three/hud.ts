@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Utils } from '../core/utils';
 import { Item } from '../items/item';
 import { Main } from './main';
 
@@ -14,7 +13,6 @@ export class HUD {
   private rotating: boolean = false;
   private mouseover: boolean = false;
 
-  private tolerance: number = 10;
   private height: number = 5;
   private distance: number = 20;
   private color: number|string = "#ffffff";
@@ -109,7 +107,7 @@ export class HUD {
     return vec;
   }
 
-  private makeLineMaterial(rotating: boolean) {
+  private makeLineMaterial(_rotating: boolean) {
     var mat = new THREE.LineBasicMaterial({
       color: this.getColor(),
       linewidth: 3
@@ -130,7 +128,7 @@ export class HUD {
     return cone;
   }
 
-  private makeSphere(item: Item) {
+  private makeSphere(_item: Item) {
     var geometry = new THREE.SphereGeometry(4, 16, 16);
     var material = new THREE.MeshBasicMaterial({
       color: this.getColor()

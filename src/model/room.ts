@@ -1,16 +1,14 @@
 import * as THREE from 'three';
-import { Utils, Point, FloorPlane } from '../core/utils';
+import { Point, FloorPlane } from '../core/utils';
 import { Corner } from './corner';
 import { Floorplan } from './floorplan';
 import { HalfEdge } from './half_edge';
 
 
-/*
-TODO
-var Vec2 = require('vec2')
-var segseg = require('segseg')
-var Polygon = require('polygon')
-*/
+//TODO
+//var Vec2 = require('vec2')
+//var segseg = require('segseg')
+//var Polygon = require('polygon')
 
 
 /** Default texture to be used if nothing is provided. */
@@ -32,9 +30,6 @@ export class Room {
 
   /** floor plane for intersection testing */
   public floorPlane: FloorPlane | null = null;
-
-  /** */
-  private customTexture = false;
 
   /** */
   private floorChangeCallbacks = $.Callbacks();
@@ -67,7 +62,7 @@ export class Room {
   /** 
    * textureStretch always true, just an argument for consistency with walls
    */
-  public setTexture(textureUrl: string, textureStretch: boolean, textureScale: number) {
+  public setTexture(textureUrl: string, _textureStretch: boolean, textureScale: number) {
     var uuid = this.getUuid();
     this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
     this.floorChangeCallbacks.fire();
@@ -89,14 +84,6 @@ export class Room {
     mesh.visible = false;
     mesh.rotation.set(Math.PI / 2, 0, 0);
     this.floorPlane = Object.assign(mesh, {room: this});
-  }
-
-  private cycleIndex(index: number) {
-    if (index < 0) {
-      return index += this.corners.length;
-    } else {
-      return index % this.corners.length;
-    }
   }
 
   private updateInteriorCorners() {
