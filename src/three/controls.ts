@@ -37,7 +37,7 @@ export class Controls {
   }
   set enabled(v: boolean) {
     if (v != this._enabled) {
-      console.trace("Controls.enabled", v);
+      //console.trace("Controls.enabled", v);
       this._enabled = v;
     }
   }
@@ -202,7 +202,7 @@ export class Controls {
     }
 
     this.scale /= dollyScale;
-    console.log("dollyOut, new scale is ", this.scale);
+    //console.log("dollyOut, new scale is ", this.scale);
   }
 
   public dollyIn(dollyScale?: number) {
@@ -211,7 +211,7 @@ export class Controls {
     }
 
     this.scale *= dollyScale;
-    console.log("dollyIn, new scale is ", this.scale);
+    //console.log("dollyIn, new scale is ", this.scale);
   }
 
   public update() {
@@ -274,7 +274,7 @@ export class Controls {
 
   // FIXME: Handle multiple button presses
   private onMouseDown(event: MouseEvent) {
-    console.log("three/controls.onMouseDown event:", event, "enabled:", this.enabled);
+    //console.log("three/controls.onMouseDown event:", event, "enabled:", this.enabled);
 
     if (this.enabled === false) { return; }
     event.preventDefault();
@@ -311,7 +311,7 @@ export class Controls {
   }
 
   private onMouseMove(event: MouseEvent) {
-    console.log("Three.Controls.onMouseMove", event);
+    //console.log("Three.Controls.onMouseMove", event);
 
     if (this.enabled === false) return;
 
@@ -366,8 +366,8 @@ export class Controls {
     this.update();
   }
 
-  private onMouseUp(event: MouseEvent) {
-    console.log("Three.Controls.onMouseUp", event);
+  private onMouseUp(_event: MouseEvent) {
+    //console.log("Three.Controls.onMouseUp", event);
     if (this.enabled === false) return;
 
     // FIXME: Yet another crime against humanity.  This doesn't work when multiple
@@ -389,7 +389,7 @@ export class Controls {
     // left (-x) zooms out and right (+x) zooms in
     // up (-y, left-handed coordinates) zooms in and down (+y) zooms out
 
-    console.log("controls.onMouseWheel", event);
+    //console.log("controls.onMouseWheel", event);
     const delta = event.deltaX - event.deltaY + event.deltaZ;
 
     if (delta < 0) {
