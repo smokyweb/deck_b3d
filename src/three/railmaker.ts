@@ -74,7 +74,7 @@ export class RailMaker {
     const nslats = Math.floor((basedist - postStock.width)/spec.slatIntervalInches);
     const offset = (basedist - postStock.width - nslats*spec.slatIntervalInches)/2;
     for (let i = 0; i < nslats; i++) {
-      const interpdist = postStock.width/2 + offset + i*spec.slatIntervalInches;
+      const interpdist = postStock.width/2 + offset + (i + 0.5)*spec.slatIntervalInches;
       // normalized interpolation parameter, 0 to 1
       const t = interpdist / basedist;
       const slatloc = this.interp2(spec.startBase, spec.endBase, t);
