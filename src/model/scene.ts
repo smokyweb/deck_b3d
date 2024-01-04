@@ -12,7 +12,7 @@ import { Metadata } from '../items/metadata';
 export class Scene {
 
   /** The associated ThreeJS scene. */
-  private scene: THREE.Scene;
+  public scene: THREE.Scene;
 
   /** */
   public items: Item[] = [];

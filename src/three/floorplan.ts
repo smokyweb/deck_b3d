@@ -1,15 +1,22 @@
+import * as THREE from 'three';
 import { Floor } from './floor';
 import { Item } from '../items/item';
 import { Edge } from './edge';
 import { Controls } from './controls';
 import { Floorplan as ModelFloorplan } from '../model/floorplan';
 import { Scene } from '../model/scene';
+import { LumberYard } from './lumberyard';
+import { RailMaker, RailSpec } from './railmaker';
+//import { Utils } from '../core/utils';
 
 export class Floorplan {
 
   private floors: Floor[] = [];
   private edges: Edge[] = [];
   private kenObjects: Item[] = [];
+  private railObjects: THREE.Object3D[] = [];
+  private lumberYard = new LumberYard();
+  private railMaker = new RailMaker(this.lumberYard);
 
   constructor(private scene: Scene, private floorplan: ModelFloorplan, private controls: Controls) {
     this.floorplan.fireOnUpdatedRooms(() => this.redraw());
@@ -23,6 +30,9 @@ export class Floorplan {
     this.kenObjects.forEach((item) => {
       this.scene.removeItem(item);
     });
+    this.railObjects.forEach((obj) => {
+      this.scene.scene.remove(obj);
+    });
 
     this.edges.forEach((edge) => {
       edge.remove();
@@ -30,12 +40,12 @@ export class Floorplan {
     this.floors = [];
     this.edges = [];
     this.kenObjects = [];
+    this.railObjects = [];
 
-    const scope = this;
     // draw floors
     this.floorplan.getRooms().forEach((room) => {
-      var threeFloor = new Floor(scope.scene, room);
-      scope.floors.push(threeFloor);
+      var threeFloor = new Floor(this.scene, room);
+      this.floors.push(threeFloor);
       threeFloor.addToScene();
     });
 
@@ -44,8 +54,8 @@ export class Floorplan {
       // draw edges
       this.floorplan.wallEdges().forEach((edge) => {
         var threeEdge = new Edge(
-          scope.scene, edge, scope.controls);
-        scope.edges.push(threeEdge);
+          this.scene, edge, this.controls);
+        this.edges.push(threeEdge);
       });
     }
 
@@ -61,14 +71,24 @@ export class Floorplan {
     this.floorplan.getWalls().forEach((wall) => {
       // this code mostly copied from model/scene/addItem, but 
       // can't use that call because it reloads the urls every time.
-      const item = scope.scene.makeRailItem(wall);
-      if (item) {
-        scope.kenObjects.push(item);
-        scope.scene.items.push(item);
-        scope.scene.add(item);
-        scope.scene.itemLoadedCallbacks.fire(item);
-      } else {
-      }
+//      const item = this.scene.makeRailItem(wall);
+//      if (item) {
+//        this.kenObjects.push(item);
+//        this.scene.items.push(item);
+//        this.scene.add(item);
+//        this.scene.itemLoadedCallbacks.fire(item);
+//      } else {
+//      }
+      
+      const start = wall.getStart();
+      const end = wall.getEnd();
+      const startBase = start.position();
+      const endBase = end.position(); 
+      const postTopInches = wall.height;
+      const spec = new RailSpec({ startBase, endBase, postTopInches});
+      const rails = this.railMaker.makeRail(spec);
+      this.railObjects.push(rails);
+      this.scene.add(rails);
     });
   }
 }

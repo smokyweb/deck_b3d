@@ -9,7 +9,6 @@ import { Scene } from '../model/scene';
 import { Model } from '../model/model';
 import { Utils } from '../core/utils';
 import { Skybox } from './skybox';
-import { LumberYard } from './lumberyard';
 
 export class Main {
   private options: any = {
@@ -58,7 +57,7 @@ export class Main {
   public floorClicked = $.Callbacks(); // floor
   public nothingClicked = $.Callbacks();
 
-  private lumberYard: LumberYard;
+
   constructor(private model: Model, element: string, _canvasElement: string, opts: any) {
     this.element = $(element);
     // override with manually set options
@@ -121,9 +120,6 @@ export class Main {
     this.element.click(() => { this.hasClicked = true;});
 
     //canvas = new ThreeCanvas(canvasElement, this);
-
-    this.lumberYard = new LumberYard();
-    this.scene.add(this.lumberYard.makeLumber("2x8", 90));
   }
 
   private spin() {
