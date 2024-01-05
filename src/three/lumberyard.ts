@@ -1,13 +1,8 @@
 
 import * as THREE from 'three';
+import { inToCm, cmToIn } from '../core/utils';
 
-//function inToCm(inches: number): number {
-//  return inches*2.54;
-//}
 
-//function cmToIn(cm: number): number {
-//  return cm/2.54;
-//}
 export interface LumberDim {
   // These are cross-grain dimensions.  Width is typically the longer one.
     width: number; 
@@ -19,6 +14,7 @@ export interface LumberDim {
 
 export class LumberYard {
   
+  // @ts-ignore
   private sidegrain: THREE.Texture;
 
 //  from https://www.lowes.com/n/how-to/nominal-actual-lumber-sizes
@@ -70,20 +66,21 @@ export class LumberYard {
  
   // returns piece of lumber, centered at origin, length is along x axis, width is y axis,
   // thickness is z axis
-  // Returns mesh scaled in inches
-  public makeLumber(nomDimension: string, lengthInches: number): THREE.Mesh {
+  public makeLumber(nomDimension: string, lengthInches: number): THREE.Object3D {
     const size = LumberYard.lumberDimensions.get(nomDimension);
     if (!size) {
       throw Error(`Invalid lumber dimension '${nomDimension}'`);
     }
-    return this.makeWood(lengthInches, size.width, size.thickness);
+    return this.makeWoodInches(lengthInches, size.width, size.thickness);
   }
+  // from and to are in the cm model space.
   public makeLumberFromTo(nomDimension: string, 
               from: THREE.Vector3, to: THREE.Vector3, 
-              side?: boolean): THREE.Mesh 
+              side?: boolean): THREE.Object3D 
   {
     side = side || false;
     const length = from.distanceTo(to);
+    const lengthInches = cmToIn(length);
     // now making a transform to put the lumber in the right place.
     const dx = to.x - from.x;
     const dy = to.y - from.y;
@@ -91,20 +88,41 @@ export class LumberYard {
     const shadowLength = Math.sqrt(dx*dx + dz*dz);
     const shadowAngle = -Math.atan2(dz, dx);
     const elevationAngle = Math.atan2(dy, shadowLength);
-    const res = this.makeLumber(nomDimension, length);
+    const res = this.makeLumber(nomDimension, lengthInches);
     res.position.x = (from.x + dx/2);
     res.position.y = (from.y + dy/2);
     res.position.z = (from.z + dz/2);
     res.rotateY(shadowAngle);
     res.rotateZ(elevationAngle);
+    if (side) {
+      res.rotateX(Math.PI/2);
+    }
+
     return res;
   }
-  // Returns mesh scaled in same units as input.
-  public makeWood(lengthInches: number, widthInches: number, heightInches: number): THREE.Mesh {
+  public makeWoodInches(lengthInches: number, widthInches: number, heightInches: number, outline: boolean = false): THREE.Object3D {
+    return this.makeWood(inToCm(lengthInches), inToCm(widthInches), inToCm(heightInches), outline);
+  }
+  // Arguments are in cm.
+  public makeWood(length: number, width: number, height: number, outline: boolean = false): THREE.Object3D {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
-    const box = new THREE.BoxGeometry(lengthInches, widthInches, heightInches);
-    const texture = new THREE.MeshBasicMaterial({ map: this.sidegrain, color: 0xbbbbbb });
-    return new THREE.Mesh(box, texture);
+    const box = new THREE.BoxBufferGeometry(length, width, height);
+    const texture = new THREE.MeshBasicMaterial({ map: this.sidegrain });
+    const lumber = new THREE.Mesh(box, texture);
+    const results: THREE.Object3D[] = [lumber];
+    if (outline) {
+      const edgeGeo = new THREE.EdgesGeometry(box, 1),
+      line = new THREE.Line(edgeGeo,
+                      new THREE.LineBasicMaterial({ color: 0x000000 }));
+      results.push(line);
+    }
+    if (results.length == 1) {
+      return results[0];
+    } else {
+      const group = new THREE.Group();
+      results.forEach((r) => group.add(r));
+      return group;
+    }
   }
 
 }

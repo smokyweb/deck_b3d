@@ -491,3 +491,11 @@ export class Utils {
     return new THREE.Vector3(c.x, height, c.y);
   }
 }
+
+export function inToCm(inches: number): number {
+  return inches*2.54;
+}
+
+export function cmToIn(cm: number): number {
+  return cm/2.54;
+}
