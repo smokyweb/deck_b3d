@@ -6,6 +6,7 @@ import { Model } from '../model/model';
 import { Wall } from '../model/wall';
 import { Controls } from './controls';
 import { HUD } from './hud';
+import { LumberYard } from './lumberyard';
 
 enum State {
   UNSELECTED = 0, // no object selected
@@ -63,6 +64,10 @@ export class Controller {
     elt.addEventListener("mousedown", (event: MouseEvent) => this.mouseDownEvent(event));
     elt.addEventListener("mouseup", (event: MouseEvent) => this.mouseUpEvent(event));
     elt.addEventListener("mousemove", (event: MouseEvent) => this.mouseMoveEvent(event));
+    //console.log("adding keydown listener");
+    // TODO: figure out why this works on window, but not on elt.
+    window.addEventListener("keydown", (event: KeyboardEvent) => this.keyboardEvent(event));
+    //console.log("added keydown listener");
 
     this.scene.itemRemovedCallbacks.add((item: Item) => this.itemRemoved(item));
     this.scene.itemLoadedCallbacks.add((item: Item) => this.itemLoaded(item));
@@ -175,6 +180,15 @@ export class Controller {
       this.three.nothingClicked.fire();
     }
 
+  }
+  private lastkeys: string = "";
+  private keyboardEvent(event: KeyboardEvent) {
+    this.lastkeys = this.lastkeys.concat(event.key).slice(-5);
+    //console.log(`keyboardEvent(${event.key}), lastkeys=${this.lastkeys}`); 
+    if (this.lastkeys === 'zebra') {
+      LumberYard.useZebra = !LumberYard.useZebra;
+      this.model.floorplan.update();
+    }
   }
 
   public mouseMoveEvent(event: MouseEvent) {

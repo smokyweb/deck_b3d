@@ -10,13 +10,12 @@ export interface LumberDim {
     nominalDim: string;
   };
 
-
-
 export class LumberYard {
   
-  // @ts-ignore
   private sidegrain: THREE.Texture;
+  private zebra: THREE.Texture;
   private count: number = 0;
+  public static useZebra = false;
 
 //  from https://www.lowes.com/n/how-to/nominal-actual-lumber-sizes
 //  Nominal: 1 x 2 Actual Size: 3/4 x 1-1/2
@@ -63,13 +62,16 @@ export class LumberYard {
 
   constructor() {
     const loader = new THREE.TextureLoader();
-    //this.sidegrain = loader.load("textures/sidegrain01.jpg");
-    this.sidegrain = loader.load("textures/zebra.jpg");
+    this.sidegrain = loader.load("textures/sidegrain01.jpg");
+    this.zebra = loader.load("textures/zebra.jpg");
     this.sidegrain.wrapS = this.sidegrain.wrapT = THREE.MirroredRepeatWrapping;
+    this.zebra.wrapS = this.sidegrain.wrapT = THREE.MirroredRepeatWrapping;
   }
+
 
   // width, depth, height:  x, y, and z dimensions of box
   // s, t:  starting coordinate in texture
+  // box needs to be in its initial position, centered on origin.
   private retextureBox(geom: THREE.BoxBufferGeometry, width: number, height: number, depth: number,
     s?: number, t?: number) 
   {
@@ -83,16 +85,19 @@ export class LumberYard {
     const uvattr = geom.getAttribute('uv');
     const vertices = geom.getAttribute('position').array;
     const normals = geom.getAttribute('normal').array;
-    const sdelta = cmToIn(width) / this.textureSizeInches;
+    // difference in u texture coordinate along x direction
+    const udelta = cmToIn(width) / this.textureSizeInches;
+    // difference in v texture coordinate along y directioon
     const y_vdelta = cmToIn(height) / this.textureSizeInches;
+    // difference in v texture coordinate along z directioon
     const z_vdelta = cmToIn(depth) / this.textureSizeInches;
 
     const nnodes = vertices.length / 3; 
-    if (nnodes != 24) {
-      throw Error(`bad number of vertices (${nnodes})`);
-    }
     const norm = new THREE.Vector3();
     const vert = new THREE.Vector3();
+    // Loop over all vertices.  Look at the normal to see which
+    // face we're on.  Then look at the position to figure out 
+    // what the texture coordinate should be.
     for (let i = 0; i < nnodes; i++) {
       const o3 = i*3; // offset into vertices and normals arrays
       //const o2 = i*2; // offset into uvs array
@@ -107,7 +112,7 @@ export class LumberYard {
         let u = s;
         let v = t;
         if (vert.x > 0) {
-          u += sdelta;
+          u += udelta;
         }
         if (norm.z > 0.9) { // pz face
           if (vert.y < 0) {
@@ -175,6 +180,13 @@ export class LumberYard {
 
     return res;
   }
+  private currentTexture(): THREE.Texture {
+    if (LumberYard.useZebra) {
+      return this.zebra;
+    } else {
+      return this.sidegrain;
+    }
+  }
   public makeWoodInches(lengthInches: number, widthInches: number, heightInches: number, outline: boolean = false): THREE.Object3D {
     return this.makeWood(inToCm(lengthInches), inToCm(widthInches), inToCm(heightInches), outline);
   }
@@ -183,7 +195,7 @@ export class LumberYard {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
     const box = new THREE.BoxBufferGeometry(length, width, height);
     this.retextureBox(box, length, width, height);
-    const texture = new THREE.MeshBasicMaterial({ map: this.sidegrain });
+    const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
     const lumber = new THREE.Mesh(box, texture);
     this.count++;
     const results: THREE.Object3D[] = [lumber];
