@@ -63,9 +63,11 @@ export class Controls {
   private autoRotateSpeed: number = 2.0; // 30 seconds per round when fps is 60
 
   // How far you can orbit vertically, upper and lower limits.
-  // Range is 0 to Math.PI radians.
-  private minPolarAngle: number = 0; // radians
-  private maxPolarAngle: number = Math.PI / 2; // radians
+  // This angle is the angle off of the +y axis, not the elevation angle.
+  // Looking down the +y axis towards the origin is 0
+  // Looking parallel to the xz plane is pi/2
+  private minPolarAngle: number = EPS; // Just off vertical
+  private maxPolarAngle: number = Math.PI * 2 / 3; // 30 deg below the surface angle
 
   // Set to true to disable use of the keys
   private noKeys: Boolean = false;
@@ -215,8 +217,8 @@ export class Controls {
   }
 
   public update() {
-    var position = this.object.position;
-    var offset = position.clone().sub(this.target);
+    var cameraPosition = this.object.position;
+    var offset = cameraPosition.clone().sub(this.target);
 
     // angle from z-axis around y-axis
     var theta = Math.atan2(offset.x, offset.z);
@@ -232,10 +234,7 @@ export class Controls {
     phi += this.phiDelta;
 
     // restrict phi to be between desired limits
-    phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, phi));
-
-    // restrict phi to be betwee EPS and PI-EPS
-    phi = Math.max(EPS, Math.min(Math.PI - EPS, phi));
+    phi = Math.min(this.maxPolarAngle, Math.max(this.minPolarAngle, phi));
 
     var radius = offset.length() * this.scale;
 
@@ -251,7 +250,7 @@ export class Controls {
 
     // this is the position member of the camera object
     // so it actually changes the camera.
-    position.copy(this.target).add(offset);
+    cameraPosition.copy(this.target).add(offset);
 
     this.object.lookAt(this.target);
 

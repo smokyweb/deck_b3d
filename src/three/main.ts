@@ -201,7 +201,7 @@ export class Main {
   }
 
   public centerCamera() {
-    var yOffset = 150.0;
+    var yOffset = 75; // how far in cm above floor level camera target should be
 
     const pan2 = this.model.floorplan.getCenter2();
     const pan = Utils.deflatten(pan2, yOffset);
