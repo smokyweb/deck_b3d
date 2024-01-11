@@ -65,8 +65,11 @@ export class Controller {
     elt.addEventListener("mouseup", (event: MouseEvent) => this.mouseUpEvent(event));
     elt.addEventListener("mousemove", (event: MouseEvent) => this.mouseMoveEvent(event));
     //console.log("adding keydown listener");
-    // TODO: figure out why this works on window, but not on elt.
-    window.addEventListener("keydown", (event: KeyboardEvent) => this.keyboardEvent(event));
+    // can't add this on the canvas because an HTMLElement needs to have the focus
+    // in order to get keydown events.  By default, a canvas can't have the focus.
+    // Normally the 'body' element has the focus.
+    // So we add the listener to the document, events will bubble up.
+    document.addEventListener("keydown", (event: KeyboardEvent) => this.keyboardEvent(event));
     //console.log("added keydown listener");
 
     this.scene.itemRemovedCallbacks.add((item: Item) => this.itemRemoved(item));
