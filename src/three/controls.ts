@@ -100,9 +100,8 @@ export class Controls {
   private onMouseMoveHandler = (event: MouseEvent) => this.onMouseMove(event);
   private onMouseUpHandler = (event: MouseEvent) => this.onMouseUp(event);
 
-  constructor(public object: THREE.Camera, domElement?: HTMLElement | Document) {
+  constructor(public camera: THREE.Camera, domElement?: HTMLElement | Document) {
 
-    this.object = object;
     if (domElement === document || domElement == undefined) {
       this.domElement = document.body;
     } else if (domElement instanceof HTMLElement) {
@@ -140,7 +139,7 @@ export class Controls {
   private panLeft(distance: number) {
 
     var panOffset = new THREE.Vector3();
-    var te = this.object.matrix.elements;
+    var te = this.camera.matrix.elements;
     // get X column of matrix
     panOffset.set(te[0], 0, te[2]);
     panOffset.normalize();
@@ -154,7 +153,7 @@ export class Controls {
   private panUp(distance: number) {
 
     var panOffset = new THREE.Vector3();
-    var te = this.object.matrix.elements;
+    var te = this.camera.matrix.elements;
     // get Y column of matrix
     panOffset.set(te[4], 0, te[6]);
     panOffset.normalize();
@@ -168,23 +167,23 @@ export class Controls {
   private doPan(delta: THREE.Vector2) {
 
 
-    if (this.object instanceof THREE.PerspectiveCamera) {
+    if (this.camera instanceof THREE.PerspectiveCamera) {
 
       // perspective
-      var position = this.object.position;
+      var position = this.camera.position;
       var offset = position.clone().sub(this.target);
       var targetDistance = offset.length();
 
       // half of the fov is center to top of screen
-      targetDistance *= Math.tan((this.object.fov / 2) * Math.PI / 180.0);
+      targetDistance *= Math.tan((this.camera.fov / 2) * Math.PI / 180.0);
       // we actually don't use screenWidth, since perspective camera is fixed to screen height
       this.panLeft(2 * delta.x * targetDistance / this.domElement.clientHeight);
       this.panUp(2 * delta.y * targetDistance / this.domElement.clientHeight);
-    } else if (this.object instanceof THREE.OrthographicCamera) {
+    } else if (this.camera instanceof THREE.OrthographicCamera) {
 
       // orthographic
-      this.panLeft(delta.x * (this.object.right - this.object.left) / this.domElement.clientWidth);
-      this.panUp(delta.y * (this.object.top - this.object.bottom) / this.domElement.clientHeight);
+      this.panLeft(delta.x * (this.camera.right - this.camera.left) / this.domElement.clientWidth);
+      this.panUp(delta.y * (this.camera.top - this.camera.bottom) / this.domElement.clientHeight);
     } else {
 
       // camera neither orthographic or perspective - warn user
@@ -217,7 +216,7 @@ export class Controls {
   }
 
   public update() {
-    var cameraPosition = this.object.position;
+    var cameraPosition = this.camera.position;
     var offset = cameraPosition.clone().sub(this.target);
 
     // angle from z-axis around y-axis
@@ -252,7 +251,7 @@ export class Controls {
     // so it actually changes the camera.
     cameraPosition.copy(this.target).add(offset);
 
-    this.object.lookAt(this.target);
+    this.camera.lookAt(this.target);
 
     this.thetaDelta = 0;
     this.phiDelta = 0;

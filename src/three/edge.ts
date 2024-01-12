@@ -82,7 +82,7 @@ export class Edge {
     normal.normalize();
 
     // setup camera
-    var position = this.controls.object.position.clone();
+    var position = this.controls.camera.position.clone();
     var focus = new THREE.Vector3(
       (start.x + end.x) / 2.0,
       0,
