@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Point, FloorPlane } from '../core/utils';
 import { Corner } from './corner';
-import { Floorplan } from './floorplan';
+import { Floorplan, TextureSpec } from './floorplan';
 import { HalfEdge } from './half_edge';
 
 
@@ -53,7 +53,7 @@ export class Room {
     this.floorChangeCallbacks.add(callback);
   }
 
-  public getTexture() {
+  public getTexture(): TextureSpec {
     var uuid = this.getUuid();
     var tex = this.floorplan.getFloorTexture(uuid);
     return tex || defaultRoomTexture;

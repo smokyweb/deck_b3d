@@ -21,7 +21,11 @@ export class Floor {
   private buildFloor() {
     var textureSettings = this.room.getTexture();
     // setup texture
-    var floorTexture = THREE.ImageUtils.loadTexture(textureSettings.url);
+    const textureLoader = new THREE.TextureLoader();
+    // FIXME: Textures need to have Texture.dispose() called, but that's obviously not happening
+    const floorTexture = 
+      textureLoader.load(textureSettings.url, 
+        (_t: THREE.Texture) => { this.scene.needsUpdate = true });
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(1, 1);

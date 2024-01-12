@@ -7,7 +7,7 @@ import { Wall } from './wall';
 import { Corner } from './corner';
 import { Room } from './room';
 
-interface TextureSpec { url: string, scale: number };
+export interface TextureSpec { url: string, scale: number };
 /** */
 const defaultFloorPlanTolerance = 10.0;
 
