@@ -5,6 +5,7 @@ import { Room } from '../model/room';
 export class Floor {
 
   private floorPlane: THREE.Mesh;
+  private floorTexture: THREE.Texture | null = null;
 
   constructor(private scene: Scene, private room: Room) {
     this.room.fireOnFloorChange(() => this.redraw);
@@ -22,15 +23,15 @@ export class Floor {
     var textureSettings = this.room.getTexture();
     // setup texture
     const textureLoader = new THREE.TextureLoader();
-    // FIXME: Textures need to have Texture.dispose() called, but that's obviously not happening
-    const floorTexture = 
+    // FIXME: Every instance of floor loads the texture again.  Should cache and share.
+    this.floorTexture = 
       textureLoader.load(textureSettings.url, 
         (_t: THREE.Texture) => { this.scene.needsUpdate = true });
-    floorTexture.wrapS = THREE.RepeatWrapping;
-    floorTexture.wrapT = THREE.RepeatWrapping;
-    floorTexture.repeat.set(1, 1);
+    this.floorTexture.wrapS = THREE.RepeatWrapping;
+    this.floorTexture.wrapT = THREE.RepeatWrapping;
+    this.floorTexture.repeat.set(1, 1);
     var floorMaterialTop = new THREE.MeshPhongMaterial({
-      map: floorTexture,
+      map: this.floorTexture,
       side: THREE.DoubleSide,
       // ambient: 0xffffff, TODO_Ekki
       color: 0xcccccc,
@@ -92,6 +93,7 @@ export class Floor {
 
   public removeFromScene() {
     this.scene.remove(this.floorPlane);
+    this.floorTexture?.dispose();
     if (this.room.floorPlane) {
       this.scene.remove(this.room.floorPlane);
     }
