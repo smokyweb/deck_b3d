@@ -84,8 +84,7 @@ export class Floorplan {
       const end = wall.getEnd();
       const startBase = start.position();
       const endBase = end.position(); 
-      const postTopInches = 42;
-      const spec = new RailSpec({ startBase, endBase, postTopInches});
+      const spec = new RailSpec({ startBase, endBase });
       const rails = this.railMaker.makeRail(spec);
       this.railObjects.push(rails);
       this.scene.add(rails);
