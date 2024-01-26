@@ -156,9 +156,9 @@ export class LumberYard {
   // from and to are in the cm model space.
   public makeLumberFromTo(nomDimension: string, 
               from: THREE.Vector3, to: THREE.Vector3, 
-              side?: boolean): THREE.Object3D 
+              rotation?: number): THREE.Object3D 
   {
-    side = side || false;
+    rotation = rotation || 0;
     const length = from.distanceTo(to);
     const lengthInches = cmToIn(length);
     // now making a transform to put the lumber in the right place.
@@ -174,10 +174,7 @@ export class LumberYard {
     res.position.z = (from.z + dz/2);
     res.rotateY(shadowAngle);
     res.rotateZ(elevationAngle);
-    if (side) {
-      res.rotateX(Math.PI/2);
-    }
-
+    res.rotateX(rotation);
     return res;
   }
   private currentTexture(): THREE.Texture {

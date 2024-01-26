@@ -7,7 +7,7 @@ export class RailSpec {
   public postStock: string = "4x4";
   public railTopStock: string = "2x4";
   public railBottomStock: string = "1x1";
-  public slatStock: string = "1x1";
+  public slatStock: string = "2x4";
   public includeStartPost: boolean = true;
   public includeEndPost: boolean = true;
   public postTopInches: number = 40;
@@ -76,6 +76,10 @@ export class RailMaker {
     const nslats = Math.floor((baseDistInches - postStock.width)/spec.slatIntervalInches);
     const offsetInches = (baseDistInches - postStock.width - nslats*spec.slatIntervalInches)/2;
     const offset = inToCm(offsetInches);
+    const shadow = new THREE.Vector2();
+    shadow.subVectors(spec.endBase, spec.startBase);
+    const shadowAngle = -Math.atan2(shadow.y, shadow.x) + Math.PI/2;
+
     for (let i = 0; i < nslats; i++) {
       const interpDistInches = postStock.width/2 + offset + (i + 0.5)*spec.slatIntervalInches;
       // normalized interpolation parameter, 0 to 1
@@ -83,7 +87,7 @@ export class RailMaker {
       const slatloc = this.interp2(spec.startBase, spec.endBase, t);
       const slatBase = Utils.deflatten(slatloc, inToCm(bottomRailCenterHeightInches));
       const slatTop = Utils.deflatten(slatloc, inToCm(topRailCenterHeightInches));
-      const slat = this.lumberYard.makeLumberFromTo(spec.slatStock, slatBase, slatTop);
+      const slat = this.lumberYard.makeLumberFromTo(spec.slatStock, slatBase, slatTop, shadowAngle);
       group.add(slat);
     }
     return group;
