@@ -11,7 +11,7 @@ export class RailSpec {
   public includeStartPost: boolean = true;
   public includeEndPost: boolean = true;
   public postTopInches: number = 40;
-  public postBottomInches: number = -30;
+  public postBottomInches: number = -5;
   public railTopInches: number = 36;
   public railBottomInches: number = 4;
   public slatIntervalInches: number = 5;
@@ -90,9 +90,11 @@ export class RailMaker {
   }
 
   
-  private interp1(a1: number, a2: number, x: number) {
-    return (a1*x) + (a2*(1-x));
+  // t=0 means result is a1, t=1 means result is a2
+  private interp1(a1: number, a2: number, t: number) {
+    return (a1*(1-t)) + (a2*t);
   }
+  // t=0 means result is p1, t=1 means result is p2
   private interp2(p1: THREE.Vector2, p2: THREE.Vector2, t: number) {
     return new THREE.Vector2(this.interp1(p1.x, p2.x, t), this.interp1(p1.y, p2.y, t));
   }
