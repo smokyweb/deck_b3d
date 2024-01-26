@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Floor } from './floor';
-import { Item } from '../items/item';
 import { Edge } from './edge';
 import { Controls } from './controls';
 import { Floorplan as ModelFloorplan } from '../model/floorplan';
@@ -13,7 +12,6 @@ export class Floorplan {
 
   private floors: Floor[] = [];
   private edges: Edge[] = [];
-  private kenObjects: Item[] = [];
   private railObjects: THREE.Object3D[] = [];
   private lumberYard = new LumberYard();
   private railMaker = new RailMaker(this.lumberYard);
@@ -27,9 +25,6 @@ export class Floorplan {
     this.floors.forEach((floor) => {
       floor.removeFromScene();
     });
-    this.kenObjects.forEach((item) => {
-      this.scene.removeItem(item);
-    });
     this.railObjects.forEach((obj) => {
       this.scene.scene.remove(obj);
     });
@@ -39,7 +34,6 @@ export class Floorplan {
     });
     this.floors = [];
     this.edges = [];
-    this.kenObjects = [];
     this.railObjects = [];
 
     // draw floors
@@ -59,27 +53,7 @@ export class Floorplan {
       });
     }
 
-    // FIXME: this Factory thing is stupid, it just discards all the 
-    //    type info that causes a typescript compile error.  The type 
-    //    errors should be fixed.
-    // 1: FloorItem,
-    // 2: WallItem,
-    // 3: InWallItem,
-    // 7: InWallFloorItem,
-    // 8: OnFloorItem,
-    // 9: WallFloorItem
     this.floorplan.getWalls().forEach((wall) => {
-      // this code mostly copied from model/scene/addItem, but 
-      // can't use that call because it reloads the urls every time.
-//      const item = this.scene.makeRailItem(wall);
-//      if (item) {
-//        this.kenObjects.push(item);
-//        this.scene.items.push(item);
-//        this.scene.add(item);
-//        this.scene.itemLoadedCallbacks.fire(item);
-//      } else {
-//      }
-      
       const start = wall.getStart();
       const end = wall.getEnd();
       const startBase = start.position();
