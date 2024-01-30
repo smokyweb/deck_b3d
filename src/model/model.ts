@@ -1,7 +1,6 @@
 
 import { Floorplan } from './floorplan';
 import { Scene } from './scene';
-import * as $ from 'jquery';
 /** 
  * A Model connects a Floorplan and a Scene. 
  */
