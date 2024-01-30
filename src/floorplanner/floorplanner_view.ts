@@ -57,7 +57,7 @@ export class FloorplannerView {
     this.context = this.canvasElement.getContext('2d');
 
     var scope = this;
-    $(window).resize(() => {
+    window.addEventListener("resize", () => {
       scope.handleWindowResize();
     });
     this.handleWindowResize();
