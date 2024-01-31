@@ -294,8 +294,8 @@ export class FloorplannerView {
 
   /** */
   private drawGrid() {
-    var offsetX = this.calculateGridOffset(-this.viewmodel.originX);
-    var offsetY = this.calculateGridOffset(-this.viewmodel.originY);
+    var offsetX = this.calculateGridOffset(-this.viewmodel.origin.x);
+    var offsetY = this.calculateGridOffset(-this.viewmodel.origin.y);
     var width = this.canvasElement.width;
     var height = this.canvasElement.height;
     for (var x = 0; x <= (width / gridSpacing); x++) {

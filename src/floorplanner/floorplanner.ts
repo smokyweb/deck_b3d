@@ -3,6 +3,9 @@ import { Floorplan } from '../model/floorplan';
 import { Corner } from '../model/corner';
 import { Wall } from '../model/wall';
 import { FloorplannerView, floorplannerMode } from './floorplanner_view';
+import { Vector2 as V2 } from 'three';
+
+
 /** how much will we move a corner to make a wall axis aligned (cm) */
 const snapTolerance = 25;
 
@@ -20,11 +23,7 @@ export class Floorplanner {
   /** */
   public activeCorner: (Corner | null) = null;
 
-  /** */
-  public originX = 0;
-
-  /** */
-  public originY = 0;
+  public origin: V2 = new V2(0,0);
 
   /** drawing state */
   public targetX = 0;
@@ -120,6 +119,8 @@ export class Floorplanner {
     });
   }
 
+  //private THREE.Vector2
+
   /** */
   private escapeKey() {
     this.setMode(floorplannerMode.MOVE);
@@ -177,8 +178,8 @@ export class Floorplanner {
     this.rawMouseX = event.clientX;
     this.rawMouseY = event.clientY;
 
-    this.mouseX = ox * this.cmPerPixel + this.originX * this.cmPerPixel;
-    this.mouseY = oy * this.cmPerPixel + this.originY * this.cmPerPixel;
+    this.mouseX = ox * this.cmPerPixel + this.origin.x * this.cmPerPixel;
+    this.mouseY = oy * this.cmPerPixel + this.origin.y * this.cmPerPixel;
 
     // update target (snapped position of actual mouse)
     if (this.mode == floorplannerMode.DRAW || (this.mode == floorplannerMode.MOVE && this.mouseDown)) {
@@ -210,8 +211,8 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      this.originX += (this.lastX - this.rawMouseX);
-      this.originY += (this.lastY - this.rawMouseY);
+      this.origin.x += (this.lastX - this.rawMouseX);
+      this.origin.y += (this.lastY - this.rawMouseY);
       this.lastX = this.rawMouseX;
       this.lastY = this.rawMouseY;
       this.view.draw();
@@ -292,17 +293,17 @@ export class Floorplanner {
     var centerX = iw / 2.0;
     var centerY = ih / 2.0;
     const centerFloorplan = this.floorplan.getCenter2();
-    this.originX = centerFloorplan.x * this.pixelsPerCm - centerX;
-    this.originY = centerFloorplan.y * this.pixelsPerCm - centerY;
+    this.origin.x = centerFloorplan.x * this.pixelsPerCm - centerX;
+    this.origin.y = centerFloorplan.y * this.pixelsPerCm - centerY;
   }
 
   /** Convert from THREEjs coords to canvas coords. */
   public convertX(x: number): number {
-    return (x - this.originX * this.cmPerPixel) * this.pixelsPerCm;
+    return (x - this.origin.x * this.cmPerPixel) * this.pixelsPerCm;
   }
 
   /** Convert from THREEjs coords to canvas coords. */
   public convertY(y: number): number {
-    return (y - this.originY * this.cmPerPixel) * this.pixelsPerCm;
+    return (y - this.origin.y * this.cmPerPixel) * this.pixelsPerCm;
   }
 }
