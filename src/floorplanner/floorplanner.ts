@@ -61,13 +61,13 @@ export class Floorplanner {
   private pixelsPerCm: number;
 
   // converts offset coords to world model coords
-  public offsetToWorld(p: V2): V2 {
+  public offsetToWorld(p: {x: number, y: number}): V2 {
     const rx = (p.x + this.origin.x) * this.cmPerPixel;
     const ry = (p.y + this.origin.y) * this.cmPerPixel;
     return new V2(rx, ry);
   }
   // converts world model coords to offset coords
-  public worldToOffset(p: V2): V2 {
+  public worldToOffset(p: {x: number, y: number}): V2 {
     const rx = (p.x / this.cmPerPixel) - this.origin.x;
     const ry = (p.y / this.cmPerPixel) - this.origin.y;
     return new V2(rx, ry);
@@ -299,13 +299,8 @@ export class Floorplanner {
     this.origin.y = centerFloorplan.y * this.pixelsPerCm - centerY;
   }
 
-  /** Convert from THREEjs coords to canvas coords. */
-  public convertX(x: number): number {
-    return (x - this.origin.x * this.cmPerPixel) * this.pixelsPerCm;
-  }
-
-  /** Convert from THREEjs coords to canvas coords. */
-  public convertY(y: number): number {
-    return (y - this.origin.y * this.cmPerPixel) * this.pixelsPerCm;
+  /** Convert from world coords to screen coords */
+  public convert(p: { x: number, y: number }): V2 {
+    return this.worldToOffset(p);
   }
 }

@@ -134,11 +134,11 @@ export class FloorplannerView {
     } else if (hover) {
       color = wallColorHover;
     }
+    const start = this.viewmodel.convert(wall.getStart());
+    const end = this.viewmodel.convert(wall.getEnd());
     this.drawLine(
-      this.viewmodel.convertX(wall.getStartX()),
-      this.viewmodel.convertY(wall.getStartY()),
-      this.viewmodel.convertX(wall.getEndX()),
-      this.viewmodel.convertY(wall.getEndY()),
+      start.x, start.y,
+      end.x, end.y,
       hover ? wallWidthHover : wallWidth,
       color
     );
@@ -166,12 +166,13 @@ export class FloorplannerView {
       this.context.strokeStyle = "#ffffff";
       this.context.lineWidth = 4;
 
+      const screenPos = this.viewmodel.convert(pos);
       this.context.strokeText(Dimensioning.cmToMeasure(length),
-        this.viewmodel.convertX(pos.x),
-        this.viewmodel.convertY(pos.y));
+        screenPos.x,
+        screenPos.y);
       this.context.fillText(Dimensioning.cmToMeasure(length),
-        this.viewmodel.convertX(pos.x),
-        this.viewmodel.convertY(pos.y));
+        screenPos.x,
+        screenPos.y);
     }
   }
 
@@ -202,9 +203,9 @@ export class FloorplannerView {
     } else if (hover) {
       color = cornerColorHover;
     }
+    const screenCorner = this.viewmodel.convert(corner);
     this.drawCircle(
-      this.viewmodel.convertX(corner.x),
-      this.viewmodel.convertY(corner.y),
+      screenCorner.x, screenCorner.y,
       hover ? cornerRadiusHover : cornerRadius,
       color
     );
@@ -212,18 +213,19 @@ export class FloorplannerView {
 
   /** */
   private drawTarget(x: number, y: number) {
+    const screenPos = this.viewmodel.convert({x,y});
     this.drawCircle(
-      this.viewmodel.convertX(x),
-      this.viewmodel.convertY(y),
+      screenPos.x, screenPos.y,
       cornerRadiusHover,
       cornerColorHover
     );
     if (this.viewmodel.lastNode) {
+      const lastNodePos = this.viewmodel.convert(this.viewmodel.lastNode);
       this.drawLine(
-        this.viewmodel.convertX(this.viewmodel.lastNode.x),
-        this.viewmodel.convertY(this.viewmodel.lastNode.y),
-        this.viewmodel.convertX(x),
-        this.viewmodel.convertY(y),
+        lastNodePos.x,
+        lastNodePos.y,
+        screenPos.x,
+        screenPos.y,
         wallWidthHover,
         wallColorHover
       );
@@ -251,13 +253,12 @@ export class FloorplannerView {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
-    const xArr = corners.map((corner) => this.viewmodel.convertX(corner.x));
-    const yArr = corners.map((corner) => this.viewmodel.convertY(corner.y));
+    const cornerPosArr = corners.map((corner) => this.viewmodel.convert(corner));
     if (this.context) {
       this.context.beginPath();
-      this.context.moveTo(xArr[0], yArr[0]);
-      for (var i = 1; i < xArr.length; i++) {
-        this.context.lineTo(xArr[i], yArr[i]);
+      this.context.moveTo(cornerPosArr[0].x, cornerPosArr[0].y);
+      for (var i = 1; i < cornerPosArr.length; i++) {
+        this.context.lineTo(cornerPosArr[i].x, cornerPosArr[i].y);
       }
       this.context.closePath();
       if (fill && (fillColor !== null)) {
