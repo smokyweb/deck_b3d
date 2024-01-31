@@ -134,8 +134,8 @@ export class FloorplannerView {
     } else if (hover) {
       color = wallColorHover;
     }
-    const start = this.viewmodel.convert(wall.getStart());
-    const end = this.viewmodel.convert(wall.getEnd());
+    const start = this.viewmodel.worldToOffset(wall.getStart());
+    const end = this.viewmodel.worldToOffset(wall.getEnd());
     this.drawLine(
       start.x, start.y,
       end.x, end.y,
@@ -166,7 +166,7 @@ export class FloorplannerView {
       this.context.strokeStyle = "#ffffff";
       this.context.lineWidth = 4;
 
-      const screenPos = this.viewmodel.convert(pos);
+      const screenPos = this.viewmodel.worldToOffset(pos);
       this.context.strokeText(Dimensioning.cmToMeasure(length),
         screenPos.x,
         screenPos.y);
@@ -203,7 +203,7 @@ export class FloorplannerView {
     } else if (hover) {
       color = cornerColorHover;
     }
-    const screenCorner = this.viewmodel.convert(corner);
+    const screenCorner = this.viewmodel.worldToOffset(corner);
     this.drawCircle(
       screenCorner.x, screenCorner.y,
       hover ? cornerRadiusHover : cornerRadius,
@@ -213,14 +213,14 @@ export class FloorplannerView {
 
   /** */
   private drawTarget(x: number, y: number) {
-    const screenPos = this.viewmodel.convert({x,y});
+    const screenPos = this.viewmodel.worldToOffset({x,y});
     this.drawCircle(
       screenPos.x, screenPos.y,
       cornerRadiusHover,
       cornerColorHover
     );
     if (this.viewmodel.lastNode) {
-      const lastNodePos = this.viewmodel.convert(this.viewmodel.lastNode);
+      const lastNodePos = this.viewmodel.worldToOffset(this.viewmodel.lastNode);
       this.drawLine(
         lastNodePos.x,
         lastNodePos.y,
@@ -253,7 +253,7 @@ export class FloorplannerView {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
-    const cornerPosArr = corners.map((corner) => this.viewmodel.convert(corner));
+    const cornerPosArr = corners.map((corner) => this.viewmodel.worldToOffset(corner));
     if (this.context) {
       this.context.beginPath();
       this.context.moveTo(cornerPosArr[0].x, cornerPosArr[0].y);

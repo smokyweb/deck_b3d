@@ -57,12 +57,12 @@ export class LumberYard {
       ["4x4", { nominalDim: "4x4", width: 3.5, thickness: 3.5 }],
       ["4x6", { nominalDim: "4x6", width: 5.5, thickness: 3.5 }],
       ["6x6", { nominalDim: "6x6", width: 5.5, thickness: 5.5 }]]);
-  private textureSizeInches = 100; // range 0.0 to 1.0 represents 100 inches on the texture (a guess). 
+  private textureSizeInches = 40; // range 0.0 to 1.0 represents 100 inches on the texture (a guess). 
   
 
   constructor() {
     const loader = new THREE.TextureLoader();
-    this.sidegrain = loader.load("textures/sidegrain01.jpg");
+    this.sidegrain = loader.load("textures/sidegrain02.jpg");
     this.zebra = loader.load("textures/zebra.jpg");
     this.sidegrain.wrapS = this.sidegrain.wrapT = THREE.MirroredRepeatWrapping;
     this.zebra.wrapS = this.sidegrain.wrapT = THREE.MirroredRepeatWrapping;

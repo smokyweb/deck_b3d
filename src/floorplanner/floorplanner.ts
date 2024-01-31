@@ -299,8 +299,4 @@ export class Floorplanner {
     this.origin.y = centerFloorplan.y * this.pixelsPerCm - centerY;
   }
 
-  /** Convert from world coords to screen coords */
-  public convert(p: { x: number, y: number }): V2 {
-    return this.worldToOffset(p);
-  }
 }
