@@ -16,7 +16,7 @@ export enum floorplannerMode {
 };
 
 // grid parameters
-const gridSpacing = 20; // pixels
+//const gridSpacing = 20; // pixels
 const gridWidth = 1;
 const gridColor = "#f1f1f1";
 
@@ -285,7 +285,7 @@ export class FloorplannerView {
   }
 
   /** returns n where -gridSize/2 < n <= gridSize/2  */
-  private calculateGridOffset(n: number): number {
+  private calculateGridOffset(n: number, gridSpacing: number): number {
     if (n >= 0) {
       return (n + gridSpacing / 2.0) % gridSpacing - gridSpacing / 2.0;
     } else {
@@ -295,8 +295,10 @@ export class FloorplannerView {
 
   /** */
   private drawGrid() {
-    var offsetX = this.calculateGridOffset(-this.viewmodel.origin.x);
-    var offsetY = this.calculateGridOffset(-this.viewmodel.origin.y);
+    //const gridSpacing = this.viewmodel.pixelsPerFoot;
+    const gridSpacing = 20;
+    var offsetX = this.calculateGridOffset(-this.viewmodel.origin.x, gridSpacing);
+    var offsetY = this.calculateGridOffset(-this.viewmodel.origin.y, gridSpacing);
     var width = this.canvasElement.width;
     var height = this.canvasElement.height;
     for (var x = 0; x <= (width / gridSpacing); x++) {
