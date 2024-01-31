@@ -7,7 +7,7 @@ export class RailSpec {
   public postStock: string = "4x4";
   public railTopStock: string = "2x4";
   public railBottomStock: string = "1x1";
-  public slatStock: string = "2x4";
+  public slatStock: string = "1x1";
   public includeStartPost: boolean = true;
   public includeEndPost: boolean = true;
   public postTopInches: number = 40;

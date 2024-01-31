@@ -60,6 +60,27 @@ export class Floorplanner {
   /** */
   private pixelsPerCm: number;
 
+  // converts offset coords to world model coords
+  public offsetToWorld(p: V2): V2 {
+    const rx = (p.x + this.origin.x) * this.cmPerPixel;
+    const ry = (p.y + this.origin.y) * this.cmPerPixel;
+    return new V2(rx, ry);
+  }
+  // converts world model coords to offset coords
+  public worldToOffset(p: V2): V2 {
+    const rx = (p.x / this.cmPerPixel) - this.origin.x;
+    const ry = (p.y / this.cmPerPixel) - this.origin.y;
+    return new V2(rx, ry);
+  }
+
+  // Takes a mouse event clientX and clientY, turns it into coordinates
+  // relative to the containing HTMLElement
+  private clientToOffset(clientX: number, clientY: number): V2 {
+    const bounds = this.canvasElement.getBoundingClientRect();
+    const ox = clientX - bounds.left;
+    const oy = clientY - bounds.top;
+    return new V2(ox, oy);
+  }
   /** */
   constructor(canvas: string, private floorplan: Floorplan) {
     const canvasElement = $("#" + canvas).get(0);
@@ -152,19 +173,17 @@ export class Floorplanner {
     }
   }
 
+
   /** */
   private mousemove(event: MouseEvent) {
-    const bounds = this.canvasElement.getBoundingClientRect();
-    const ox = event.clientX - bounds.left;
-    const oy = event.clientY - bounds.top;
+    const offset = this.clientToOffset(event.clientX, event.clientY);
 
     this.mouseMoved = true;
 
     // update mouse
     this.rawMouse.set(event.clientX, event.clientY);;
 
-    this.mouse.x = ox * this.cmPerPixel + this.origin.x * this.cmPerPixel;
-    this.mouse.y = oy * this.cmPerPixel + this.origin.y * this.cmPerPixel;
+    this.mouse.copy(this.offsetToWorld(offset));
 
     // update target (snapped position of actual mouse)
     if (this.mode == floorplannerMode.DRAW || (this.mode == floorplannerMode.MOVE && this.mouseDown)) {
@@ -196,10 +215,9 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      this.origin.x += (this.last.x - this.rawMouse.x);
-      this.origin.y += (this.last.y - this.rawMouse.y);
-      this.last.x = this.rawMouse.x;
-      this.last.y = this.rawMouse.y;
+      const mouseDelta = new V2().subVectors(this.last, this.rawMouse);
+      this.origin.add(mouseDelta)
+      this.last.copy(this.rawMouse);
       this.view.draw();
     }
 
@@ -209,13 +227,12 @@ export class Floorplanner {
         this.activeCorner.move(this.mouse.x, this.mouse.y);
         this.activeCorner.snapToAxis(snapTolerance);
       } else if (this.activeWall) {
-        this.activeWall.relativeMove(
-          (this.rawMouse.x - this.last.x) * this.cmPerPixel,
-          (this.rawMouse.y- this.last.y) * this.cmPerPixel
-        );
+        const rawPos = this.offsetToWorld(this.rawMouse);
+        const lastPos = this.offsetToWorld(this.last);
+        const moveDelta = new V2().subVectors(rawPos, lastPos);
+        this.activeWall.relativeMove(moveDelta.x, moveDelta.y);
         this.activeWall.snapToAxis(snapTolerance);
-        this.last.x = this.rawMouse.x;
-        this.last.y = this.rawMouse.y;
+        this.last.copy(this.rawMouse);
       }
       this.view.draw();
     }
