@@ -58,7 +58,9 @@ export class Floorplanner {
   private cmPerPixel: number;
 
   /** */
-  private pixelsPerCm: number;
+  private get pixelsPerCm() {
+    return 1.0/this.cmPerPixel;
+  }
 
   // converts offset coords to world model coords
   public offsetToWorld(p: {x: number, y: number}): V2 {
@@ -95,7 +97,6 @@ export class Floorplanner {
     var cmPerFoot = 30.48;
     var pixelsPerFoot = 15.0;
     this.cmPerPixel = cmPerFoot * (1.0 / pixelsPerFoot);
-    this.pixelsPerCm = 1.0 / this.cmPerPixel;
 
     // Initialization:
 
@@ -114,6 +115,9 @@ export class Floorplanner {
     });
     this.canvasElement.addEventListener("mouseleave", () => {
       scope.mouseleave();
+    });
+    this.canvasElement.addEventListener("wheel", (event: WheelEvent) => {
+      scope.wheelEvent(event);
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
@@ -261,6 +265,23 @@ export class Floorplanner {
     //scope.setMode(scope.modes.MOVE);
   }
 
+  private wheelEvent(event: WheelEvent) {
+    const zoomFactor = 1.15;
+    const mouseScreenPos = this.clientToOffset(event.clientX, event.clientY);
+    const mouseWorldPos = this.offsetToWorld(mouseScreenPos);
+
+    let scale = this.cmPerPixel;
+    console.log(event);
+    if (event.deltaY > 0) {
+      //console.log("zoom out");
+      scale *= zoomFactor;
+    } else if (event.deltaY < 0) {
+      //console.log("zoom in");
+      scale /= zoomFactor;
+    }
+    this.setView(scale, mouseWorldPos, mouseScreenPos);
+  }
+
   /** */
   public reset() {
     this.resizeView();
@@ -292,11 +313,27 @@ export class Floorplanner {
     if (ih === undefined) {
       throw Error("innerHeight() undefined");
     }
-    var centerX = iw / 2.0;
-    var centerY = ih / 2.0;
-    const centerFloorplan = this.floorplan.getCenter2();
-    this.origin.x = centerFloorplan.x * this.pixelsPerCm - centerX;
-    this.origin.y = centerFloorplan.y * this.pixelsPerCm - centerY;
+    var screenCenterX = iw / 2.0;
+    var screenCenterY = ih / 2.0;
+    const planBounds = this.floorplan.getBounds();
+    const planCenter = planBounds.getCenter();
+    const planSize = planBounds.getSize();
+    const xScale = planSize.x / iw;
+    const yScale = planSize.y / ih;
+    const scale = Math.max(xScale, yScale) * 1.15;
+
+    this.cmPerPixel = scale;
+    console.log(xScale, yScale, scale, this.cmPerPixel, this.pixelsPerCm);
+    console.log(planBounds);
+    this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY});
+  }
+  public setView(scale: number, worldPt: {x: number, y: number}, screenPt: {x: number, y: number}) {
+    // want to set the origin so that worldPt goes to screenPt
+    // screenPt.x = (worldPt.x / this.cmPerPixel) - this.origin.x
+    this.origin.x = worldPt.x / scale - screenPt.x;
+    this.origin.y = worldPt.y / scale - screenPt.y;
+    this.cmPerPixel = scale;
+    this.view.draw();
   }
 
 }
