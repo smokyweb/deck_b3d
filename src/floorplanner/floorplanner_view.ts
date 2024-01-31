@@ -16,7 +16,6 @@ export enum floorplannerMode {
 };
 
 // grid parameters
-//const gridSpacing = 20; // pixels
 const gridWidth = 1;
 const gridColor = "#f1f1f1";
 
@@ -295,16 +294,17 @@ export class FloorplannerView {
 
   /** */
   private drawGrid() {
-    //const gridSpacing = this.viewmodel.pixelsPerFoot;
-    const gridSpacing = 20;
-    var offsetX = this.calculateGridOffset(-this.viewmodel.origin.x, gridSpacing);
-    var offsetY = this.calculateGridOffset(-this.viewmodel.origin.y, gridSpacing);
-    var width = this.canvasElement.width;
-    var height = this.canvasElement.height;
-    for (var x = 0; x <= (width / gridSpacing); x++) {
+    const gridSpacing = this.viewmodel.pixelsPerFoot;
+    //const gridSpacing = 49.3; 
+    //console.log(gridSpacing);
+    const offsetX = this.calculateGridOffset(-this.viewmodel.origin.x, gridSpacing);
+    const offsetY = this.calculateGridOffset(-this.viewmodel.origin.y, gridSpacing);
+    const width = this.canvasElement.width;
+    const height = this.canvasElement.height;
+    for (let x = 0; x <= (width / gridSpacing); x++) {
       this.drawLine(gridSpacing * x + offsetX, 0, gridSpacing * x + offsetX, height, gridWidth, gridColor);
     }
-    for (var y = 0; y <= (height / gridSpacing); y++) {
+    for (let y = 0; y <= (height / gridSpacing); y++) {
       this.drawLine(0, gridSpacing * y + offsetY, width, gridSpacing * y + offsetY, gridWidth, gridColor);
     }
   }

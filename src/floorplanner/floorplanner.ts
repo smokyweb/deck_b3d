@@ -55,11 +55,11 @@ export class Floorplanner {
   private readonly last = new V2(0,0);
 
   /** */
-  private cmPerPixel: number;
+  private cmPerPixel: number = 1;
 
   /** */
-  private get pixelsPerCm() {
-    return 1.0/this.cmPerPixel;
+  public get pixelsPerFoot() {
+    return 30.48 / this.cmPerPixel;
   }
 
   // converts offset coords to world model coords
@@ -94,9 +94,6 @@ export class Floorplanner {
 
     this.view = new FloorplannerView(this.floorplan, this, canvas);
 
-    var cmPerFoot = 30.48;
-    var pixelsPerFoot = 15.0;
-    this.cmPerPixel = cmPerFoot * (1.0 / pixelsPerFoot);
 
     // Initialization:
 
@@ -271,7 +268,7 @@ export class Floorplanner {
     const mouseWorldPos = this.offsetToWorld(mouseScreenPos);
 
     let scale = this.cmPerPixel;
-    console.log(event);
+    //console.log(event);
     if (event.deltaY > 0) {
       //console.log("zoom out");
       scale *= zoomFactor;
@@ -307,12 +304,17 @@ export class Floorplanner {
   private resetOrigin() {
     const iw = this.canvasElement.clientWidth;
     const ih = this.canvasElement.clientHeight;
+    if (ih == 0 || iw == 0) {
+      // the element isn't set up right yet.
+      return;
+    }
     if (iw === undefined) {
-      throw Error("innerWidth() undefined");
+      throw Error("clientWidth undefined");
     }
     if (ih === undefined) {
-      throw Error("innerHeight() undefined");
+      throw Error("clientHeight undefined");
     }
+
     var screenCenterX = iw / 2.0;
     var screenCenterY = ih / 2.0;
     const planBounds = this.floorplan.getBounds();
@@ -322,9 +324,8 @@ export class Floorplanner {
     const yScale = planSize.y / ih;
     const scale = Math.max(xScale, yScale) * 1.15;
 
-    this.cmPerPixel = scale;
-    console.log(xScale, yScale, scale, this.cmPerPixel, this.pixelsPerCm);
-    console.log(planBounds);
+    //console.log(xScale, yScale, scale, this.cmPerPixel, this.pixelsPerCm);
+    //console.log(planBounds);
     this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY});
   }
   public setView(scale: number, worldPt: {x: number, y: number}, screenPt: {x: number, y: number}) {
