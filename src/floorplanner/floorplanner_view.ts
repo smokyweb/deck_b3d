@@ -101,7 +101,7 @@ export class FloorplannerView {
     });
 
     if (this.viewmodel.mode == floorplannerMode.DRAW) {
-      this.drawTarget(this.viewmodel.targetX, this.viewmodel.targetY);
+      this.drawTarget(this.viewmodel.target.x, this.viewmodel.target.y);
     }
 
     this.floorplan.getWalls().forEach((wall) => {

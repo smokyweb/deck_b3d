@@ -23,13 +23,9 @@ export class Floorplanner {
   /** */
   public activeCorner: (Corner | null) = null;
 
-  public origin: V2 = new V2(0,0);
+  public readonly origin: V2 = new V2(0,0);
 
-  /** drawing state */
-  public targetX = 0;
-
-  /** drawing state */
-  public targetY = 0;
+  public readonly target: V2 = new V2(0,0);
 
   /** drawing state */
   public lastNode: (Corner | null) = null;
@@ -50,22 +46,13 @@ export class Floorplanner {
   private mouseMoved = false;
 
   /** in ThreeJS coords */
-  private mouseX = 0;
+  private readonly mouse = new V2(0,0);
 
   /** in ThreeJS coords */
-  private mouseY = 0;
-
-  /** in ThreeJS coords */
-  private rawMouseX = 0;
-
-  /** in ThreeJS coords */
-  private rawMouseY = 0;
+  private readonly rawMouse = new V2(0,0);
 
   /** mouse position at last click */
-  private lastX = 0;
-
-  /** mouse position at last click */
-  private lastY = 0;
+  private readonly last = new V2(0,0);
 
   /** */
   private cmPerPixel: number;
@@ -129,19 +116,19 @@ export class Floorplanner {
   /** */
   private updateTarget() {
     if (this.mode == floorplannerMode.DRAW && this.lastNode) {
-      if (Math.abs(this.mouseX - this.lastNode.x) < snapTolerance) {
-        this.targetX = this.lastNode.x;
+      if (Math.abs(this.mouse.x - this.lastNode.x) < snapTolerance) {
+        this.target.x = this.lastNode.x;
       } else {
-        this.targetX = this.mouseX;
+        this.target.x = this.mouse.x;
       }
-      if (Math.abs(this.mouseY - this.lastNode.y) < snapTolerance) {
-        this.targetY = this.lastNode.y;
+      if (Math.abs(this.mouse.y - this.lastNode.y) < snapTolerance) {
+        this.target.y = this.lastNode.y;
       } else {
-        this.targetY = this.mouseY;
+        this.target.y = this.mouse.y;
       }
     } else {
-      this.targetX = this.mouseX;
-      this.targetY = this.mouseY;
+      this.target.x = this.mouse.x;
+      this.target.y = this.mouse.y;
     }
 
     this.view.draw();
@@ -151,8 +138,7 @@ export class Floorplanner {
   private mousedown() {
     this.mouseDown = true;
     this.mouseMoved = false;
-    this.lastX = this.rawMouseX;
-    this.lastY = this.rawMouseY;
+    this.last.copy(this.rawMouse);
 
     // delete
     if (this.mode == floorplannerMode.DELETE) {
@@ -175,11 +161,10 @@ export class Floorplanner {
     this.mouseMoved = true;
 
     // update mouse
-    this.rawMouseX = event.clientX;
-    this.rawMouseY = event.clientY;
+    this.rawMouse.set(event.clientX, event.clientY);;
 
-    this.mouseX = ox * this.cmPerPixel + this.origin.x * this.cmPerPixel;
-    this.mouseY = oy * this.cmPerPixel + this.origin.y * this.cmPerPixel;
+    this.mouse.x = ox * this.cmPerPixel + this.origin.x * this.cmPerPixel;
+    this.mouse.y = oy * this.cmPerPixel + this.origin.y * this.cmPerPixel;
 
     // update target (snapped position of actual mouse)
     if (this.mode == floorplannerMode.DRAW || (this.mode == floorplannerMode.MOVE && this.mouseDown)) {
@@ -188,8 +173,8 @@ export class Floorplanner {
 
     // update object target
     if (this.mode != floorplannerMode.DRAW && !this.mouseDown) {
-      var hoverCorner = this.floorplan.overlappedCorner(this.mouseX, this.mouseY);
-      var hoverWall = this.floorplan.overlappedWall(this.mouseX, this.mouseY);
+      var hoverCorner = this.floorplan.overlappedCorner(this.mouse.x, this.mouse.y);
+      var hoverWall = this.floorplan.overlappedWall(this.mouse.x, this.mouse.y);
       var draw = false;
       if (hoverCorner != this.activeCorner) {
         this.activeCorner = hoverCorner;
@@ -211,26 +196,26 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      this.origin.x += (this.lastX - this.rawMouseX);
-      this.origin.y += (this.lastY - this.rawMouseY);
-      this.lastX = this.rawMouseX;
-      this.lastY = this.rawMouseY;
+      this.origin.x += (this.last.x - this.rawMouse.x);
+      this.origin.y += (this.last.y - this.rawMouse.y);
+      this.last.x = this.rawMouse.x;
+      this.last.y = this.rawMouse.y;
       this.view.draw();
     }
 
     // dragging
     if (this.mode == floorplannerMode.MOVE && this.mouseDown) {
       if (this.activeCorner) {
-        this.activeCorner.move(this.mouseX, this.mouseY);
+        this.activeCorner.move(this.mouse.x, this.mouse.y);
         this.activeCorner.snapToAxis(snapTolerance);
       } else if (this.activeWall) {
         this.activeWall.relativeMove(
-          (this.rawMouseX - this.lastX) * this.cmPerPixel,
-          (this.rawMouseY - this.lastY) * this.cmPerPixel
+          (this.rawMouse.x - this.last.x) * this.cmPerPixel,
+          (this.rawMouse.y- this.last.y) * this.cmPerPixel
         );
         this.activeWall.snapToAxis(snapTolerance);
-        this.lastX = this.rawMouseX;
-        this.lastY = this.rawMouseY;
+        this.last.x = this.rawMouse.x;
+        this.last.y = this.rawMouse.y;
       }
       this.view.draw();
     }
@@ -242,7 +227,7 @@ export class Floorplanner {
 
     // drawing
     if (this.mode == floorplannerMode.DRAW && !this.mouseMoved) {
-      var corner = this.floorplan.newCorner(this.targetX, this.targetY);
+      var corner = this.floorplan.newCorner(this.target.x, this.target.y);
       if (this.lastNode != null) {
         this.floorplan.newWall(this.lastNode, corner);
       }
