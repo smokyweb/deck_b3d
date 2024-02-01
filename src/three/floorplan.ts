@@ -54,8 +54,8 @@ export class Floorplan {
     }
 
     this.floorplan.getWalls().forEach((wall) => {
-      const start = wall.getStart();
-      const end = wall.getEnd();
+      const start = wall.start;
+      const end = wall.end;
       const startBase = start.position();
       const endBase = end.position(); 
       const spec = new RailSpec({ startBase, endBase });

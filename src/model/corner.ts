@@ -143,10 +143,10 @@ export class Corner {
   public adjacentCorners(): Corner[] {
     var retArray = [];
     for (var i = 0; i < this.wallStarts.length; i++) {
-      retArray.push(this.wallStarts[i].getEnd());
+      retArray.push(this.wallStarts[i].end);
     }
     for (var i = 0; i < this.wallEnds.length; i++) {
-      retArray.push(this.wallEnds[i].getStart());
+      retArray.push(this.wallEnds[i].start);
     }
     return retArray;
   }
@@ -225,7 +225,7 @@ export class Corner {
    */
   public wallTo(corner: Corner): Wall | null {
     for (var i = 0; i < this.wallStarts.length; i++) {
-      if (this.wallStarts[i].getEnd() === corner) {
+      if (this.wallStarts[i].end === corner) {
         return this.wallStarts[i];
       }
     }
@@ -238,7 +238,7 @@ export class Corner {
    */
   public wallFrom(corner: Corner): Wall | null {
     for (var i = 0; i < this.wallEnds.length; i++) {
-      if (this.wallEnds[i].getStart() === corner) {
+      if (this.wallEnds[i].start === corner) {
         return this.wallEnds[i];
       }
     }
@@ -262,10 +262,10 @@ export class Corner {
     this.y = corner.y;
     // absorb the other corner's wallStarts and wallEnds
     for (var i = corner.wallStarts.length - 1; i >= 0; i--) {
-      corner.wallStarts[i].setStart(this);
+      corner.wallStarts[i].start = this;
     }
     for (var i = corner.wallEnds.length - 1; i >= 0; i--) {
-      corner.wallEnds[i].setEnd(this);
+      corner.wallEnds[i].end = this;
     }
     // delete the other corner
     corner.removeAll();
@@ -289,13 +289,13 @@ export class Corner {
       if (this.distanceFromWall(wall) < cornerTolerance && !this.isWallConnected(wall)) {
         // update position to be on wall
         var intersection = Utils.closestPointOnLine(this.x, this.y,
-          wall.getStart().x, wall.getStart().y,
-          wall.getEnd().x, wall.getEnd().y);
+          wall.start.x, wall.start.y,
+          wall.end.x, wall.end.y);
         this.x = intersection.x;
         this.y = intersection.y;
         // merge this corner into wall by breaking wall into two parts
-        this.floorplan.newWall(this, wall.getEnd());
-        wall.setEnd(this);
+        this.floorplan.newWall(this, wall.end);
+        wall.end = this;
         this.floorplan.update();
         return true;
       }
@@ -313,11 +313,11 @@ export class Corner {
     for (var i = this.wallStarts.length - 1; i >= 0; i--) {
       const start = this.wallStarts[i];
       if (start) {
-        if (start.getEnd() === this) {
+        if (start.end === this) {
           // remove zero length wall 
           start.remove();
         } else {
-          const end = start.getEnd();
+          const end = start.end;
           if (end && end.id) {
             if (end.id in wallEndpoints) {
               // remove duplicated wall
@@ -330,7 +330,7 @@ export class Corner {
       }
     }
     for (var i = this.wallEnds.length - 1; i >= 0; i--) {
-      const start = this.wallEnds[i].getStart();
+      const start = this.wallEnds[i].start;
       if (start) {
         if (start === this) {
           // removed zero length wall 

@@ -220,8 +220,8 @@ export class Floorplan {
 
     this.walls.forEach((wall) => {
       floorplan.walls.push({
-        corner1: wall.getStart().id,
-        corner2: wall.getEnd().id,
+        corner1: wall.start.id,
+        corner2: wall.end.id,
         frontTexture: wall.frontTexture,
         backTexture: wall.backTexture,
       });

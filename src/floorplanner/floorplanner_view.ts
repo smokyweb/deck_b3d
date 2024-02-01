@@ -133,8 +133,8 @@ export class FloorplannerView {
     } else if (hover) {
       color = wallColorHover;
     }
-    const start = this.viewmodel.worldToOffset(wall.getStart());
-    const end = this.viewmodel.worldToOffset(wall.getEnd());
+    const start = this.viewmodel.worldToOffset(wall.start);
+    const end = this.viewmodel.worldToOffset(wall.end);
     this.drawLine(
       start.x, start.y,
       end.x, end.y,

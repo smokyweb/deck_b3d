@@ -62,13 +62,14 @@ export class Wall {
    * @param start Start corner.
    * @param end End corner.
    */
-  constructor(private start: Corner, private end: Corner) {
+  constructor(private _start: Corner, private _end: Corner) {
     this.id = this.getUuid();
 
     this.start.attachStart(this)
     this.end.attachEnd(this);
 
   }
+
 
   private getUuid(): string {
     return [this.start.id, this.end.id].join();
@@ -125,54 +126,36 @@ export class Wall {
     }
   }
 
-  public getStart(): Corner {
-    return this.start;
-  }
-
-  public getEnd(): Corner {
-    return this.end;
-  }
-
-  public getStartX(): number {
-    return this.start.x;
-  }
-
-  public getEndX(): number {
-    return this.end.x;
-  }
-
-  public getStartY(): number {
-    return this.start.y;
-  }
-
-  public getEndY(): number {
-    return this.end.y;
-  }
-
   public remove() {
     this.start.detachWall(this);
     this.end.detachWall(this);
     this.deleted_callbacks.fire(this);
   }
 
-  public setStart(corner: Corner) {
+  public get start() {
+    return this._start;
+  }
+  public set start(corner: Corner) {
     this.start.detachWall(this);
     corner.attachStart(this);
-    this.start = corner;
+    this._start = corner;
     this.fireMoved();
   }
 
-  public setEnd(corner: Corner) {
+  public get end() {
+    return this._end;
+  }
+  public set end(corner: Corner) {
     this.end.detachWall(this);
     corner.attachEnd(this);
-    this.end = corner;
+    this._end = corner;
     this.fireMoved();
   }
 
   public distanceFrom(x: number, y: number): number {
     return Utils.pointDistanceFromLine(x, y,
-      this.getStartX(), this.getStartY(),
-      this.getEndX(), this.getEndY());
+      this.start.x, this.start.y,
+      this.end.x, this.end.y);
   }
 
 //  /** Return the corner opposite of the one provided.

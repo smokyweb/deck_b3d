@@ -74,8 +74,8 @@ export class Scene {
   public makeRailItem(wall: Wall): Item | null {
     if (this.railGeom !== null && this.railMat !== null) {
       const theClass = Factory.getClass(8);
-      const start = wall.getStart();
-      const end = wall.getEnd();
+      const start = wall.start;
+      const end = wall.end;
       // not sure why negative sign is necessary here.  Probably because
       // of legacy confusion with left and right handed coordinates.
       const rotation = -Math.atan2(end.y - start.y, end.x - start.x);

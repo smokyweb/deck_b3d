@@ -166,17 +166,17 @@ export class HalfEdge {
 
   private getStart() {
     if (this.front) {
-      return this.wall.getStart();
+      return this.wall.start;
     } else {
-      return this.wall.getEnd();
+      return this.wall.end;
     }
   }
 
   private getEnd() {
     if (this.front) {
-      return this.wall.getEnd();
+      return this.wall.end;
     } else {
-      return this.wall.getStart();
+      return this.wall.start;
     }
   }
 
