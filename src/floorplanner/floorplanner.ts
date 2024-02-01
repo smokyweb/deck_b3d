@@ -99,32 +99,30 @@ export class Floorplanner {
 
     this.setMode(floorplannerMode.MOVE);
 
-    var scope = this;
-
     this.canvasElement.addEventListener("mousedown", (_e: MouseEvent) => {
-      scope.mousedown();
+      this.mousedown();
     });
     this.canvasElement.addEventListener("mousemove", (event: MouseEvent) => {
-      scope.mousemove(event);
+      this.mousemove(event);
     });
     this.canvasElement.addEventListener("mouseup", (_e: MouseEvent) => {
-      scope.mouseup();
+      this.mouseup();
     });
     this.canvasElement.addEventListener("mouseleave", () => {
-      scope.mouseleave();
+      this.mouseleave();
     });
     this.canvasElement.addEventListener("wheel", (event: WheelEvent) => {
-      scope.wheelEvent(event);
+      this.wheelEvent(event);
     });
 
     document.addEventListener("keyup", (e: KeyboardEvent) => {
       if (e.key == "Escape") {
-        scope.escapeKey();
+        this.escapeKey();
       }
     });
 
     floorplan.roomLoadedCallbacks.add(() => {
-      scope.reset()
+      this.reset()
     });
   }
 
@@ -322,7 +320,7 @@ export class Floorplanner {
     const planSize = planBounds.getSize();
     const xScale = planSize.x / iw;
     const yScale = planSize.y / ih;
-    const scale = Math.max(xScale, yScale) * 1.15;
+    const scale = Math.max(xScale, yScale) * 1.3;
 
     //console.log(xScale, yScale, scale, this.cmPerPixel, this.pixelsPerCm);
     //console.log(planBounds);

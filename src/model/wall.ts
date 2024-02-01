@@ -134,19 +134,19 @@ export class Wall {
   }
 
   public getStartX(): number {
-    return this.start.getX();
+    return this.start.x;
   }
 
   public getEndX(): number {
-    return this.end.getX();
+    return this.end.x;
   }
 
   public getStartY(): number {
-    return this.start.getY();
+    return this.start.y;
   }
 
   public getEndY(): number {
-    return this.end.getY();
+    return this.end.y;
   }
 
   public remove() {

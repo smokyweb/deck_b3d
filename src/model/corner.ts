@@ -61,22 +61,6 @@ export class Corner {
     this.action_callbacks.add(func);
   }
 
-  /**
-   * @returns
-   * @deprecated
-   */
-  public getX(): number {
-    return this.x;
-  }
-
-  /**
-   * @returns
-   * @deprecated
-   */
-  public getY(): number {
-    return this.y;
-  }
-
   public position(): THREE.Vector2 {
     return new THREE.Vector2(this.x, this.y);
   }
