@@ -348,39 +348,6 @@ export class Floorplan {
     return result;
   }
 
-//  public getDimensions(center: boolean) {
-//    center = center || false; // otherwise, get size
-//
-//    var xMin = Infinity;
-//    var xMax = -Infinity;
-//    var zMin = Infinity;
-//    var zMax = -Infinity;
-//    this.corners.forEach((corner) => {
-//      if (corner.x < xMin) xMin = corner.x;
-//      if (corner.x > xMax) xMax = corner.x;
-//      if (corner.y < zMin) zMin = corner.y;
-//      if (corner.y > zMax) zMax = corner.y;
-//    });
-//    var ret;
-//    if (
-//      xMin == Infinity ||
-//      xMax == -Infinity ||
-//      zMin == Infinity ||
-//      zMax == -Infinity
-//    ) {
-//      ret = new THREE.Vector3();
-//    } else {
-//      if (center) {
-//        // center
-//        ret = new THREE.Vector3((xMin + xMax) * 0.5, 0, (zMin + zMax) * 0.5);
-//      } else {
-//        // size
-//        ret = new THREE.Vector3(xMax - xMin, 0, zMax - zMin);
-//      }
-//    }
-//    return ret;
-//  }
-
   private assignOrphanEdges() {
     // kinda hacky
     // find orphaned wall segments (i.e. not part of rooms) and
