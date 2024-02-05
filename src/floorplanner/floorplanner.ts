@@ -1,7 +1,7 @@
 
 import { Floorplan } from '../model/floorplan';
 import { Corner } from '../model/corner';
-import { Wall } from '../model/wall';
+import { Wall, WallType } from '../model/wall';
 import { FloorplannerView, floorplannerMode } from './floorplanner_view';
 import { Vector2 as V2 } from 'three';
 
@@ -18,7 +18,7 @@ export class Floorplanner {
   public mode = 0;
 
   /** */
-  public activeWall: (Wall | null) = null;
+  private _activeWall: (Wall | null) = null;
 
   /** */
   public activeCorner: (Corner | null) = null;
@@ -57,6 +57,37 @@ export class Floorplanner {
   /** */
   private cmPerPixel: number = 1;
 
+  private contextMenuWall: HTMLElement;
+  private contextMenuRailingCheckbox: HTMLInputElement;
+
+  public get activeWall(): Wall | null {
+    return this._activeWall;
+  }
+  public set activeWall(newWall: Wall | null) {
+    if (newWall !== this._activeWall) {
+      this._activeWall = newWall;
+      this.updateContextMenu();
+    }
+  }
+  private updateContextMenu() {
+    if (this.activeWall) {
+      this.contextMenuWall.hidden = false;
+      this.contextMenuRailingCheckbox.checked = 
+          (this.activeWall.wallType == WallType.Railing);
+    } else {
+      this.contextMenuWall.hidden = true;
+    }
+  }
+  private railingCheckboxHandler(_e: Event) {
+    if (this.activeWall) {
+      if (this.contextMenuRailingCheckbox.checked) {
+        this.activeWall.wallType = WallType.Railing;
+      } else {
+        this.activeWall.wallType = WallType.Blank;;
+      }
+      this.view.draw();
+    }
+  }
   /** */
   public get pixelsPerFoot() {
     return 30.48 / this.cmPerPixel;
@@ -93,6 +124,22 @@ export class Floorplanner {
     this.canvasElement = canvasElement;
 
     this.view = new FloorplannerView(this.floorplan, this, canvas);
+
+    const cm = document.querySelector("#context-menu-wall");
+
+    if (cm instanceof HTMLElement) {
+      this.contextMenuWall = cm;
+    } else {
+      throw Error("Couldn't find #context-menu-wall");
+    }
+
+    const rc = cm.querySelector("#railing-checkbox");
+    if (rc instanceof HTMLInputElement) {
+      this.contextMenuRailingCheckbox = rc;
+      rc.addEventListener("change",  (e: Event) => this.railingCheckboxHandler(e));
+    } else {
+      throw Error("Couldn't find railing checkbox");
+    }
 
 
     // Initialization:
