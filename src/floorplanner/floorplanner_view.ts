@@ -1,6 +1,5 @@
 import { Dimensioning } from '../core/dimensioning';
 import { Floorplan } from '../model/floorplan';
-import { HalfEdge } from '../model/half_edge';
 import { Wall } from '../model/wall';
 import { Room } from '../model/room';
 import { Corner } from '../model/corner';
@@ -27,9 +26,11 @@ const wallWidth = 5;
 const wallWidthHover = 7;
 const wallColor = "#dddddd"
 const wallColorHover = "#008cba"
+/*
 const edgeColor = "#888888"
 const edgeColorHover = "#008cba"
 const edgeWidth = 1
+*/
 
 const deleteColor = "#ff0000";
 
@@ -104,24 +105,8 @@ export class FloorplannerView {
     }
 
     this.floorplan.getWalls().forEach((wall) => {
-      this.drawWallLabels(wall);
+      this.drawWallLabel(wall);
     });
-  }
-
-  /** */
-  private drawWallLabels(wall: Wall) {
-    // we'll just draw the shorter label... idk
-    if (wall.backEdge && wall.frontEdge) {
-      if (wall.backEdge.interiorDistance < wall.frontEdge.interiorDistance) {
-        this.drawEdgeLabel(wall.backEdge);
-      } else {
-        this.drawEdgeLabel(wall.frontEdge);
-      }
-    } else if (wall.backEdge) {
-      this.drawEdgeLabel(wall.backEdge);
-    } else if (wall.frontEdge) {
-      this.drawEdgeLabel(wall.frontEdge);
-    }
   }
 
   /** */
@@ -141,18 +126,12 @@ export class FloorplannerView {
       hover ? wallWidthHover : wallWidth,
       color
     );
-    if (!hover && wall.frontEdge) {
-      this.drawEdge(wall.frontEdge, hover);
-    }
-    if (!hover && wall.backEdge) {
-      this.drawEdge(wall.backEdge, hover);
-    }
   }
 
   /** */
-  private drawEdgeLabel(edge: HalfEdge) {
-    var pos = edge.interiorCenter();
-    var length = edge.interiorDistance();
+  private drawWallLabel(wall: Wall) {
+    var pos = wall.center();
+    var length = wall.length();
     if (length < 60) {
       // dont draw labels on walls this short
       return;
@@ -176,17 +155,6 @@ export class FloorplannerView {
   }
 
   /** */
-  private drawEdge(edge: HalfEdge, hover: boolean) {
-    var color = edgeColor;
-    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
-      color = deleteColor;
-    } else if (hover) {
-      color = edgeColorHover;
-    }
-    var corners = edge.corners();
-
-    this.drawPolygon(corners, false, null, true, color, edgeWidth);
-  }
 
   /** */
   private drawRoom(room: Room) {

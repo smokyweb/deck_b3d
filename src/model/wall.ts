@@ -1,7 +1,7 @@
+import * as THREE from 'three';
 import * as Cfg  from '../core/configuration';
-import { Utils } from '../core/utils';
+import { Utils, WallPlane } from '../core/utils';
 import { Corner } from './corner';
-import { HalfEdge } from './half_edge';
 import { WallItem } from '../items/wall_item';
 
 /** The default wall texture. */
@@ -20,12 +20,6 @@ export class Wall {
 
   /** The unique id of each wall. */
   public id: string;
-
-  /** Front is the plane from start to end. */
-  public frontEdge: HalfEdge | null= null;
-
-  /** Back is the plane from end to start. */
-  public backEdge: HalfEdge| null = null;
 
   /** */
   public orphan = false;
@@ -47,6 +41,7 @@ export class Wall {
 
   /** Wall height. */
   public height = Cfg.Configuration.getNumericValue(Cfg.configWallHeight);
+  public plane: WallPlane;
 
   /** Actions to be applied after movement. */
   private moved_callbacks = $.Callbacks();
@@ -56,6 +51,9 @@ export class Wall {
 
   /** Actions to be applied explicitly. */
   private action_callbacks = $.Callbacks();
+
+  public readonly interiorTransform: THREE.Matrix4 = new THREE.Matrix4();
+  public readonly invInteriorTransform: THREE.Matrix4 = new THREE.Matrix4();
 
   /** 
    * Constructs a new wall.
@@ -68,16 +66,47 @@ export class Wall {
     this.start.attachStart(this)
     this.end.attachEnd(this);
 
+    this.plane = this.generatePlane();
+    this.fireOnMove(() => this.updateTransforms());
   }
 
+  private generatePlane(): WallPlane { 
+    const len = this.length();
+    const hgt = this.height;
+    const pg = new THREE.PlaneGeometry(len, hgt);
+    // pg is centered on origin, in XY plane.
+    pg.translate(len/2, hgt/2, 0);
+    // pg lower left corner on origin, in XY plane
+    const wallDelta = new THREE.Vector2().subVectors(this.end, this.start);
+    const angle = -Math.atan2(wallDelta.y, wallDelta.x);
+    pg.rotateY(angle);
+    // pg lower left is on origin, in same orientation as final wall
+    pg.translate(this.start.x, 0, this.start.y);
+    // pg is in place
+
+    const mesh = new THREE.Mesh(pg, 
+                        new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); 
+    mesh.visible = false; 
+    mesh.rotation.set(Math.PI / 2, 0, 0);
+    return Object.assign(mesh, {wall: this}); 
+  }
+
+
+
+  public center(): THREE.Vector2 {
+    return new
+      THREE.Vector2().addVectors(this.start, this.end).multiplyScalar(0.5);
+  }
+  public length(): number {
+    return new
+      THREE.Vector2().subVectors(this.start, this.end).length();
+  }
 
   private getUuid(): string {
     return [this.start.id, this.end.id].join();
   }
 
   public resetFrontBack() {
-    this.frontEdge = null;
-    this.backEdge = null;
     this.orphan = false;
   }
 
@@ -118,12 +147,13 @@ export class Wall {
   }
 
   public fireRedraw() {
-    if (this.frontEdge) {
+    /*
+    if (.frontEdge) {
       this.frontEdge.redrawCallbacks.fire();
     }
     if (this.backEdge) {
       this.backEdge.redrawCallbacks.fire();
-    }
+    }*/
   }
 
   public remove() {
@@ -151,11 +181,30 @@ export class Wall {
     this._end = corner;
     this.fireMoved();
   }
+  private updateTransforms() {
+    this.computeTransforms(this.interiorTransform, this.invInteriorTransform, 
+                           this.start, this.end);
+  }
 
   public distanceFrom(x: number, y: number): number {
     return Utils.pointDistanceFromLine(x, y,
       this.start.x, this.start.y,
       this.end.x, this.end.y);
+  }
+  private computeTransforms(transform: THREE.Matrix4, invTransform: THREE.Matrix4,
+                            from: THREE.Vector2, to: THREE.Vector2) {
+
+    var v1 = from;
+    var v2 = to;
+
+    var angle = Utils.angle(1, 0, v2.x - v1.x, v2.y - v1.y);
+
+    var tt = new THREE.Matrix4();
+    tt.makeTranslation(-v1.x, 0, -v1.y);
+    var tr = new THREE.Matrix4();
+    tr.makeRotationY(-angle);
+    transform.multiplyMatrices(tr, tt);
+    invTransform.getInverse(transform);
   }
 
 //  /** Return the corner opposite of the one provided.

@@ -52,8 +52,8 @@ export abstract class FloorItem extends Item {
     var rooms = this.model.floorplan.getRooms();
     var isInARoom = false;
     for (var i = 0; i < rooms.length; i++) {
-      if (Utils.pointInPolygon(vec3.x, vec3.z, rooms[i].interiorCorners) &&
-        !Utils.polygonPolygonIntersect(corners, rooms[i].interiorCorners)) {
+      if (Utils.pointInPolygon(vec3.x, vec3.z, rooms[i].corners) &&
+        !Utils.polygonPolygonIntersect(corners, rooms[i].corners)) {
         isInARoom = true;
       }
     }

@@ -43,7 +43,7 @@ export class Floor {
     // scale down coords to fit 0 -> 1, then rescale
 
     var points: THREE.Vector2[] = [];
-    this.room.interiorCorners.forEach((corner) => {
+    this.room.corners.forEach((corner) => {
       points.push(new THREE.Vector2(
         corner.x / textureScale,
         corner.y / textureScale));

@@ -4,8 +4,8 @@ import { floorplannerMode } from './floorplanner/floorplanner_view';
 import { Floorplanner } from './floorplanner/floorplanner';
 import { Item } from './items/item';
 import { Main as ThreeMain } from './three/main';
-import { HalfEdge } from './model/half_edge';
 import { Room } from './model/room';
+import { Wall } from './model/wall';
 import { Controls as OrbitControls } from './three/controls';
 
 /*
@@ -392,7 +392,7 @@ class TextureSelector {
   // FIXME: Make sure this is unnecessary
   // private isAdmin = isAdmin;
 
-  private currentTarget: HalfEdge | Room | null = null;
+  private currentTarget: Wall | Room | null = null;
 
   private initTextureSelectors() {
     const objscope = this;
@@ -402,7 +402,8 @@ class TextureSelector {
       var textureStretch = ($(eltscope).attr("texture-stretch") == "true");
       var textureScale = parseInt($(eltscope).attr("texture-scale") || "1");
       const t = objscope.currentTarget;
-      if (t && textureUrl) { 
+      /* FIXME: this is just an edge thing, right? */
+      if ((t instanceof Room) && textureUrl) { 
         t.setTexture(textureUrl, textureStretch, textureScale);
       }
       event.preventDefault();
@@ -411,7 +412,7 @@ class TextureSelector {
 
   constructor (blueprint3d: Blueprint3d, sideMenu: SideMenu) {
     this.three = blueprint3d.three;
-    this.three.wallClicked.add((halfedge: HalfEdge) => this.wallClicked(halfedge));
+    this.three.wallClicked.add((wall: Wall) => this.wallClicked(wall));
     this.three.floorClicked.add((room: Room) => this.floorClicked(room));
     this.three.itemSelectedCallbacks.add(() => this.reset());
     this.three.nothingClicked.add(() => this.reset());
@@ -419,8 +420,8 @@ class TextureSelector {
     this.initTextureSelectors();
   }
 
-  private wallClicked(halfEdge: HalfEdge) {
-    this.currentTarget = halfEdge;
+  private wallClicked(wall: Wall) {
+    this.currentTarget = wall;
     $("#floorTexturesDiv").hide();  
     $("#wallTextures").show();  
   }

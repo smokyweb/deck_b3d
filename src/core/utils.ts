@@ -9,12 +9,12 @@
 
 import * as THREE from 'three';
 import { Room } from '../model/room';
-import { HalfEdge } from '../model/half_edge';
+import { Wall } from '../model/wall';
 
 export type Point = { x: number, y: number };
 
-export type EdgePlane = THREE.Mesh & { edge: HalfEdge };
 export type FloorPlane = THREE.Mesh & { room: Room };
+export type WallPlane = THREE.Mesh & { wall: Wall }
 
 export class Utils {
   /** Determines the distance of a point from a line.
@@ -489,6 +489,9 @@ export class Utils {
   static deflatten(c: THREE.Vector2, height?: number): THREE.Vector3 {
     height = height || 0;
     return new THREE.Vector3(c.x, height, c.y);
+  }
+  static clamp(x: number, min: number, max: number): number {
+    return Math.min(max, Math.max(min, x));
   }
 }
 

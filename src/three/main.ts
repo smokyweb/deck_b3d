@@ -111,7 +111,7 @@ export class Main {
     new Lights(this.scene, this.model.floorplan);
 
     this.floorplan = new Floorplan(this.scene,
-      this.model.floorplan, this.controls);
+      this.model.floorplan);
 
     this.animate();
 

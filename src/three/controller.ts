@@ -157,7 +157,7 @@ export class Controller {
     // double click on a wall or floor brings up texture change modal
     if (this.state == State.UNSELECTED && this.mouseoverObject === null) {
       // check walls
-      var wallEdgePlanes = this.model.floorplan.wallEdgePlanes();
+      var wallEdgePlanes = this.model.floorplan.wallPlanes();
       var wallIntersects = this.getIntersections(
         event, wallEdgePlanes, true);
       if (wallIntersects.length > 0) {

@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 import { Floor } from './floor';
-import { Edge } from './edge';
-import { Controls } from './controls';
 import { Floorplan as ModelFloorplan } from '../model/floorplan';
 import { Scene } from '../model/scene';
 import { LumberYard } from './lumberyard';
@@ -11,12 +9,11 @@ import { RailMaker, RailSpec } from './railmaker';
 export class Floorplan {
 
   private floors: Floor[] = [];
-  private edges: Edge[] = [];
   private railObjects: THREE.Object3D[] = [];
   private lumberYard = new LumberYard();
   private railMaker = new RailMaker(this.lumberYard);
 
-  constructor(private scene: Scene, private floorplan: ModelFloorplan, private controls: Controls) {
+  constructor(private scene: Scene, private floorplan: ModelFloorplan) {
     this.floorplan.fireOnUpdatedRooms(() => this.redraw());
   }
 
@@ -29,11 +26,7 @@ export class Floorplan {
       this.scene.scene.remove(obj);
     });
 
-    this.edges.forEach((edge) => {
-      edge.remove();
-    });
     this.floors = [];
-    this.edges = [];
     this.railObjects = [];
 
     // draw floors
@@ -42,16 +35,6 @@ export class Floorplan {
       this.floors.push(threeFloor);
       threeFloor.addToScene();
     });
-
-    // not doing this since we have real rails now.
-    if (false) {
-      // draw edges
-      this.floorplan.wallEdges().forEach((edge) => {
-        var threeEdge = new Edge(
-          this.scene, edge, this.controls);
-        this.edges.push(threeEdge);
-      });
-    }
 
     this.floorplan.getWalls().forEach((wall) => {
       const start = wall.start;

@@ -1,8 +1,7 @@
 import * as THREE from 'three';
-import { Point, FloorPlane } from '../core/utils';
+import { FloorPlane } from '../core/utils';
 import { Corner } from './corner';
 import { Floorplan, TextureSpec } from './floorplan';
-import { HalfEdge } from './half_edge';
 
 
 //TODO
@@ -22,12 +21,6 @@ const defaultRoomTexture = {
  */
 export class Room {
 
-  /** */
-  public interiorCorners: Point[] = [];
-
-  /** */
-  private edgePointer: HalfEdge | null = null;
-
   /** floor plane for intersection testing */
   public floorPlane: FloorPlane | null = null;
 
@@ -38,8 +31,6 @@ export class Room {
    *  ordered CCW
    */
   constructor(private floorplan: Floorplan, public corners: Corner[]) {
-    this.updateWalls();
-    this.updateInteriorCorners();
     this.generatePlane();
   }
 
@@ -70,11 +61,12 @@ export class Room {
 
   private generatePlane() {
     var points: THREE.Vector2[] = [];
-    this.interiorCorners.forEach((corner) => {
+    this.corners.forEach((corner: Corner) => {
       points.push(new THREE.Vector2(
         corner.x,
         corner.y));
     });
+
     var shape = new THREE.Shape(points);
     var geometry = new THREE.ShapeGeometry(shape);
     const mesh = new THREE.Mesh(geometry,
@@ -86,67 +78,9 @@ export class Room {
     this.floorPlane = Object.assign(mesh, {room: this});
   }
 
-  private updateInteriorCorners() {
-    var edge = this.edgePointer;
-    while (edge) {
-      this.interiorCorners.push(edge.interiorStart());
-      edge.generatePlane();
-      if (edge.next === this.edgePointer) {
-        break;
-      } else {
-        edge = edge.next;
-      }
-    }
-  }
 
   /** 
    * Populates each wall's half edge relating to this room
    * this creates a fancy doubly connected edge list (DCEL)
    */
-  private updateWalls() {
-
-    var prevEdge = null;
-    var firstEdge = null;
-
-    for (var i = 0; i < this.corners.length; i++) {
-
-      var firstCorner = this.corners[i];
-      var secondCorner = this.corners[(i + 1) % this.corners.length];
-
-      // find if wall is heading in that direction
-      var wallTo = firstCorner.wallTo(secondCorner);
-      var wallFrom = firstCorner.wallFrom(secondCorner);
-
-      let edge = null;
-      if (wallTo) {
-        edge = new HalfEdge(this, wallTo, true);
-      } else if (wallFrom) {
-        edge = new HalfEdge(this, wallFrom, false);
-      } else {
-        // something horrible has happened
-        throw Error("corners arent connected by a wall, uh oh");
-      }
-
-      if (i == 0) {
-        firstEdge = edge;
-      } else {
-        if (prevEdge === null) {
-          throw Error("prevEdge was null");
-        }
-        edge.prev = prevEdge;
-        prevEdge.next = edge;
-        if (i + 1 == this.corners.length) {
-          if (firstEdge == null) {
-            throw Error("firstEdge was null");
-          }
-          firstEdge.prev = edge;
-          edge.next = firstEdge;
-        }
-      }
-      prevEdge = edge;
-    }
-
-    // hold on to an edge reference
-    this.edgePointer = firstEdge;
-  }
 }

@@ -12,10 +12,13 @@ export abstract class InWallItem extends WallItem {
 
   /** */
   public override getWallOffset() {
+    /*
     // fudge factor so it saves to the right wall
     if (!this.currentWallEdge) {
       throw Error("no currentWallEdge");
     }
     return -this.currentWallEdge.offset + 0.5;
+    */
+    return 0;
   }
 }

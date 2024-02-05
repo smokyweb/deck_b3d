@@ -1,8 +1,7 @@
 
 import * as THREE from 'three';
 
-import { HalfEdge } from './half_edge';
-import { Utils, FloorPlane, EdgePlane } from '../core/utils';
+import { Utils, FloorPlane, WallPlane } from '../core/utils';
 import { Wall } from './wall';
 import { Corner } from './corner';
 import { Room } from './room';
@@ -21,7 +20,7 @@ export class Floorplan {
 
       Every wall has a start corner and end corner.
   */
-  private walls: Wall[] = [];
+  public walls: Wall[] = [];
 
   /** 
       Corners store references to the walls they are parts of. 
@@ -60,34 +59,16 @@ export class Floorplan {
 
   /** Constructs a floorplan. */
   constructor() {}
-
-  // hack
-  public wallEdges(): HalfEdge[] {
-    var edges: HalfEdge[] = [];
-
+  public wallPlanes(): WallPlane[] {
+    var planes: WallPlane[] = [];
     this.walls.forEach((wall) => {
-      if (wall.frontEdge) {
-        edges.push(wall.frontEdge);
-      }
-      if (wall.backEdge) {
-        edges.push(wall.backEdge);
-      }
-    });
-    return edges;
-  }
-
-  // hack
-  public wallEdgePlanes(): EdgePlane[] {
-    var planes: EdgePlane[] = [];
-    this.walls.forEach((wall) => {
-      if (wall.frontEdge?.plane) {
-        planes.push(wall.frontEdge.plane);
-      }
-      if (wall.backEdge?.plane) {
-        planes.push(wall.backEdge.plane);
-      }
+        planes.push(wall.plane);
     });
     return planes;
+  }
+
+  public getWalls(): Wall[] {
+    return this.walls;
   }
 
   public floorPlanes(): FloorPlane[] {
@@ -164,11 +145,6 @@ export class Floorplan {
    */
   private removeCorner(corner: Corner) {
     Utils.removeValue(this.corners, corner);
-  }
-
-  /** Gets the walls. */
-  public getWalls(): Wall[] {
-    return this.walls;
   }
 
   /** Gets the corners. */
@@ -324,7 +300,6 @@ export class Floorplan {
     roomCorners.forEach((corners) => {
       scope.rooms.push(new Room(scope, corners));
     });
-    this.assignOrphanEdges();
 
     this.updateFloorTextures();
     this.updated_rooms.fire();
@@ -348,22 +323,6 @@ export class Floorplan {
     return result;
   }
 
-  private assignOrphanEdges() {
-    // kinda hacky
-    // find orphaned wall segments (i.e. not part of rooms) and
-    // give them edges
-    var orphanWalls = [];
-    this.walls.forEach((wall) => {
-      if (!wall.backEdge && !wall.frontEdge) {
-        wall.orphan = true;
-        var back = new HalfEdge(null, wall, false);
-        back.generatePlane();
-        var front = new HalfEdge(null, wall, true);
-        front.generatePlane();
-        orphanWalls.push(wall);
-      }
-    });
-  }
 
   /*
    * Find the "rooms" in our planar straight-line graph.

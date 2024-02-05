@@ -10,7 +10,7 @@ const cornerTolerance: number = 20;
 /**
  * Corners are used to define Walls.
  */
-export class Corner {
+export class Corner extends THREE.Vector2 {
 
   /** Array of start walls. */
   private wallStarts: Wall[] = [];
@@ -35,7 +35,8 @@ export class Corner {
    * @param y Y coordinate.
    * @param id An optional unique id. If not set, created internally.
    */
-  constructor(private floorplan: Floorplan, public x: number, public y: number, _id?: string) {
+  constructor(private floorplan: Floorplan, x: number, y: number, _id?: string) {
+    super(x, y);
     this.id = _id || Utils.guid();
   }
 
