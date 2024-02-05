@@ -11,6 +11,11 @@ const defaultWallTexture = {
   scale: 0
 }
 
+export enum WallType {
+  Blank,
+  Railing,
+};
+
 /** 
  * A Wall is the basic element to create Rooms.
  * 
@@ -51,6 +56,8 @@ export class Wall {
 
   /** Actions to be applied explicitly. */
   private action_callbacks = $.Callbacks();
+
+  public wallType: WallType = WallType.Railing;
 
   public readonly interiorTransform: THREE.Matrix4 = new THREE.Matrix4();
   public readonly invInteriorTransform: THREE.Matrix4 = new THREE.Matrix4();
@@ -206,18 +213,4 @@ export class Wall {
     transform.multiplyMatrices(tr, tt);
     invTransform.getInverse(transform);
   }
-
-//  /** Return the corner opposite of the one provided.
-//   * @param corner The given corner.
-//   * @returns The opposite corner.
-//   */
-//  private oppositeCorner(corner: Corner): Corner {
-//    if (this.start === corner) {
-//      return this.end;
-//    } else if (this.end === corner) {
-//      return this.start;
-//    } else {
-//      throw Error('Wall.oppositeCorner: Wall does not connect to corner');
-//    }
-//  }
 }

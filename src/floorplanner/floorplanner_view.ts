@@ -1,6 +1,6 @@
 import { Dimensioning } from '../core/dimensioning';
 import { Floorplan } from '../model/floorplan';
-import { Wall } from '../model/wall';
+import { Wall, WallType } from '../model/wall';
 import { Room } from '../model/room';
 import { Corner } from '../model/corner';
 import { Floorplanner } from './floorplanner';
@@ -24,7 +24,8 @@ const roomColor = "#f9f9f9";
 // wall config
 const wallWidth = 5;
 const wallWidthHover = 7;
-const wallColor = "#dddddd"
+const wallColorDefault = "#bbbbbb"
+const wallColorRailing = "#bb8888"
 const wallColorHover = "#008cba"
 /*
 const edgeColor = "#888888"
@@ -111,8 +112,11 @@ export class FloorplannerView {
 
   /** */
   private drawWall(wall: Wall) {
-    var hover = (wall === this.viewmodel.activeWall);
-    var color = wallColor;
+    const hover = (wall === this.viewmodel.activeWall);
+    let color = wallColorDefault;
+    if (wall.wallType == WallType.Railing) {
+      color = wallColorRailing;
+    }
     if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {

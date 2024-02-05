@@ -17,8 +17,6 @@
 
 * Improve editing experience; don't require button presses.  Make it make sense
 
-* Get rid of HalfEdge.
-
 
 
 
