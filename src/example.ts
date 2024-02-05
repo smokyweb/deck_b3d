@@ -97,7 +97,6 @@ class ContextMenu {
     this.three = this.blueprint3d.three;
     this.three.itemSelectedCallbacks.add((item: Item) => this.itemSelected(item));
     this.three.itemUnselectedCallbacks.add(() => this.itemUnselected());
-    this.itemUnselected();
 
     this.initResize();
 
