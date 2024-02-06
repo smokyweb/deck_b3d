@@ -4,6 +4,7 @@ import { Corner } from '../model/corner';
 import { Wall, WallType } from '../model/wall';
 import { FloorplannerView, floorplannerMode } from './floorplanner_view';
 import { Vector2 as V2 } from 'three';
+import { Point } from '../core/utils';
 
 
 /** how much will we move a corner to make a wall axis aligned (cm) */
@@ -373,7 +374,7 @@ export class Floorplanner {
     //console.log(planBounds);
     this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY});
   }
-  public setView(scale: number, worldPt: {x: number, y: number}, screenPt: {x: number, y: number}) {
+  public setView(scale: number, worldPt: Point, screenPt: Point) {
     // want to set the origin so that worldPt goes to screenPt
     // screenPt.x = (worldPt.x / this.cmPerPixel) - this.origin.x
     this.origin.x = worldPt.x / scale - screenPt.x;
