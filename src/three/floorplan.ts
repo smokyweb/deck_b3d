@@ -4,6 +4,7 @@ import { Floorplan as ModelFloorplan } from '../model/floorplan';
 import { Scene } from '../model/scene';
 import { LumberYard } from './lumberyard';
 import { RailMaker, RailSpec } from './railmaker';
+import { WallType } from '../model/wall';
 //import { Utils } from '../core/utils';
 
 export class Floorplan {
@@ -37,14 +38,17 @@ export class Floorplan {
     });
 
     this.floorplan.getWalls().forEach((wall) => {
-      const start = wall.start;
-      const end = wall.end;
-      const startBase = start.position();
-      const endBase = end.position(); 
-      const spec = new RailSpec({ startBase, endBase });
-      const rails = this.railMaker.makeRail(spec);
-      this.railObjects.push(rails);
-      this.scene.add(rails);
+      if (wall.wallType == WallType.Railing) {
+        const start = wall.start;
+        const end = wall.end;
+        const startBase = start.position();
+        const endBase = end.position(); 
+        const spec = new RailSpec({ startBase, endBase });
+        const rails = this.railMaker.makeRail(spec);
+        rails.userData = wall;
+        this.railObjects.push(rails);
+        this.scene.add(rails);
+      }
     });
   }
 }
