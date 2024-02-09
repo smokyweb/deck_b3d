@@ -59,8 +59,8 @@ export abstract class WallItem extends Item {
     var closestWall: Wall | null = null;
     var minDistance: number | null = null;
 
-    var itemX = this.position.x;
-    var itemZ = this.position.z;
+    var itemX = this.threeObj.position.x;
+    var itemZ = this.threeObj.position.z;
 
     walls.forEach((wall: Wall) => {
       var distance = wall.distanceFrom(itemX, itemZ);
@@ -95,20 +95,20 @@ export abstract class WallItem extends Item {
     } else {
       this.backVisible = visible;
     }
-    this.visible = (this.frontVisible || this.backVisible);
+    this.threeObj.visible = (this.frontVisible || this.backVisible);
   }
 
   /** */
   private updateSize() {
-    this.wallOffsetScalar = (this.geometry.boundingBox.max.z - this.geometry.boundingBox.min.z) * this.scale.z / 2.0;
-    this.sizeX = (this.geometry.boundingBox.max.x - this.geometry.boundingBox.min.x) * this.scale.x;
-    this.sizeY = (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y;
+    this.wallOffsetScalar = (this.threeObj.geometry.boundingBox.max.z - this.threeObj.geometry.boundingBox.min.z) * this.threeObj.scale.z / 2.0;
+    this.sizeX = (this.threeObj.geometry.boundingBox.max.x - this.threeObj.geometry.boundingBox.min.x) * this.threeObj.scale.x;
+    this.sizeY = (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y) * this.threeObj.scale.y;
   }
 
   /** */
   public resized() {
     if (this.boundToFloor) {
-      this.position.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y) * this.scale.y + 0.01;
+      this.threeObj.position.y = 0.5 * (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y) * this.threeObj.scale.y + 0.01;
     }
 
     this.updateSize();
@@ -131,7 +131,7 @@ export abstract class WallItem extends Item {
         closestWall.height / 2.0,
         center.y);
       this.boundMove(newPos);
-      this.position.copy(newPos);
+      this.threeObj.position.copy(newPos);
       this.redrawWall();
     }
   };
@@ -141,7 +141,7 @@ export abstract class WallItem extends Item {
   public override moveToPosition(vec3: THREE.Vector3, intersection: any) {
     this.changeWall(intersection.object.edge);
     this.boundMove(vec3);
-    this.position.copy(vec3);
+    this.threeObj.position.copy(vec3);
     this.redrawWall();
   }
 
@@ -185,7 +185,7 @@ export abstract class WallItem extends Item {
     var angle = Utils.angle(
       this.refVec.x, this.refVec.y,
       normal2.x, normal2.y);
-    this.rotation.y = angle;
+    this.threeObj.rotation.y = angle;
 
     // update currentWall
     this.currentWall = wall;

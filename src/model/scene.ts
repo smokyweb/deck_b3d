@@ -115,7 +115,9 @@ export class Scene {
    */
   public remove(mesh: THREE.Mesh) {
     this.scene.remove(mesh);
-    Utils.removeValue(this.items, mesh);
+    // If this call removes items, why is it removing an item from the items list?
+    // FIXME: I don't think this is necessary, but I want a bread crumb.
+    //Utils.removeValue(this.items, mesh);
   }
 
   /** Gets the scene.
@@ -156,7 +158,7 @@ export class Scene {
     // use this for item meshes
     this.itemRemovedCallbacks.fire(item);
     item.removed();
-    this.scene.remove(item);
+    this.scene.remove(item.threeObj);
     Utils.removeValue(this.items, item);
     item.dispose();
   }
@@ -176,7 +178,7 @@ export class Scene {
     var scope = this;
     // FIXME:  Make this an arrow function, get rid of scope
     var loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
-      var item = new (Factory.getClass(itemType))(
+      const item: Item = new (Factory.getClass(itemType))(
         scope.model,
         metadata, geometry,
         new THREE.MeshFaceMaterial(materials),
@@ -184,7 +186,7 @@ export class Scene {
       );
       item.fixed = fixed || false;
       scope.items.push(item);
-      scope.add(item);
+      scope.add(item.threeObj);
       item.initObject();
       scope.itemLoadedCallbacks.fire(item);
     }

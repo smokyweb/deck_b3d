@@ -41,24 +41,19 @@ export class Model {
   }
 
   public exportSerialized(): string {
-    var items_arr = [];
-    var objects = this.scene.getItems();
-    for (var i = 0; i < objects.length; i++) {
-      var object = objects[i];
-      items_arr[i] = {
-        item_name: object.metadata.itemName,
-        item_type: object.metadata.itemType,
-        model_url: object.metadata.modelUrl,
-        xpos: object.position.x,
-        ypos: object.position.y,
-        zpos: object.position.z,
-        rotation: object.rotation.y,
-        scale_x: object.scale.x,
-        scale_y: object.scale.y,
-        scale_z: object.scale.z,
-        fixed: object.fixed
-      };
-    }
+    const items_arr = this.scene.getItems().map((item) => ({
+      item_name: item.metadata.itemName,
+      item_type: item.metadata.itemType,
+      model_url: item.metadata.modelUrl,
+      xpos: item.threeObj.position.x,
+      ypos: item.threeObj.position.y,
+      zpos: item.threeObj.position.z,
+      rotation: item.threeObj.rotation.y,
+      scale_x: item.threeObj.scale.x,
+      scale_y: item.threeObj.scale.y,
+      scale_z: item.threeObj.scale.z,
+      fixed: item.fixed
+    })); 
 
     var room = {
       floorplan: (this.floorplan.saveFloorplan()),

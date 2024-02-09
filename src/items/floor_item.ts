@@ -17,15 +17,15 @@ export abstract class FloorItem extends Item {
     if (!this.position_set) {
       const center2 = this.model.floorplan.getCenter2();
       // FIXME: CoordinateConfusion
-      this.position.x = center2.x;
-      this.position.z = center2.y;
-      this.position.y = 0.5 * (this.geometry.boundingBox.max.y - this.geometry.boundingBox.min.y);
+      this.threeObj.position.x = center2.x;
+      this.threeObj.position.z = center2.y;
+      this.threeObj.position.y = 0.5 * (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y);
     }
   };
 
   /** Take action after a resize */
   public resized() {
-    this.position.y = this.halfSize.y;
+    this.threeObj.position.y = this.halfSize.y;
   }
 
   /** */
@@ -37,9 +37,9 @@ export abstract class FloorItem extends Item {
       return;
     } else {
       this.hideError();
-      vec3.y = this.position.y; // keep it on the floor!
+      vec3.y = this.threeObj.position.y; // keep it on the floor!
       //const oldpos = this.position.clone();
-      this.position.copy(vec3);
+      this.threeObj.position.copy(vec3);
       //console.log("moved from ", oldpos, "to", this.position);
     }
   }

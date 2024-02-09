@@ -84,9 +84,9 @@ export class HUD {
 
   public update() {
     if (this.activeObject && this.selectedItem) {
-      this.activeObject.rotation.y = this.selectedItem.rotation.y;
-      this.activeObject.position.x = this.selectedItem.position.x;
-      this.activeObject.position.z = this.selectedItem.position.z;
+      this.activeObject.rotation.y = this.selectedItem.threeObj.rotation.y;
+      this.activeObject.position.x = this.selectedItem.threeObj.position.x;
+      this.activeObject.position.z = this.selectedItem.threeObj.position.z;
     }
   }
 
@@ -151,9 +151,9 @@ export class HUD {
     object.add(cone);
     object.add(sphere);
 
-    object.rotation.y = item.rotation.y;
-    object.position.x = item.position.x;
-    object.position.z = item.position.z;
+    object.rotation.y = item.threeObj.rotation.y;
+    object.position.x = item.threeObj.position.x;
+    object.position.z = item.threeObj.position.z;
     object.position.y = this.height;
 
     return object;

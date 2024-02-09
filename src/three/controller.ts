@@ -81,7 +81,7 @@ export class Controller {
   public itemLoaded(item: Item) {
     if (!item.position_set) {
       this.setSelectedObject(item);
-      var pos = item.position.clone();
+      var pos = item.threeObj.position.clone();
       pos.y = 0;
       //var vec = this.three.projectVector(pos);
       //this.clickPressed(vec);
@@ -372,18 +372,20 @@ export class Controller {
     this.hud.setMouseover(false);
 
     // check objects
-    var items = this.model.scene.getItems();
+    const items = this.model.scene.getItems();
+    const item_threeObjs = items.map((item) => item.threeObj);
+    
     var intersects = this.getIntersections(
       event,
-      items,
+      item_threeObjs,
       false, true);
     //console.log("updateIntersections intersects: ", intersects);
 
     if (intersects.length > 0) {
       const obj = intersects[0].object;
-      if (obj instanceof Item) {
+      if (obj.userData instanceof Item) {
         //console.log("updateIntersections: item selected", obj);
-        this.intersectedObject = obj;
+        this.intersectedObject = obj.userData;
       }
     } else {
       //console.log("updateIntersections: no item selected");

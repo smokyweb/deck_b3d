@@ -8,13 +8,15 @@ import { Scene } from '../model/scene';
  * An Item is an abstract entity for all things placed in the scene,
  * e.g. at walls or on the floor.
  */
-export abstract class Item extends THREE.Mesh {
+export abstract class Item {
 
   /** */
   private scene: Scene;
 
   /** */
   private errorGlow = new THREE.Mesh();
+
+  public readonly threeObj: THREE.Mesh;
 
   /** */
   private _hover: boolean = false;
@@ -74,41 +76,38 @@ export abstract class Item extends THREE.Mesh {
   /** Constructs an item. 
    */
   constructor(protected model: Model, public metadata: Metadata, geometry: THREE.Geometry, material: THREE.MeshFaceMaterial, position: THREE.Vector3, rotation: number, scale: THREE.Vector3) {
-    super();
+    this.threeObj = new THREE.Mesh(geometry, material);
+    this.threeObj.userData = this;
 
     this.scene = this.model.scene;
-    this.geometry = geometry;
-    this.material = material;
 
     this.errorColor = 0xff0000;
 
     this.resizable = metadata.resizable || false;
 
-    this.castShadow = true;
-    this.receiveShadow = false;
-
-    this.geometry = geometry;
-    this.material = material;
+    const tobj = this.threeObj;
+    tobj.castShadow = true;
+    tobj.receiveShadow = false;
 
     if (position) {
-      this.position.copy(position);
+      this.threeObj.position.copy(position);
       this.position_set = true;
     } else {
       this.position_set = false;
     }
 
     // center in its boundingbox
-    this.geometry.computeBoundingBox();
-    this.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(
-      - 0.5 * (this.geometry.boundingBox.max.x + this.geometry.boundingBox.min.x),
-      - 0.5 * (this.geometry.boundingBox.max.y + this.geometry.boundingBox.min.y),
-      - 0.5 * (this.geometry.boundingBox.max.z + this.geometry.boundingBox.min.z)
+    tobj.geometry.computeBoundingBox();
+    tobj.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(
+      - 0.5 * (tobj.geometry.boundingBox.max.x + tobj.geometry.boundingBox.min.x),
+      - 0.5 * (tobj.geometry.boundingBox.max.y + tobj.geometry.boundingBox.min.y),
+      - 0.5 * (tobj.geometry.boundingBox.max.z + tobj.geometry.boundingBox.min.z)
     ));
-    this.geometry.computeBoundingBox();
+    tobj.geometry.computeBoundingBox();
     this.halfSize = this.objectHalfSize();
 
     if (rotation) {
-      this.rotation.y = rotation;
+      tobj.rotation.y = rotation;
     }
 
     if (scale != null) {
@@ -117,7 +116,7 @@ export abstract class Item extends THREE.Mesh {
   };
 
   /** */
-  public override remove() {
+  public remove() {
     this.scene.removeItem(this);
   };
 
@@ -133,8 +132,7 @@ export abstract class Item extends THREE.Mesh {
   public setScale(x: number, y: number, z: number) {
     var scaleVec = new THREE.Vector3(x, y, z);
     this.halfSize.multiply(scaleVec);
-    scaleVec.multiply(this.scale)
-    this.scale.set(scaleVec.x, scaleVec.y, scaleVec.z);
+    this.threeObj.scale.multiply(scaleVec);
     this.resized();
     this.scene.needsUpdate = true;
   };
@@ -182,7 +180,7 @@ export abstract class Item extends THREE.Mesh {
   public updateHighlight() {
     var on = this.hover || this.selected;
     var hex = on ? this.emissiveColor : 0x000000;
-    (<THREE.MeshFaceMaterial>this.material).materials.forEach((material) => {
+    (<THREE.MeshFaceMaterial>this.threeObj.material).materials.forEach((material) => {
       // TODO_Ekki emissive doesn't exist anymore?
       (<any>material).emissive.setHex(hex);
     });
@@ -193,7 +191,7 @@ export abstract class Item extends THREE.Mesh {
 
   /** intersection has attributes point (vec3) and object (THREE.Mesh) */
   public clickPressed(intersection: THREE.Intersection) {
-    this.dragOffset.copy(intersection.point).sub(this.position);
+    this.dragOffset.copy(intersection.point).sub(this.threeObj.position);
   };
 
   /** */
@@ -210,8 +208,8 @@ export abstract class Item extends THREE.Mesh {
     var angle = Utils.angle(
       0,
       1,
-      intersection.point.x - this.position.x,
-      intersection.point.z - this.position.z);
+      intersection.point.x - this.threeObj.position.x,
+      intersection.point.z - this.threeObj.position.z);
 
     var snapTolerance = Math.PI / 16.0;
 
@@ -223,12 +221,12 @@ export abstract class Item extends THREE.Mesh {
       }
     }
 
-    this.rotation.y = angle;
+    this.threeObj.rotation.y = angle;
   }
 
   /** */
   public moveToPosition(vec3: THREE.Vector3, _intersection: THREE.Intersection) {
-    this.position.copy(vec3);
+    this.threeObj.position.copy(vec3);
   }
 
   /** */
@@ -256,7 +254,7 @@ export abstract class Item extends THREE.Mesh {
    */
   public getCorners(_xDim: PropertyKey, _yDim: PropertyKey, position: THREE.Vector3) {
 
-    position = position || this.position;
+    position = position || this.threeObj.position;
 
     var halfSize = this.halfSize.clone();
 
@@ -267,7 +265,7 @@ export abstract class Item extends THREE.Mesh {
 
     var transform = new THREE.Matrix4();
     //console.log(this.rotation.y);
-    transform.makeRotationY(this.rotation.y); //  + Math.PI/2)
+    transform.makeRotationY(this.threeObj.rotation.y); //  + Math.PI/2)
 
     c1.applyMatrix4(transform);
     c2.applyMatrix4(transform);
@@ -299,7 +297,7 @@ export abstract class Item extends THREE.Mesh {
 
   /** */
   public showError(vec3: THREE.Vector3) {
-    vec3 = vec3 || this.position;
+    vec3 = vec3 || this.threeObj.position;
     if (!this.error) {
       this.error = true;
       this.errorGlow = this.createGlow(this.errorColor, 0.8, true);
@@ -319,7 +317,7 @@ export abstract class Item extends THREE.Mesh {
   /** */
   private objectHalfSize(): THREE.Vector3 {
     var objectBox = new THREE.Box3();
-    objectBox.setFromObject(this);
+    objectBox.setFromObject(this.threeObj);
     return objectBox.max.clone().sub(objectBox.min).divideScalar(2);
   }
 
@@ -335,16 +333,16 @@ export abstract class Item extends THREE.Mesh {
       depthTest: !ignoreDepth
     });
 
-    var glow = new THREE.Mesh(<THREE.Geometry>this.geometry.clone(), glowMaterial);
-    glow.position.copy(this.position);
-    glow.rotation.copy(this.rotation);
-    glow.scale.copy(this.scale);
+    var glow = new THREE.Mesh(<THREE.Geometry>this.threeObj.geometry.clone(), glowMaterial);
+    glow.position.copy(this.threeObj.position);
+    glow.rotation.copy(this.threeObj.rotation);
+    glow.scale.copy(this.threeObj.scale);
     return glow;
   };
 
   // Should be called to dispose all contained textures and materials
   public dispose() {
-    console.log("dispose material", this.material);
-    Utils.doDispose(this.material);
+    console.log("dispose material", this.threeObj.material);
+    Utils.doDispose(this.threeObj.material);
   }
 }
