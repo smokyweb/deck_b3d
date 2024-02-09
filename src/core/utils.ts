@@ -493,6 +493,31 @@ export class Utils {
   static clamp(x: number, min: number, max: number): number {
     return Math.min(max, Math.max(min, x));
   }
+  // Give this a MultiTexture or a Material or a Texture, this will recursively
+  // dispose it and all its children.
+  public static doDispose(obj: any) {
+    //console.log('doDispose', obj);
+    if (Array.isArray(obj)) {
+      //console.log("it's an array");
+      obj.forEach(Utils.doDispose)
+      return;
+    }
+    if (!(obj instanceof Object)) {
+      return;
+    }
+    if ('materials' in obj) {
+      //console.log("it has a materials property");
+      Utils.doDispose(obj.materials);
+    }
+    if ('map' in obj) {
+      //console.log("it has a map property");
+      Utils.doDispose(obj.map);
+    }
+    if ('dispose' in obj && typeof obj.dispose === 'function') {
+      //console.log('it has a dispose function');
+      obj.dispose();
+    }
+  }
 }
 
 export function inToCm(inches: number): number {

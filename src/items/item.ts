@@ -341,4 +341,10 @@ export abstract class Item extends THREE.Mesh {
     glow.scale.copy(this.scale);
     return glow;
   };
+
+  // Should be called to dispose all contained textures and materials
+  public dispose() {
+    console.log("dispose material", this.material);
+    Utils.doDispose(this.material);
+  }
 }

@@ -163,6 +163,7 @@ export class Main {
       this.renderer.render(this.scene.getScene(), this.camera);
       this.renderer.clearDepth();
       this.renderer.render(this.hud.getScene(), this.camera);
+      console.log(`renderer.info.memory.textures: ${this.renderer.info.memory.textures}`);
     }
     this.lastRender = Date.now();
   };

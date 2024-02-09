@@ -143,7 +143,7 @@ export class Scene {
   public clearItems() {
     const items_copy = this.items.slice()
     items_copy.forEach((item) => {
-      this.removeItem(item, true);
+      this.removeItem(item);
     });
     this.items = []
   }
@@ -151,17 +151,14 @@ export class Scene {
   /**
    * Removes an item.
    * @param item The item to be removed.
-   * @param dontRemove If not set, also remove the item from the items list.
    */
-  public removeItem(item: Item, dontRemove?: boolean) {
-    dontRemove = dontRemove || false;
+  public removeItem(item: Item) {
     // use this for item meshes
     this.itemRemovedCallbacks.fire(item);
     item.removed();
     this.scene.remove(item);
-    if (!dontRemove) {
-      Utils.removeValue(this.items, item);
-    }
+    Utils.removeValue(this.items, item);
+    item.dispose();
   }
 
   /**
