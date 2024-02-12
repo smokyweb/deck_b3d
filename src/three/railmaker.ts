@@ -77,7 +77,8 @@ export class RailMaker {
     const offsetInches = (baseDistInches - postStock.width - nslats*spec.slatIntervalInches)/2;
     const shadow = new THREE.Vector2();
     shadow.subVectors(spec.endBase, spec.startBase);
-    const shadowAngle = -Math.atan2(shadow.y, shadow.x) + Math.PI/2;
+    const shadowAngle = -Math.atan2(shadow.y, shadow.x);
+    const slatAngle = shadowAngle + Math.PI/2;
 
     for (let i = 0; i < nslats; i++) {
       const interpDistInches = postStock.width/2 + offsetInches + (i + 0.5)*spec.slatIntervalInches;
@@ -86,7 +87,7 @@ export class RailMaker {
       const slatloc = this.interp2(spec.startBase, spec.endBase, t);
       const slatBase = Utils.deflatten(slatloc, inToCm(bottomRailCenterHeightInches));
       const slatTop = Utils.deflatten(slatloc, inToCm(topRailCenterHeightInches));
-      const slat = this.lumberYard.makeLumberFromTo(spec.slatStock, slatBase, slatTop, shadowAngle);
+      const slat = this.lumberYard.makeLumberFromTo(spec.slatStock, slatBase, slatTop, slatAngle);
       group.add(slat);
     }
     return group;
