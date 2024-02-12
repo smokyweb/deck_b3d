@@ -75,13 +75,12 @@ export class RailMaker {
     // so postStockWidth + 2*offset + nslats*slatInterval = baseDist
     const nslats = Math.floor((baseDistInches - postStock.width)/spec.slatIntervalInches);
     const offsetInches = (baseDistInches - postStock.width - nslats*spec.slatIntervalInches)/2;
-    const offset = inToCm(offsetInches);
     const shadow = new THREE.Vector2();
     shadow.subVectors(spec.endBase, spec.startBase);
     const shadowAngle = -Math.atan2(shadow.y, shadow.x) + Math.PI/2;
 
     for (let i = 0; i < nslats; i++) {
-      const interpDistInches = postStock.width/2 + offset + (i + 0.5)*spec.slatIntervalInches;
+      const interpDistInches = postStock.width/2 + offsetInches + (i + 0.5)*spec.slatIntervalInches;
       // normalized interpolation parameter, 0 to 1
       const t = interpDistInches / baseDistInches;
       const slatloc = this.interp2(spec.startBase, spec.endBase, t);
