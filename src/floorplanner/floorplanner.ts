@@ -49,12 +49,6 @@ export class Floorplanner {
   /** clientX/clientY coords */
   private readonly mouse = new V2(0,0);
 
-  /** clientX/clientY coords 
-   * This is set only in mouseMove
-  * */
-
-  private readonly rawMouse = new V2(0,0);
-
   /** mouse position at last click */
   private readonly last = new V2(0,0);
 
@@ -150,8 +144,8 @@ export class Floorplanner {
 
     this.setMode(FloorplannerMode.MOVE);
 
-    this.canvasElement.addEventListener("mousedown", (_e: MouseEvent) => {
-      this.mousedown();
+    this.canvasElement.addEventListener("mousedown", (e: MouseEvent) => {
+      this.mousedown(e);
     });
     this.canvasElement.addEventListener("mousemove", (event: MouseEvent) => {
       this.mousemove(event);
@@ -206,10 +200,10 @@ export class Floorplanner {
   }
 
   /** */
-  private mousedown() {
+  private mousedown(event: MouseEvent) {
     this.mouseDown = true;
     this.mouseMoved = false;
-    this.last.copy(this.rawMouse);
+    this.last.set(event.clientX, event.clientY);
 
     // delete
     if (this.mode == FloorplannerMode.DELETE) {
@@ -231,7 +225,7 @@ export class Floorplanner {
     this.mouseMoved = true;
 
     // update mouse
-    this.rawMouse.set(event.clientX, event.clientY);;
+    const client = new V2(event.clientX, event.clientY);
 
     this.mouse.copy(this.offsetToWorld(offset));
 
@@ -265,9 +259,9 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      const mouseDelta = new V2().subVectors(this.last, this.rawMouse);
+      const mouseDelta = new V2().subVectors(this.last, client);
       this.origin.add(mouseDelta)
-      this.last.copy(this.rawMouse);
+      this.last.copy(client);
       this.view.draw();
     }
 
@@ -277,12 +271,12 @@ export class Floorplanner {
         this.activeCorner.move(this.mouse.x, this.mouse.y);
         this.activeCorner.snapToAxis(snapTolerance);
       } else if (this.activeWall) {
-        const rawPos = this.offsetToWorld(this.rawMouse);
+        const rawPos = this.offsetToWorld(client);
         const lastPos = this.offsetToWorld(this.last);
         const moveDelta = new V2().subVectors(rawPos, lastPos);
         this.activeWall.relativeMove(moveDelta.x, moveDelta.y);
         this.activeWall.snapToAxis(snapTolerance);
-        this.last.copy(this.rawMouse);
+        this.last.copy(client);
       }
       this.view.draw();
     }
