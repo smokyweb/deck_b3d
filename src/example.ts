@@ -1,6 +1,6 @@
 
 import { Blueprint3d } from './blueprint3d';
-import { floorplannerMode } from './floorplanner/floorplanner_view';
+import { FloorplannerMode } from './floorplanner/floorplanner_view';
 import { Floorplanner } from './floorplanner/floorplanner';
 import { Item } from './items/item';
 import { Main as ThreeMain } from './three/main';
@@ -478,20 +478,20 @@ class ViewerFloorplanner {
     // mode buttons
     window.addEventListener("resize", () => this.handleWindowResize() );
     this.handleWindowResize();
-    this.floorplanner.modeResetCallbacks.add((mode: floorplannerMode) => {
+    this.floorplanner.modeResetCallbacks.add((mode: FloorplannerMode) => {
       console.log("floorplanner mode reset, " + mode.toString());
       this.makeInactive(this.draw);
       this.makeInactive(this.remove);
       this.makeInactive(this.move);
-      if (mode == floorplannerMode.MOVE) {
+      if (mode == FloorplannerMode.MOVE) {
         this.makeActive(this.move);
-      } else if (mode == floorplannerMode.DRAW) {
+      } else if (mode == FloorplannerMode.DRAW) {
         this.makeActive(this.draw);
-      } else if (mode == floorplannerMode.DELETE) {
+      } else if (mode == FloorplannerMode.DELETE) {
         this.makeActive(this.remove);
       }
 
-      if (mode == floorplannerMode.DRAW) {
+      if (mode == FloorplannerMode.DRAW) {
         $("#draw-walls-hint").show();
         this.handleWindowResize();
       } else {
@@ -500,15 +500,15 @@ class ViewerFloorplanner {
     });
 
     this.move.addEventListener("click", (_e: MouseEvent) => {
-      this.floorplanner.setMode(floorplannerMode.MOVE);
+      this.floorplanner.setMode(FloorplannerMode.MOVE);
     });
 
     this.draw.addEventListener("click", (_e: MouseEvent) => {
-      this.floorplanner.setMode(floorplannerMode.DRAW);
+      this.floorplanner.setMode(FloorplannerMode.DRAW);
     });
 
     this.remove.addEventListener("click", () => {
-      this.floorplanner.setMode(floorplannerMode.DELETE);
+      this.floorplanner.setMode(FloorplannerMode.DELETE);
     });
   }
   private makeActive(elem: HTMLElement) {

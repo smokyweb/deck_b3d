@@ -8,7 +8,7 @@ import { Point } from '../core/utils';
 
 
 /** */
-export enum floorplannerMode {
+export enum FloorplannerMode {
   MOVE,
   DRAW,
   DELETE
@@ -101,7 +101,7 @@ export class FloorplannerView {
       this.drawCorner(corner);
     });
 
-    if (this.viewmodel.mode == floorplannerMode.DRAW) {
+    if (this.viewmodel.mode == FloorplannerMode.DRAW) {
       this.drawTarget(this.viewmodel.target.x, this.viewmodel.target.y);
     }
 
@@ -117,7 +117,7 @@ export class FloorplannerView {
     if (wall.wallType == WallType.Railing) {
       color = wallColorRailing;
     }
-    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
+    if (hover && this.viewmodel.mode == FloorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {
       color = wallColorHover;
@@ -169,7 +169,7 @@ export class FloorplannerView {
   private drawCorner(corner: Corner) {
     var hover = (corner === this.viewmodel.activeCorner);
     var color = cornerColor;
-    if (hover && this.viewmodel.mode == floorplannerMode.DELETE) {
+    if (hover && this.viewmodel.mode == FloorplannerMode.DELETE) {
       color = deleteColor;
     } else if (hover) {
       color = cornerColorHover;
