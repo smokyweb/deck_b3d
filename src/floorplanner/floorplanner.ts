@@ -26,6 +26,7 @@ export class Floorplanner {
 
   public readonly origin: V2 = new V2(0,0);
 
+  /** model coordinates, position of mouse, snapped */
   public readonly target: V2 = new V2(0,0);
 
   /** drawing state */
@@ -46,10 +47,10 @@ export class Floorplanner {
   /** */
   private mouseMoved = false;
 
-  /** clientX/clientY coords */
+  /** model coords */
   private readonly mouse = new V2(0,0);
 
-  /** mouse position at last click */
+  /** mouse position at last click, client coords */
   private readonly last = new V2(0,0);
 
   /** */
@@ -106,10 +107,10 @@ export class Floorplanner {
 
   // Takes a mouse event clientX and clientY, turns it into coordinates
   // relative to the containing HTMLElement
-  private clientToOffset(clientX: number, clientY: number): V2 {
+  private clientToOffset(client: Point): V2 {
     const bounds = this.canvasElement.getBoundingClientRect();
-    const ox = clientX - bounds.left;
-    const oy = clientY - bounds.top;
+    const ox = client.x - bounds.left;
+    const oy = client.y - bounds.top;
     return new V2(ox, oy);
   }
   /** */
@@ -220,7 +221,7 @@ export class Floorplanner {
 
   /** */
   private mousemove(event: MouseEvent) {
-    const offset = this.clientToOffset(event.clientX, event.clientY);
+    const offset = this.clientToOffset({x: event.clientX, y: event.clientY});
 
     this.mouseMoved = true;
 
@@ -271,8 +272,8 @@ export class Floorplanner {
         this.activeCorner.move(this.mouse.x, this.mouse.y);
         this.activeCorner.snapToAxis(snapTolerance);
       } else if (this.activeWall) {
-        const rawPos = this.offsetToWorld(client);
-        const lastPos = this.offsetToWorld(this.last);
+        const rawPos = this.clientToOffset(this.offsetToWorld(client));
+        const lastPos = this.clientToOffset(this.offsetToWorld(this.last));
         const moveDelta = new V2().subVectors(rawPos, lastPos);
         this.activeWall.relativeMove(moveDelta.x, moveDelta.y);
         this.activeWall.snapToAxis(snapTolerance);
@@ -307,7 +308,7 @@ export class Floorplanner {
 
   private wheelEvent(event: WheelEvent) {
     const zoomFactor = 1.15;
-    const mouseScreenPos = this.clientToOffset(event.clientX, event.clientY);
+    const mouseScreenPos = this.clientToOffset({x: event.clientX, y: event.clientY});
     const mouseWorldPos = this.offsetToWorld(mouseScreenPos);
 
     let scale = this.cmPerPixel;
