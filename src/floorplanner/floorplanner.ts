@@ -1,36 +1,33 @@
-
-import { Floorplan } from '../model/floorplan';
-import { Corner } from '../model/corner';
-import { Wall, WallType } from '../model/wall';
-import { FloorplannerView, FloorplannerMode } from './floorplanner_view';
-import { Vector2 as V2 } from 'three';
-import { Point } from '../core/utils';
-
+import { Floorplan } from "../model/floorplan";
+import { Corner } from "../model/corner";
+import { Wall, WallType } from "../model/wall";
+import { FloorplannerView, FloorplannerMode } from "./floorplanner_view";
+import { Vector2 as V2 } from "three";
+import { Point } from "../core/utils";
 
 /** how much will we move a corner to make a wall axis aligned (cm) */
 const snapTolerance = 25;
 
-/** 
+/**
  * The Floorplanner implements an interactive tool for creation of floorplans.
  */
 export class Floorplanner {
-
   /** */
   public mode: FloorplannerMode = FloorplannerMode.MOVE;
 
   /** */
-  private _activeWall: (Wall | null) = null;
+  private _activeWall: Wall | null = null;
 
   /** */
-  public activeCorner: (Corner | null) = null;
+  public activeCorner: Corner | null = null;
 
-  public readonly origin: V2 = new V2(0,0);
+  public readonly origin: V2 = new V2(0, 0);
 
   /** model coordinates, position of mouse, snapped */
-  public readonly target: V2 = new V2(0,0);
+  public readonly target: V2 = new V2(0, 0);
 
   /** drawing state */
-  public lastNode: (Corner | null) = null;
+  public lastNode: Corner | null = null;
 
   /** */
   public modeResetCallbacks = $.Callbacks();
@@ -48,10 +45,10 @@ export class Floorplanner {
   private mouseMoved = false;
 
   /** model coords */
-  private readonly mouse = new V2(0,0);
+  private readonly mouse = new V2(0, 0);
 
   /** mouse position at last click, client coords */
-  private readonly last = new V2(0,0);
+  private readonly last = new V2(0, 0);
 
   /** */
   private cmPerPixel: number = 1;
@@ -71,8 +68,8 @@ export class Floorplanner {
   private updateContextMenu() {
     if (this.activeWall) {
       this.contextMenuWall.hidden = false;
-      this.contextMenuRailingCheckbox.checked = 
-          (this.activeWall.wallType == WallType.Railing);
+      this.contextMenuRailingCheckbox.checked =
+        this.activeWall.wallType == WallType.Railing;
     } else {
       this.contextMenuWall.hidden = true;
     }
@@ -82,7 +79,7 @@ export class Floorplanner {
       if (this.contextMenuRailingCheckbox.checked) {
         this.activeWall.wallType = WallType.Railing;
       } else {
-        this.activeWall.wallType = WallType.Blank;;
+        this.activeWall.wallType = WallType.Blank;
       }
       this.view.draw();
     }
@@ -93,15 +90,15 @@ export class Floorplanner {
   }
 
   // converts offset coords to world model coords
-  public offsetToWorld(p: {x: number, y: number}): V2 {
+  public offsetToWorld(p: { x: number; y: number }): V2 {
     const rx = (p.x + this.origin.x) * this.cmPerPixel;
     const ry = (p.y + this.origin.y) * this.cmPerPixel;
     return new V2(rx, ry);
   }
   // converts world model coords to offset coords
-  public worldToOffset(p: {x: number, y: number}): V2 {
-    const rx = (p.x / this.cmPerPixel) - this.origin.x;
-    const ry = (p.y / this.cmPerPixel) - this.origin.y;
+  public worldToOffset(p: { x: number; y: number }): V2 {
+    const rx = p.x / this.cmPerPixel - this.origin.x;
+    const ry = p.y / this.cmPerPixel - this.origin.y;
     return new V2(rx, ry);
   }
 
@@ -114,7 +111,10 @@ export class Floorplanner {
     return new V2(ox, oy);
   }
   /** */
-  constructor(canvas: string, private floorplan: Floorplan) {
+  constructor(
+    canvas: string,
+    private floorplan: Floorplan,
+  ) {
     const canvasElement = $("#" + canvas).get(0);
     if (!canvasElement) {
       throw Error("Canvas selector does not work");
@@ -135,23 +135,24 @@ export class Floorplanner {
     const rc = cm.querySelector("#railing-checkbox");
     if (rc instanceof HTMLInputElement) {
       this.contextMenuRailingCheckbox = rc;
-      rc.addEventListener("change",  (e: Event) => this.railingCheckboxHandler(e));
+      rc.addEventListener("change", (e: Event) =>
+        this.railingCheckboxHandler(e),
+      );
     } else {
       throw Error("Couldn't find railing checkbox");
     }
-
 
     // Initialization:
 
     this.setMode(FloorplannerMode.MOVE);
 
-    this.canvasElement.addEventListener("mousedown", (e: MouseEvent) => {
-      this.mousedown(e);
+    this.canvasElement.addEventListener("mousedown", (event: MouseEvent) => {
+      this.mousedown(event);
     });
     this.canvasElement.addEventListener("mousemove", (event: MouseEvent) => {
       this.mousemove(event);
     });
-    this.canvasElement.addEventListener("mouseup", (_e: MouseEvent) => {
+    this.canvasElement.addEventListener("mouseup", (_event: MouseEvent) => {
       this.mouseup();
     });
     this.canvasElement.addEventListener("mouseleave", () => {
@@ -168,7 +169,7 @@ export class Floorplanner {
     });
 
     floorplan.roomLoadedCallbacks.add(() => {
-      this.reset()
+      this.reset();
     });
   }
 
@@ -218,10 +219,9 @@ export class Floorplanner {
     }
   }
 
-
   /** */
   private mousemove(event: MouseEvent) {
-    const offset = this.clientToOffset({x: event.clientX, y: event.clientY});
+    const offset = this.clientToOffset({ x: event.clientX, y: event.clientY });
 
     this.mouseMoved = true;
 
@@ -231,13 +231,19 @@ export class Floorplanner {
     this.mouse.copy(this.offsetToWorld(offset));
 
     // update target (snapped position of actual mouse)
-    if (this.mode == FloorplannerMode.DRAW || (this.mode == FloorplannerMode.MOVE && this.mouseDown)) {
+    if (
+      this.mode == FloorplannerMode.DRAW ||
+      (this.mode == FloorplannerMode.MOVE && this.mouseDown)
+    ) {
       this.updateTarget();
     }
 
     // update object target
     if (this.mode != FloorplannerMode.DRAW && !this.mouseDown) {
-      var hoverCorner = this.floorplan.overlappedCorner(this.mouse.x, this.mouse.y);
+      var hoverCorner = this.floorplan.overlappedCorner(
+        this.mouse.x,
+        this.mouse.y,
+      );
       var hoverWall = this.floorplan.overlappedWall(this.mouse.x, this.mouse.y);
       var draw = false;
       if (hoverCorner != this.activeCorner) {
@@ -261,7 +267,7 @@ export class Floorplanner {
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
       const mouseDelta = new V2().subVectors(this.last, client);
-      this.origin.add(mouseDelta)
+      this.origin.add(mouseDelta);
       this.last.copy(client);
       this.view.draw();
     }
@@ -308,7 +314,10 @@ export class Floorplanner {
 
   private wheelEvent(event: WheelEvent) {
     const zoomFactor = 1.15;
-    const mouseScreenPos = this.clientToOffset({x: event.clientX, y: event.clientY});
+    const mouseScreenPos = this.clientToOffset({
+      x: event.clientX,
+      y: event.clientY,
+    });
     const mouseWorldPos = this.offsetToWorld(mouseScreenPos);
 
     let scale = this.cmPerPixel;
@@ -370,7 +379,7 @@ export class Floorplanner {
 
     //console.log(xScale, yScale, scale, this.cmPerPixel, this.pixelsPerCm);
     //console.log(planBounds);
-    this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY});
+    this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY });
   }
   public setView(scale: number, worldPt: Point, screenPt: Point) {
     // want to set the origin so that worldPt goes to screenPt
@@ -380,5 +389,4 @@ export class Floorplanner {
     this.cmPerPixel = scale;
     this.view.draw();
   }
-
 }
