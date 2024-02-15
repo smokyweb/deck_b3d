@@ -10,6 +10,13 @@ const snapTolerance = 25;
 
 /**
  * The Floorplanner implements an interactive tool for creation of floorplans.
+ *
+ * There are three coordiante systems we need to deal with.
+ *
+ * client coords:  These are the clientX/clientY values you get from MouseEvent
+ * canvas coords:  a default Canvas2DContext draws in these
+ * world coords:  These are the model coordinates that store locations of objects in the "world"
+ *
  */
 export class Floorplanner {
   /** */
@@ -45,7 +52,7 @@ export class Floorplanner {
   /** model coords */
   private readonly mouse = new V2(0, 0);
 
-  /** mouse position at last click, client coords */
+  /** mouse position at last click, canvas coords */
   private readonly last = new V2(0, 0);
 
   private contextMenuWall: HTMLElement;
@@ -60,14 +67,6 @@ export class Floorplanner {
       this.updateContextMenu();
     }
   }
-  /** cmPerPixel defines the view scale on the canvas */
-  private cmPerPixel: number = 1;
-
-  /** origin defines the canvas draw location in a terrible and illogical way.
-  *   It is not related to any coordinate system origin in any way I can tell.
-  * */
-  public readonly origin: V2 = new V2(0, 0);
-
   private updateContextMenu() {
     if (this.activeWall) {
       this.contextMenuWall.hidden = false;
@@ -92,27 +91,13 @@ export class Floorplanner {
     return 30.48 / this.cmPerPixel;
   }
 
-  // converts offset coords to world model coords
-  public offsetToWorld(p: { x: number; y: number }): V2 {
-    const rx = (p.x + this.origin.x) * this.cmPerPixel;
-    const ry = (p.y + this.origin.y) * this.cmPerPixel;
-    return new V2(rx, ry);
-  }
-  // converts world model coords to offset coords
-  public worldToOffset(p: { x: number; y: number }): V2 {
-    const rx = p.x / this.cmPerPixel - this.origin.x;
-    const ry = p.y / this.cmPerPixel - this.origin.y;
-    return new V2(rx, ry);
+  // Takes a MouseEvent and makes a canvas coordinate out of the clientX and clientY
+  public toCanvas(p: { clientX: number, clientY: number}): V2 {
+    const bounds = this.canvasElement.getBoundingClientRect();
+    return new V2(p.clientX - bounds.left, p.clientY - bounds.top);
   }
 
-  // Takes a mouse event clientX and clientY, turns it into coordinates
-  // relative to the containing HTMLElement
-  private clientToOffset(client: Point): V2 {
-    const bounds = this.canvasElement.getBoundingClientRect();
-    const ox = client.x - bounds.left;
-    const oy = client.y - bounds.top;
-    return new V2(ox, oy);
-  }
+
   /** */
   constructor(
     canvas: string,
@@ -208,7 +193,7 @@ export class Floorplanner {
   private mousedown(event: MouseEvent) {
     this.mouseDown = true;
     this.mouseMoved = false;
-    this.last.set(event.clientX, event.clientY);
+    this.last.copy(this.toCanvas(event));
 
     // delete
     if (this.mode == FloorplannerMode.DELETE) {
@@ -224,14 +209,13 @@ export class Floorplanner {
 
   /** */
   private mousemove(event: MouseEvent) {
-    const offset = this.clientToOffset({ x: event.clientX, y: event.clientY });
-
     this.mouseMoved = true;
+    console.log("move", event);
 
     // update mouse
-    const client = new V2(event.clientX, event.clientY);
+    const canvas = this.toCanvas(event);
 
-    this.mouse.copy(this.offsetToWorld(offset));
+    this.mouse.copy(this.canvasToWorld(canvas));
 
     // update target (snapped position of actual mouse)
     if (
@@ -269,9 +253,11 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      const mouseDelta = new V2().subVectors(this.last, client);
-      this.origin.add(mouseDelta);
-      this.last.copy(client);
+      const mouseDelta =
+        new V2().subVectors(canvas, this.last)
+          .multiplyScalar(this.cmPerPixel);
+      this.viewCenter.sub(mouseDelta);
+      this.last.copy(canvas);
       this.view.draw();
     }
 
@@ -281,12 +267,12 @@ export class Floorplanner {
         this.activeCorner.move(this.mouse.x, this.mouse.y);
         this.activeCorner.snapToAxis(snapTolerance);
       } else if (this.activeWall) {
-        const rawPos = this.clientToOffset(this.offsetToWorld(client));
-        const lastPos = this.clientToOffset(this.offsetToWorld(this.last));
+        const rawPos = this.canvasToWorld(canvas);
+        const lastPos = this.canvasToWorld(this.last);
         const moveDelta = new V2().subVectors(rawPos, lastPos);
         this.activeWall.relativeMove(moveDelta.x, moveDelta.y);
         this.activeWall.snapToAxis(snapTolerance);
-        this.last.copy(client);
+        this.last.copy(canvas);
       }
       this.view.draw();
     }
@@ -316,12 +302,10 @@ export class Floorplanner {
   }
 
   private wheelEvent(event: WheelEvent) {
+    console.log("wheel", event);
     const zoomFactor = 1.15;
-    const mouseScreenPos = this.clientToOffset({
-      x: event.clientX,
-      y: event.clientY,
-    });
-    const mouseWorldPos = this.offsetToWorld(mouseScreenPos);
+    const mouseCanvasPos = this.toCanvas(event);
+    const mouseWorldPos = this.canvasToWorld(mouseCanvasPos);
 
     let scale = this.cmPerPixel;
     //console.log(event);
@@ -332,7 +316,7 @@ export class Floorplanner {
       //console.log("zoom in");
       scale /= zoomFactor;
     }
-    this.setView(scale, mouseWorldPos, mouseScreenPos);
+    this.setView(scale, mouseWorldPos, mouseCanvasPos);
   }
 
   /** */
@@ -384,12 +368,52 @@ export class Floorplanner {
     //console.log(planBounds);
     this.setView(scale, planCenter, { x: screenCenterX, y: screenCenterY });
   }
+
+  /** cmPerPixel defines the view scale on the canvas */
+  private cmPerPixel: number = 1;
+
+  /** this world coordinate will be in the center of the canvas view */
+  public readonly viewCenter: V2 = new V2(0, 0);
+
+  // Transformation between Canvas coords and World coords
+  // is defined by this.cmPerPixel and this.viewCenter
+  //
+  // 
+  // (p.x - centerX) * cmPerPixel == worldPt.x - viewCenter.x
+  // so worldPt.x = (p.x - centerX)*cmPerPixel + viewCenter.x
+  public canvasToWorld(p: { x: number; y: number }): V2 {
+    const bounds = this.canvasElement.getBoundingClientRect();
+    const centerX = bounds.width/2;
+    const centerY = bounds.height/2;
+    const centerOffsetX = p.x - centerX;
+    const centerOffsetY = p.y - centerY;
+    return new V2(centerOffsetX, centerOffsetY)
+      .multiplyScalar(this.cmPerPixel)
+      .add(this.viewCenter);
+  }
+  // converts world model coords to offset coords
+  // (p.x - centerX) * cmPerPixel == worldPt.x - viewCenter.x
+  // (p.x - centerX) == (worldPt.x - viewCenter.x) / cmPerPixel
+  // (p.x = centerX + (worldPt.x - viewCenter.x) / cmPerPixel
+  public worldToCanvas(w: { x: number; y: number }): V2 {
+    const bounds = this.canvasElement.getBoundingClientRect();
+    const centerX = bounds.width/2;
+    const centerY = bounds.height/2;
+    const ox = (w.x - this.viewCenter.x)/this.cmPerPixel;
+    const oy = (w.y - this.viewCenter.y)/this.cmPerPixel;
+    return new V2(ox + centerX, oy + centerY);
+  }
   public setView(scale: number, worldPt: Point, screenPt: Point) {
-    // want to set the origin so that worldPt goes to screenPt
-    // screenPt.x = (worldPt.x / this.cmPerPixel) - this.origin.x
-    this.origin.x = worldPt.x / scale - screenPt.x;
-    this.origin.y = worldPt.y / scale - screenPt.y;
+    // want to set the viewCenter so that worldPt goes to screenPt
+    // (screenPt.x - centerX) * scale == worldPt.x - viewCenter.x
+    // viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale
+    const bounds = this.canvasElement.getBoundingClientRect();
+    const centerX = bounds.width/2;
+    const centerY = bounds.height/2;
+    this.viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale;
+    this.viewCenter.y = worldPt.y - (screenPt.y - centerY)*scale;
     this.cmPerPixel = scale;
     this.view.draw();
+    //console.log(bounds, scale, worldPt, screenPt, this.viewCenter);
   }
 }

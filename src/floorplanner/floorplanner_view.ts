@@ -122,8 +122,8 @@ export class FloorplannerView {
     } else if (hover) {
       color = wallColorHover;
     }
-    const start = this.viewmodel.worldToOffset(wall.start);
-    const end = this.viewmodel.worldToOffset(wall.end);
+    const start = this.viewmodel.worldToCanvas(wall.start);
+    const end = this.viewmodel.worldToCanvas(wall.end);
     this.drawLine(
       start.x, start.y,
       end.x, end.y,
@@ -148,7 +148,7 @@ export class FloorplannerView {
       this.context.strokeStyle = "#ffffff";
       this.context.lineWidth = 4;
 
-      const screenPos = this.viewmodel.worldToOffset(pos);
+      const screenPos = this.viewmodel.worldToCanvas(pos);
       this.context.strokeText(Dimensioning.cmToMeasure(length),
         screenPos.x,
         screenPos.y);
@@ -174,7 +174,7 @@ export class FloorplannerView {
     } else if (hover) {
       color = cornerColorHover;
     }
-    const screenCorner = this.viewmodel.worldToOffset(corner);
+    const screenCorner = this.viewmodel.worldToCanvas(corner);
     this.drawCircle(
       screenCorner.x, screenCorner.y,
       hover ? cornerRadiusHover : cornerRadius,
@@ -184,14 +184,14 @@ export class FloorplannerView {
 
   /** */
   private drawTarget(x: number, y: number) {
-    const screenPos = this.viewmodel.worldToOffset({x,y});
+    const screenPos = this.viewmodel.worldToCanvas({x,y});
     this.drawCircle(
       screenPos.x, screenPos.y,
       cornerRadiusHover,
       cornerColorHover
     );
     if (this.viewmodel.lastNode) {
-      const lastNodePos = this.viewmodel.worldToOffset(this.viewmodel.lastNode);
+      const lastNodePos = this.viewmodel.worldToCanvas(this.viewmodel.lastNode);
       this.drawLine(
         lastNodePos.x,
         lastNodePos.y,
@@ -224,7 +224,7 @@ export class FloorplannerView {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
-    const cornerPosArr = corners.map((corner) => this.viewmodel.worldToOffset(corner));
+    const cornerPosArr = corners.map((corner) => this.viewmodel.worldToCanvas(corner));
     if (this.context) {
       this.context.beginPath();
       this.context.moveTo(cornerPosArr[0].x, cornerPosArr[0].y);
@@ -255,13 +255,14 @@ export class FloorplannerView {
     }
   }
 
-  /** returns n where -gridSize/2 < n <= gridSize/2  */
-  private calculateGridOffset(n: number, gridSpacing: number): number {
-    if (n >= 0) {
-      return (n + gridSpacing / 2.0) % gridSpacing - gridSpacing / 2.0;
-    } else {
-      return (n - gridSpacing / 2.0) % gridSpacing + gridSpacing / 2.0;
+  private calcGrid( start: number, end: number, interval: number): number[] {
+    const ifirst = Math.floor(start / interval);
+    const ilast = Math.ceil(end / interval);
+    const result = new Array<number>(ilast - ifirst + 1);
+    for(let i = ifirst; i <= ilast; i++) {
+      result[i] = i * interval;
     }
+    return result;
   }
 
   /** */
@@ -269,15 +270,18 @@ export class FloorplannerView {
     const gridSpacing = this.viewmodel.pixelsPerFoot;
     //const gridSpacing = 49.3; 
     //console.log(gridSpacing);
-    const offsetX = this.calculateGridOffset(-this.viewmodel.origin.x, gridSpacing);
-    const offsetY = this.calculateGridOffset(-this.viewmodel.origin.y, gridSpacing);
-    const width = this.canvasElement.width;
-    const height = this.canvasElement.height;
-    for (let x = 0; x <= (width / gridSpacing); x++) {
-      this.drawLine(gridSpacing * x + offsetX, 0, gridSpacing * x + offsetX, height, gridWidth, gridColor);
-    }
-    for (let y = 0; y <= (height / gridSpacing); y++) {
-      this.drawLine(0, gridSpacing * y + offsetY, width, gridSpacing * y + offsetY, gridWidth, gridColor);
-    }
+    const bounds = this.canvasElement.getBoundingClientRect();
+    const ul = this.viewmodel.canvasToWorld({x: 0, y: 0});
+    const lr = this.viewmodel.canvasToWorld({x: bounds.width, y: bounds.height});
+    const gridX = this.calcGrid(ul.x, lr.x, gridSpacing);
+    const gridY = this.calcGrid(ul.y, lr.y, gridSpacing);
+    gridX.forEach((x) => { 
+      const p = this.viewmodel.worldToCanvas({x, y: 0});
+      this.drawLine(p.x, 0, p.x, bounds.height, gridWidth, gridColor);
+    });
+    gridY.forEach((y) => {
+      const p = this.viewmodel.worldToCanvas({x: 0, y});
+      this.drawLine(0, p.y, bounds.width, p.y, gridWidth, gridColor);
+    });
   }
 }
