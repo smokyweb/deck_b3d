@@ -21,13 +21,17 @@ export class Floorplanner {
   /** */
   public activeCorner: Corner | null = null;
 
-  public readonly origin: V2 = new V2(0, 0);
-
   /** model coordinates, position of mouse, snapped */
   public readonly target: V2 = new V2(0, 0);
 
   /** drawing state */
   public lastNode: Corner | null = null;
+
+  /** */
+  private mouseDown = false;
+
+  /** */
+  private mouseMoved = false;
 
   /** */
   public modeResetCallbacks = $.Callbacks();
@@ -38,20 +42,11 @@ export class Floorplanner {
   /** */
   private view: FloorplannerView;
 
-  /** */
-  private mouseDown = false;
-
-  /** */
-  private mouseMoved = false;
-
   /** model coords */
   private readonly mouse = new V2(0, 0);
 
   /** mouse position at last click, client coords */
   private readonly last = new V2(0, 0);
-
-  /** */
-  private cmPerPixel: number = 1;
 
   private contextMenuWall: HTMLElement;
   private contextMenuRailingCheckbox: HTMLInputElement;
@@ -65,6 +60,14 @@ export class Floorplanner {
       this.updateContextMenu();
     }
   }
+  /** cmPerPixel defines the view scale on the canvas */
+  private cmPerPixel: number = 1;
+
+  /** origin defines the canvas draw location in a terrible and illogical way.
+  *   It is not related to any coordinate system origin in any way I can tell.
+  * */
+  public readonly origin: V2 = new V2(0, 0);
+
   private updateContextMenu() {
     if (this.activeWall) {
       this.contextMenuWall.hidden = false;
