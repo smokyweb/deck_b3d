@@ -1,5 +1,4 @@
-import * as Cfg from './configuration';
-
+import * as Cfg from "./configuration";
 
 /** Dimensioning in Inch. */
 export const dimInch: string = "inch";
@@ -22,7 +21,7 @@ export class Dimensioning {
   public static cmToMeasure(cm: number): string {
     switch (Cfg.Configuration.getStringValue(Cfg.configDimUnit)) {
       case dimInch:
-        var realFeet = ((cm * 0.393700) / 12);
+        var realFeet = (cm * 0.3937) / 12;
         var feet = Math.floor(realFeet);
         var inches = Math.round((realFeet - feet) * 12);
         return feet + "'" + inches + '"';

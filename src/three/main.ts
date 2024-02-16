@@ -1,25 +1,23 @@
-
-import * as THREE from 'three';
-import { Controller } from './controller';
-import { Floorplan } from './floorplan';
-import { Lights } from './lights';
-import { Controls } from './controls';
-import { HUD } from './hud';
-import { Scene } from '../model/scene';
-import { Model } from '../model/model';
-import { Utils } from '../core/utils';
-import { Skybox } from './skybox';
+import * as THREE from "three";
+import { Controller } from "./controller";
+import { Floorplan } from "./floorplan";
+import { Lights } from "./lights";
+import { Controls } from "./controls";
+import { HUD } from "./hud";
+import { Scene } from "../model/scene";
+import { Model } from "../model/model";
+import { Utils } from "../core/utils";
+import { Skybox } from "./skybox";
 
 export class Main {
   private options: any = {
     resize: true,
     pushHref: false,
     spin: true,
-    spinSpeed: .00002,
+    spinSpeed: 0.00002,
     clickPan: true,
-    canMoveFixedItems: false
-  }
-
+    canMoveFixedItems: false,
+  };
 
   private scene: Scene;
 
@@ -57,13 +55,17 @@ export class Main {
   public floorClicked = $.Callbacks(); // floor
   public nothingClicked = $.Callbacks();
 
-
-  constructor(private model: Model, element: string, _canvasElement: string, opts: any) {
+  constructor(
+    private model: Model,
+    element: string,
+    _canvasElement: string,
+    opts: any,
+  ) {
     this.element = $(element);
     // override with manually set options
     for (var opt in this.options) {
       if (this.options.hasOwnProperty(opt) && opts.hasOwnProperty(opt)) {
-        this.options[opt] = opts[opt]
+        this.options[opt] = opts[opt];
       }
     }
     THREE.ImageUtils.crossOrigin = "";
@@ -78,10 +80,9 @@ export class Main {
     this.camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      preserveDrawingBuffer: true // required to support .toDataURL()
+      preserveDrawingBuffer: true, // required to support .toDataURL()
     });
-    this.renderer.autoClear = false,
-    this.renderer.shadowMap.enabled = true;
+    (this.renderer.autoClear = false), (this.renderer.shadowMap.enabled = true);
     // FIXME: not in three.js 81
     //this.renderer.shadowMapSoft = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -96,7 +97,13 @@ export class Main {
     this.domElement.appendChild(this.renderer.domElement);
 
     this.controller = new Controller(
-      this, model, this.camera, this.renderer.domElement, this.controls, this.hud);
+      this,
+      model,
+      this.camera,
+      this.renderer.domElement,
+      this.controls,
+      this.hud,
+    );
 
     // handle window resizing
     this.updateWindowSize();
@@ -110,23 +117,29 @@ export class Main {
 
     new Lights(this.scene, this.model.floorplan);
 
-    this.floorplan = new Floorplan(this.scene,
-      this.model.floorplan);
+    this.floorplan = new Floorplan(this.scene, this.model.floorplan);
 
     this.animate();
 
-    this.element.mouseenter(() => { this.mouseOver = true; });
-    this.element.mouseleave(() => { this.mouseOver = false; });
-    this.element.click(() => { this.hasClicked = true;});
+    this.element.mouseenter(() => {
+      this.mouseOver = true;
+    });
+    this.element.mouseleave(() => {
+      this.mouseOver = false;
+    });
+    this.element.click(() => {
+      this.hasClicked = true;
+    });
 
     //canvas = new ThreeCanvas(canvasElement, this);
   }
 
   private spin() {
     if (this.options.spin && !this.mouseOver && !this.hasClicked) {
-      var theta = 2 * Math.PI * this.options.spinSpeed * (Date.now() - this.lastRender);
+      var theta =
+        2 * Math.PI * this.options.spinSpeed * (Date.now() - this.lastRender);
       this.controls.rotateLeft(theta);
-      this.controls.update()
+      this.controls.update();
     }
   }
 
@@ -140,7 +153,12 @@ export class Main {
 
   private shouldRender() {
     // Do we need to draw a new frame
-    if (this.controls.needsUpdate || this.controller.needsUpdate || this.needsUpdate || this.model.scene.needsUpdate) {
+    if (
+      this.controls.needsUpdate ||
+      this.controller.needsUpdate ||
+      this.needsUpdate ||
+      this.model.scene.needsUpdate
+    ) {
       this.controls.needsUpdate = false;
       this.controller.needsUpdate = false;
       this.needsUpdate = false;
@@ -163,10 +181,12 @@ export class Main {
       this.renderer.render(this.scene.getScene(), this.camera);
       this.renderer.clearDepth();
       this.renderer.render(this.hud.getScene(), this.camera);
-      console.log(`renderer.info.memory.textures: ${this.renderer.info.memory.textures}`);
+      console.log(
+        `renderer.info.memory.textures: ${this.renderer.info.memory.textures}`,
+      );
     }
     this.lastRender = Date.now();
-  };
+  }
 
   private animate() {
     var delay = 50;
@@ -174,11 +194,11 @@ export class Main {
       requestAnimationFrame(() => this.animate());
     }, delay);
     this.render();
-  };
+  }
 
   public setCursorStyle(cursorStyle: string) {
     this.domElement.style.cursor = cursorStyle;
-  };
+  }
 
   public updateWindowSize() {
     this.heightMargin = this.domElement.offsetTop;
@@ -198,7 +218,7 @@ export class Main {
     this.needsUpdate = true;
   }
   public setNeedsUpdate() {
-      this.needsUpdate = true;
+    this.needsUpdate = true;
   }
 
   public centerCamera() {
@@ -211,8 +231,7 @@ export class Main {
 
     var distance = this.model.floorplan.getSize2().y * 1.5;
 
-    var offset = pan.clone().add(
-      new THREE.Vector3(0, distance, distance));
+    var offset = pan.clone().add(new THREE.Vector3(0, distance, distance));
     //this.controls.setOffset(offset);
     this.camera.position.copy(offset);
 
@@ -233,8 +252,8 @@ export class Main {
 
     var vec2 = new THREE.Vector2();
 
-    vec2.x = (vector.x * widthHalf) + widthHalf;
-    vec2.y = - (vector.y * heightHalf) + heightHalf;
+    vec2.x = vector.x * widthHalf + widthHalf;
+    vec2.y = -(vector.y * heightHalf) + heightHalf;
 
     if (!ignoreMargin) {
       vec2.x += this.widthMargin;

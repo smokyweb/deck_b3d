@@ -1,7 +1,6 @@
-
-import * as THREE from 'three';
-import { cmToIn, inToCm, Utils } from '../core/utils';
-import { LumberYard } from './lumberyard';
+import * as THREE from "three";
+import { cmToIn, inToCm, Utils } from "../core/utils";
+import { LumberYard } from "./lumberyard";
 
 export class RailSpec {
   public postStock: string = "4x4";
@@ -19,7 +18,7 @@ export class RailSpec {
   public startBase: THREE.Vector2 = new THREE.Vector2(0, 0);
   public endBase: THREE.Vector2 = new THREE.Vector2(100, 0);
   constructor(opts?: any) {
-    if (typeof opts === 'object') {
+    if (typeof opts === "object") {
       for (const key in this) {
         if (opts.hasOwnProperty(key)) {
           this[key] = opts[key];
@@ -32,9 +31,8 @@ export class RailSpec {
 export class RailMaker {
   // TODO: constrain these to LumberYard stock types
 
-  constructor(public lumberYard: LumberYard) {
-  }
-  // uses the current settings to make a 
+  constructor(public lumberYard: LumberYard) {}
+  // uses the current settings to make a
   public makeRail(spec: RailSpec): THREE.Group {
     const group = new THREE.Group();
     if (spec.includeStartPost) {
@@ -43,19 +41,25 @@ export class RailMaker {
     if (spec.includeEndPost) {
       group.add(this.newPost(spec, spec.endBase));
     }
-    
+
     const topStock = LumberYard.lumberDimensions.get(spec.railTopStock);
     if (!topStock) {
       throw Error(`railtopStock '${spec.railTopStock}' doesn't exist`);
     }
-    const topRailCenterHeightInches = spec.railTopInches - topStock.thickness/2;
-    group.add(this.newHoriz(spec, spec.railTopStock, topRailCenterHeightInches));
+    const topRailCenterHeightInches =
+      spec.railTopInches - topStock.thickness / 2;
+    group.add(
+      this.newHoriz(spec, spec.railTopStock, topRailCenterHeightInches),
+    );
     const bottomStock = LumberYard.lumberDimensions.get(spec.railBottomStock);
     if (!bottomStock) {
       throw Error(`railBottomStock '${spec.railBottomStock}' doesn't exist`);
     }
-    const bottomRailCenterHeightInches = spec.railBottomInches + bottomStock.thickness/2;
-    group.add(this.newHoriz(spec, spec.railBottomStock, bottomRailCenterHeightInches));
+    const bottomRailCenterHeightInches =
+      spec.railBottomInches + bottomStock.thickness / 2;
+    group.add(
+      this.newHoriz(spec, spec.railBottomStock, bottomRailCenterHeightInches),
+    );
 
     const postStock = LumberYard.lumberDimensions.get(spec.postStock);
     if (!postStock) {
@@ -63,7 +67,7 @@ export class RailMaker {
     }
     const baseDist = spec.startBase.distanceTo(spec.endBase);
     const baseDistInches = cmToIn(baseDist);
-    // rail is:   
+    // rail is:
     //   1/2 post stock width
     //   offset
     //   nslats times:
@@ -73,49 +77,71 @@ export class RailMaker {
     //   offset
     //   1/2 post stock width
     // so postStockWidth + 2*offset + nslats*slatInterval = baseDist
-    const nslats = Math.floor((baseDistInches - postStock.width)/spec.slatIntervalInches);
-    const offsetInches = (baseDistInches - postStock.width - nslats*spec.slatIntervalInches)/2;
+    const nslats = Math.floor(
+      (baseDistInches - postStock.width) / spec.slatIntervalInches,
+    );
+    const offsetInches =
+      (baseDistInches - postStock.width - nslats * spec.slatIntervalInches) / 2;
     const shadow = new THREE.Vector2();
     shadow.subVectors(spec.endBase, spec.startBase);
     const shadowAngle = -Math.atan2(shadow.y, shadow.x);
-    const slatAngle = shadowAngle + Math.PI/2;
+    const slatAngle = shadowAngle + Math.PI / 2;
 
     for (let i = 0; i < nslats; i++) {
-      const interpDistInches = postStock.width/2 + offsetInches + (i + 0.5)*spec.slatIntervalInches;
+      const interpDistInches =
+        postStock.width / 2 +
+        offsetInches +
+        (i + 0.5) * spec.slatIntervalInches;
       // normalized interpolation parameter, 0 to 1
       const t = interpDistInches / baseDistInches;
       const slatloc = this.interp2(spec.startBase, spec.endBase, t);
-      const slatBase = Utils.deflatten(slatloc, inToCm(bottomRailCenterHeightInches));
-      const slatTop = Utils.deflatten(slatloc, inToCm(topRailCenterHeightInches));
-      const slat = this.lumberYard.makeLumberFromTo(spec.slatStock, slatBase, slatTop, slatAngle);
+      const slatBase = Utils.deflatten(
+        slatloc,
+        inToCm(bottomRailCenterHeightInches),
+      );
+      const slatTop = Utils.deflatten(
+        slatloc,
+        inToCm(topRailCenterHeightInches),
+      );
+      const slat = this.lumberYard.makeLumberFromTo(
+        spec.slatStock,
+        slatBase,
+        slatTop,
+        slatAngle,
+      );
       group.add(slat);
     }
     return group;
   }
 
-  
   // t=0 means result is a1, t=1 means result is a2
   private interp1(a1: number, a2: number, t: number) {
-    return (a1*(1-t)) + (a2*t);
+    return a1 * (1 - t) + a2 * t;
   }
   // t=0 means result is p1, t=1 means result is p2
   private interp2(p1: THREE.Vector2, p2: THREE.Vector2, t: number) {
-    return new THREE.Vector2(this.interp1(p1.x, p2.x, t), this.interp1(p1.y, p2.y, t));
+    return new THREE.Vector2(
+      this.interp1(p1.x, p2.x, t),
+      this.interp1(p1.y, p2.y, t),
+    );
   }
 
-  private newPost(spec: RailSpec, base2: THREE.Vector2, ): THREE.Object3D {
-      const postSizeInches = spec.postTopInches - spec.postBottomInches;
-      const post = this.lumberYard.makeLumber(spec.postStock, postSizeInches);
-      post.translateY(inToCm(spec.postTopInches - postSizeInches/2));
-      post.rotateZ(Math.PI/2);
-      post.position.add(Utils.deflatten(base2));
-      return post;
+  private newPost(spec: RailSpec, base2: THREE.Vector2): THREE.Object3D {
+    const postSizeInches = spec.postTopInches - spec.postBottomInches;
+    const post = this.lumberYard.makeLumber(spec.postStock, postSizeInches);
+    post.translateY(inToCm(spec.postTopInches - postSizeInches / 2));
+    post.rotateZ(Math.PI / 2);
+    post.position.add(Utils.deflatten(base2));
+    return post;
   }
-  private newHoriz(spec: RailSpec, stock: string, centerHeightInches: number): THREE.Object3D {
+  private newHoriz(
+    spec: RailSpec,
+    stock: string,
+    centerHeightInches: number,
+  ): THREE.Object3D {
     const centerHeight = inToCm(centerHeightInches);
     const from = Utils.deflatten(spec.startBase, centerHeight);
     const to = Utils.deflatten(spec.endBase, centerHeight);
     return this.lumberYard.makeLumberFromTo(stock, from, to);
   }
-
 }

@@ -7,14 +7,14 @@
 
 */
 
-import * as THREE from 'three';
-import { Room } from '../model/room';
-import { Wall } from '../model/wall';
+import * as THREE from "three";
+import { Room } from "../model/room";
+import { Wall } from "../model/wall";
 
-export type Point = { x: number, y: number };
+export type Point = { x: number; y: number };
 
 export type FloorPlane = THREE.Mesh & { room: Room };
-export type WallPlane = THREE.Mesh & { wall: Wall }
+export type WallPlane = THREE.Mesh & { wall: Wall };
 
 export class Utils {
   /** Determines the distance of a point from a line.
@@ -32,7 +32,7 @@ export class Utils {
     x1: number,
     y1: number,
     x2: number,
-    y2: number
+    y2: number,
   ): number {
     var tPoint = Utils.closestPointOnLine(x, y, x1, y1, x2, y2);
     var tDx = x - tPoint.x;
@@ -59,7 +59,7 @@ export class Utils {
     x1: number,
     y1: number,
     x2: number,
-    y2: number
+    y2: number,
   ): { x: number; y: number } {
     // Inspired by: http://stackoverflow.com/a/6853926
     var tA = x - x1;
@@ -100,7 +100,7 @@ export class Utils {
   static distance(x1: number, y1: number, x2: number, y2: number): number {
     let dx = x2 - x1;
     let dy = y2 - y1;
-    return Math.sqrt(dx*dx + dy*dy);
+    return Math.sqrt(dx * dx + dy * dy);
   }
 
   /**  sort of gets the angle between 0,0 -> x1,y1 and 0,0 -> x2,y2 (-pi to pi)
@@ -139,7 +139,7 @@ export class Utils {
     let sum = 0;
     for (let i = 0; i < points.length; i++) {
       const p1 = points[i];
-      const inext = (i+1) % points.length;
+      const inext = (i + 1) % points.length;
       const p2 = points[inext];
       if (!p1 || !p2) {
         throw Error("isClockwise passed null points");
@@ -184,7 +184,10 @@ export class Utils {
     If a vertex of one lies on the edge of another, the behavior is undefined.
 
   */
-  static polygonPolygonIntersect(firstCorners: Point[], secondCorners: Point[]): boolean {
+  static polygonPolygonIntersect(
+    firstCorners: Point[],
+    secondCorners: Point[],
+  ): boolean {
     for (var tI = 0; tI < firstCorners.length; tI++) {
       var tFirstCorner = firstCorners[tI],
         tSecondCorner;
@@ -207,7 +210,7 @@ export class Utils {
           tFirstCorner.y,
           tSecondCorner.x,
           tSecondCorner.y,
-          secondCorners
+          secondCorners,
         )
       ) {
         return true;
@@ -227,7 +230,7 @@ export class Utils {
     y1: number,
     x2: number,
     y2: number,
-    corners: Point[]
+    corners: Point[],
   ): boolean {
     for (var tI = 0; tI < corners.length; tI++) {
       var tFirstCorner = corners[tI],
@@ -253,7 +256,7 @@ export class Utils {
           tFirstCorner.x,
           tFirstCorner.y,
           tSecondCorner.x,
-          tSecondCorner.y
+          tSecondCorner.y,
         )
       ) {
         return true;
@@ -274,7 +277,7 @@ export class Utils {
     x3: number,
     y3: number,
     x4: number,
-    y4: number
+    y4: number,
   ): boolean {
     /* the intent is that it figures out if p1, p2, p3 go CCW.
        Everything else assumes a left-handed coordinate system.
@@ -307,7 +310,6 @@ export class Utils {
           assumes left-handed coordinates, so there is an error.
 
       */
-             
     }
 
     var tP1 = { x: x1, y: y1 },
@@ -336,7 +338,7 @@ export class Utils {
     y: number,
     corners: Point[],
     startX?: number,
-    startY?: number
+    startY?: number,
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -373,7 +375,7 @@ export class Utils {
           tFirstCorner.x,
           tFirstCorner.y,
           tSecondCorner.x,
-          tSecondCorner.y
+          tSecondCorner.y,
         )
       ) {
         tIntersects++;
@@ -388,7 +390,7 @@ export class Utils {
     insideCorners: Point[],
     outsideCorners: Point[],
     startX: number,
-    startY: number
+    startY: number,
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -400,7 +402,7 @@ export class Utils {
           insideCorners[tI].y,
           outsideCorners,
           startX,
-          startY
+          startY,
         )
       ) {
         return false;
@@ -419,7 +421,7 @@ export class Utils {
     insideCorners: Point[],
     outsideCorners: Point[],
     startX: number,
-    startY: number
+    startY: number,
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -431,7 +433,7 @@ export class Utils {
           insideCorners[tI].y,
           outsideCorners,
           startX,
-          startY
+          startY,
         )
       ) {
         return false;
@@ -459,7 +461,7 @@ export class Utils {
   /** Returns in the unique elemnts in arr */
   static unique<T>(arr: T[], hashFunc: (arg: T) => string): T[] {
     var tResults = [];
-    var tMap: { [index: string]: boolean} = {};
+    var tMap: { [index: string]: boolean } = {};
     for (var tI = 0; tI < arr.length; tI++) {
       const pk = hashFunc(arr[tI]);
       if (!tMap.hasOwnProperty(pk)) {
@@ -499,21 +501,21 @@ export class Utils {
     //console.log('doDispose', obj);
     if (Array.isArray(obj)) {
       //console.log("it's an array");
-      obj.forEach(Utils.doDispose)
+      obj.forEach(Utils.doDispose);
       return;
     }
     if (!(obj instanceof Object)) {
       return;
     }
-    if ('materials' in obj) {
+    if ("materials" in obj) {
       //console.log("it has a materials property");
       Utils.doDispose(obj.materials);
     }
-    if ('map' in obj) {
+    if ("map" in obj) {
       //console.log("it has a map property");
       Utils.doDispose(obj.map);
     }
-    if ('dispose' in obj && typeof obj.dispose === 'function') {
+    if ("dispose" in obj && typeof obj.dispose === "function") {
       //console.log('it has a dispose function');
       obj.dispose();
     }
@@ -521,9 +523,9 @@ export class Utils {
 }
 
 export function inToCm(inches: number): number {
-  return inches*2.54;
+  return inches * 2.54;
 }
 
 export function cmToIn(cm: number): number {
-  return cm/2.54;
+  return cm / 2.54;
 }

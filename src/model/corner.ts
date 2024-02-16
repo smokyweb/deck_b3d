@@ -1,8 +1,7 @@
-
-import * as THREE from 'three';
-import { Utils } from '../core/utils';
-import { Floorplan } from './floorplan';
-import { Wall } from './wall';
+import * as THREE from "three";
+import { Utils } from "../core/utils";
+import { Floorplan } from "./floorplan";
+import { Wall } from "./wall";
 
 /** */
 const cornerTolerance: number = 20;
@@ -11,7 +10,6 @@ const cornerTolerance: number = 20;
  * Corners are used to define Walls.
  */
 export class Corner extends THREE.Vector2 {
-
   /** Array of start walls. */
   private wallStarts: Wall[] = [];
 
@@ -29,20 +27,25 @@ export class Corner extends THREE.Vector2 {
 
   public id: string;
 
-  /** Constructs a corner. 
+  /** Constructs a corner.
    * @param floorplan The associated floorplan.
    * @param x X coordinate.
    * @param y Y coordinate.
    * @param id An optional unique id. If not set, created internally.
    */
-  constructor(private floorplan: Floorplan, x: number, y: number, _id?: string) {
+  constructor(
+    private floorplan: Floorplan,
+    x: number,
+    y: number,
+    _id?: string,
+  ) {
     super(x, y);
     this.id = _id || Utils.guid();
   }
 
   /** Add function to moved callbacks.
    * @param func The function to be added.
-  */
+   */
   public fireOnMove(func: (x: number, y: number) => void) {
     this.moved_callbacks.add(func);
   }
@@ -66,13 +69,13 @@ export class Corner extends THREE.Vector2 {
     return new THREE.Vector2(this.x, this.y);
   }
   /**
-   * 
+   *
    */
-  public snapToAxis(tolerance: number): { x: boolean, y: boolean } {
+  public snapToAxis(tolerance: number): { x: boolean; y: boolean } {
     // try to snap this corner to an axis
     var snapped = {
       x: false,
-      y: false
+      y: false,
     };
 
     var scope = this;
@@ -98,10 +101,10 @@ export class Corner extends THREE.Vector2 {
     this.move(this.x + dx, this.y + dy);
   }
 
-// FIXME: delete this
-//  private fireAction(action: any) {
-//    this.action_callbacks.fire(action)
-//  }
+  // FIXME: delete this
+  //  private fireAction(action: any) {
+  //    this.action_callbacks.fire(action)
+  //  }
 
   /** Remove callback. Fires the delete callbacks. */
   public remove() {
@@ -116,7 +119,7 @@ export class Corner extends THREE.Vector2 {
     for (var i = 0; i < this.wallEnds.length; i++) {
       this.wallEnds[i].remove();
     }
-    this.remove()
+    this.remove();
   }
 
   /** Moves corner to new position.
@@ -171,7 +174,7 @@ export class Corner extends THREE.Vector2 {
   }
 
   /**
-   * 
+   *
    */
   public distanceFrom(x: number, y: number): number {
     var distance = Utils.distance(x, y, this.x, this.y);
@@ -210,14 +213,14 @@ export class Corner extends THREE.Vector2 {
    * @param wall A wall.
    */
   public attachStart(wall: Wall) {
-    this.wallStarts.push(wall)
+    this.wallStarts.push(wall);
   }
 
   /** Attaches an end wall.
    * @param wall A wall.
    */
   public attachEnd(wall: Wall) {
-    this.wallEnds.push(wall)
+    this.wallEnds.push(wall);
   }
 
   /** Get wall to corner.
@@ -255,7 +258,7 @@ export class Corner extends THREE.Vector2 {
   }
 
   /**
-   * 
+   *
    */
   private combineWithCorner(corner: Corner) {
     // update position to other corner's
@@ -287,11 +290,19 @@ export class Corner extends THREE.Vector2 {
     // check walls
     for (var i = 0; i < this.floorplan.getWalls().length; i++) {
       var wall = this.floorplan.getWalls()[i];
-      if (this.distanceFromWall(wall) < cornerTolerance && !this.isWallConnected(wall)) {
+      if (
+        this.distanceFromWall(wall) < cornerTolerance &&
+        !this.isWallConnected(wall)
+      ) {
         // update position to be on wall
-        var intersection = Utils.closestPointOnLine(this.x, this.y,
-          wall.start.x, wall.start.y,
-          wall.end.x, wall.end.y);
+        var intersection = Utils.closestPointOnLine(
+          this.x,
+          this.y,
+          wall.start.x,
+          wall.start.y,
+          wall.end.x,
+          wall.end.y,
+        );
         this.x = intersection.x;
         this.y = intersection.y;
         // merge this corner into wall by breaking wall into two parts
@@ -315,7 +326,7 @@ export class Corner extends THREE.Vector2 {
       const start = this.wallStarts[i];
       if (start) {
         if (start.end === this) {
-          // remove zero length wall 
+          // remove zero length wall
           start.remove();
         } else {
           const end = start.end;
@@ -334,7 +345,7 @@ export class Corner extends THREE.Vector2 {
       const start = this.wallEnds[i].start;
       if (start) {
         if (start === this) {
-          // removed zero length wall 
+          // removed zero length wall
           this.wallEnds[i].remove();
         } else if (start.id && start.id in wallStartpoints) {
           // removed duplicated wall

@@ -92,11 +92,10 @@ export class Floorplanner {
   }
 
   // Takes a MouseEvent and makes a canvas coordinate out of the clientX and clientY
-  public toCanvas(p: { clientX: number, clientY: number}): V2 {
+  public toCanvas(p: { clientX: number; clientY: number }): V2 {
     const bounds = this.canvasElement.getBoundingClientRect();
     return new V2(p.clientX - bounds.left, p.clientY - bounds.top);
   }
-
 
   /** */
   constructor(
@@ -210,7 +209,7 @@ export class Floorplanner {
   /** */
   private mousemove(event: MouseEvent) {
     this.mouseMoved = true;
-    console.log("move", event);
+    //console.log("move", event);
 
     // update mouse
     const canvas = this.toCanvas(event);
@@ -253,9 +252,9 @@ export class Floorplanner {
 
     // panning
     if (this.mouseDown && !this.activeCorner && !this.activeWall) {
-      const mouseDelta =
-        new V2().subVectors(canvas, this.last)
-          .multiplyScalar(this.cmPerPixel);
+      const mouseDelta = new V2()
+        .subVectors(canvas, this.last)
+        .multiplyScalar(this.cmPerPixel);
       this.viewCenter.sub(mouseDelta);
       this.last.copy(canvas);
       this.view.draw();
@@ -302,7 +301,7 @@ export class Floorplanner {
   }
 
   private wheelEvent(event: WheelEvent) {
-    console.log("wheel", event);
+    //console.log("wheel", event);
     const zoomFactor = 1.15;
     const mouseCanvasPos = this.toCanvas(event);
     const mouseWorldPos = this.canvasToWorld(mouseCanvasPos);
@@ -376,12 +375,12 @@ export class Floorplanner {
   public readonly viewCenter: V2 = new V2(0, 0);
 
   // Transformation between Canvas coords and World coords
-  // is defined by this.cmPerPixel and this.viewCenter // // 
+  // is defined by this.cmPerPixel and this.viewCenter // //
   // (p.x - centerX) * cmPerPixel == worldPt.x - viewCenter.x
   // so worldPt.x = (p.x - centerX)*cmPerPixel + viewCenter.x
   public canvasToWorld(p: { x: number; y: number }): V2 {
-    const centerX = this.canvasElement.clientWidth/2;
-    const centerY = this.canvasElement.clientHeight/2;
+    const centerX = this.canvasElement.clientWidth / 2;
+    const centerY = this.canvasElement.clientHeight / 2;
     const centerOffsetX = p.x - centerX;
     const centerOffsetY = p.y - centerY;
     return new V2(centerOffsetX, centerOffsetY)
@@ -393,20 +392,20 @@ export class Floorplanner {
   // (p.x - centerX) == (worldPt.x - viewCenter.x) / cmPerPixel
   // (p.x = centerX + (worldPt.x - viewCenter.x) / cmPerPixel
   public worldToCanvas(w: { x: number; y: number }): V2 {
-    const centerX = this.canvasElement.clientWidth/2;
-    const centerY = this.canvasElement.clientHeight/2;
-    const ox = (w.x - this.viewCenter.x)/this.cmPerPixel;
-    const oy = (w.y - this.viewCenter.y)/this.cmPerPixel;
+    const centerX = this.canvasElement.clientWidth / 2;
+    const centerY = this.canvasElement.clientHeight / 2;
+    const ox = (w.x - this.viewCenter.x) / this.cmPerPixel;
+    const oy = (w.y - this.viewCenter.y) / this.cmPerPixel;
     return new V2(ox + centerX, oy + centerY);
   }
   public setView(scale: number, worldPt: Point, screenPt: Point) {
     // want to set the viewCenter so that worldPt goes to screenPt
     // (screenPt.x - centerX) * scale == worldPt.x - viewCenter.x
     // viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale
-    const centerX = this.canvasElement.clientWidth/2;
-    const centerY = this.canvasElement.clientHeight/2;
-    this.viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale;
-    this.viewCenter.y = worldPt.y - (screenPt.y - centerY)*scale;
+    const centerX = this.canvasElement.clientWidth / 2;
+    const centerY = this.canvasElement.clientHeight / 2;
+    this.viewCenter.x = worldPt.x - (screenPt.x - centerX) * scale;
+    this.viewCenter.y = worldPt.y - (screenPt.y - centerY) * scale;
     this.cmPerPixel = scale;
     this.view.draw();
     //console.log(bounds, scale, worldPt, screenPt, this.viewCenter);

@@ -8,26 +8,26 @@ Contributors:
  * @author erich666 / http://erichaines.com
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const EPS = 0.000001;
 // The four arrow keys
-enum Keys { 
-  LEFT = 37, 
-  UP = 38, 
-  RIGHT = 39, 
-  BOTTOM = 40 
-};
+enum Keys {
+  LEFT = 37,
+  UP = 38,
+  RIGHT = 39,
+  BOTTOM = 40,
+}
 
-enum STATE { 
-  NONE = -1, 
-  ROTATE = 0, 
-  DOLLY = 1, 
-  PAN = 2, 
-  TOUCH_ROTATE = 3, 
-  TOUCH_DOLLY = 4, 
-  TOUCH_PAN = 5
-};
+enum STATE {
+  NONE = -1,
+  ROTATE = 0,
+  DOLLY = 1,
+  PAN = 2,
+  TOUCH_ROTATE = 3,
+  TOUCH_DOLLY = 4,
+  TOUCH_PAN = 5,
+}
 
 export class Controls {
   // Set to false to disable this control
@@ -57,7 +57,7 @@ export class Controls {
 
   // Set to true to disable this control
   private noPan: Boolean = false;
-  private keyPanSpeed: number = 40.0;	// pixels moved per arrow key push
+  private keyPanSpeed: number = 40.0; // pixels moved per arrow key push
   // Set to true to automatically rotate around the target
   private autoRotate: Boolean = false;
   private autoRotateSpeed: number = 2.0; // 30 seconds per round when fps is 60
@@ -67,11 +67,10 @@ export class Controls {
   // Looking down the +y axis towards the origin is 0
   // Looking parallel to the xz plane is pi/2
   private minPolarAngle: number = EPS; // Just off vertical
-  private maxPolarAngle: number = Math.PI * 2 / 3; // 30 deg below the surface angle
+  private maxPolarAngle: number = (Math.PI * 2) / 3; // 30 deg below the surface angle
 
   // Set to true to disable use of the keys
   private noKeys: Boolean = false;
-
 
   public cameraMovedCallbacks = $.Callbacks();
 
@@ -100,8 +99,10 @@ export class Controls {
   private onMouseMoveHandler = (event: MouseEvent) => this.onMouseMove(event);
   private onMouseUpHandler = (event: MouseEvent) => this.onMouseUp(event);
 
-  constructor(public camera: THREE.Camera, domElement?: HTMLElement | Document) {
-
+  constructor(
+    public camera: THREE.Camera,
+    domElement?: HTMLElement | Document,
+  ) {
     if (domElement === document || domElement == undefined) {
       this.domElement = document.body;
     } else if (domElement instanceof HTMLElement) {
@@ -110,15 +111,45 @@ export class Controls {
       throw Error("domElement was instanceOf Document but !== document?");
     }
 
-    this.domElement.addEventListener('contextmenu', (event) => { event.preventDefault(); }, false);
-    this.domElement.addEventListener('mousedown', (event: MouseEvent) => this.onMouseDown(event), false);
+    this.domElement.addEventListener(
+      "contextmenu",
+      (event) => {
+        event.preventDefault();
+      },
+      false,
+    );
+    this.domElement.addEventListener(
+      "mousedown",
+      (event: MouseEvent) => this.onMouseDown(event),
+      false,
+    );
     // FIXME: Add support for scroll and scrollend events
-    this.domElement.addEventListener('wheel', (event: WheelEvent) => this.onMouseWheel(event), false);
-    this.domElement.addEventListener('touchstart', (event: TouchEvent) => this.touchstart(event), false);
-    this.domElement.addEventListener('touchend', (event: TouchEvent) => this.touchend(event), false);
-    this.domElement.addEventListener('touchmove', (event: TouchEvent) => this.touchmove(event), false);
+    this.domElement.addEventListener(
+      "wheel",
+      (event: WheelEvent) => this.onMouseWheel(event),
+      false,
+    );
+    this.domElement.addEventListener(
+      "touchstart",
+      (event: TouchEvent) => this.touchstart(event),
+      false,
+    );
+    this.domElement.addEventListener(
+      "touchend",
+      (event: TouchEvent) => this.touchend(event),
+      false,
+    );
+    this.domElement.addEventListener(
+      "touchmove",
+      (event: TouchEvent) => this.touchmove(event),
+      false,
+    );
 
-    window.addEventListener('keydown', (event: KeyboardEvent) => this.onKeyDown(event), false);
+    window.addEventListener(
+      "keydown",
+      (event: KeyboardEvent) => this.onKeyDown(event),
+      false,
+    );
   }
 
   public rotateLeft(angle?: number) {
@@ -137,7 +168,6 @@ export class Controls {
 
   // pass in distance in world space to move left
   private panLeft(distance: number) {
-
     var panOffset = new THREE.Vector3();
     var te = this.camera.matrix.elements;
     // get X column of matrix
@@ -151,7 +181,6 @@ export class Controls {
 
   // pass in distance in world space to move up
   private panUp(distance: number) {
-
     var panOffset = new THREE.Vector3();
     var te = this.camera.matrix.elements;
     // get Y column of matrix
@@ -160,38 +189,43 @@ export class Controls {
     panOffset.multiplyScalar(distance);
 
     this.pan.add(panOffset);
-  };
+  }
 
   // main entry point; pass in Vector2 of change desired in pixel space,
   // right and down are positive
   private doPan(delta: THREE.Vector2) {
-
-
     if (this.camera instanceof THREE.PerspectiveCamera) {
-
       // perspective
       var position = this.camera.position;
       var offset = position.clone().sub(this.target);
       var targetDistance = offset.length();
 
       // half of the fov is center to top of screen
-      targetDistance *= Math.tan((this.camera.fov / 2) * Math.PI / 180.0);
+      targetDistance *= Math.tan(((this.camera.fov / 2) * Math.PI) / 180.0);
       // we actually don't use screenWidth, since perspective camera is fixed to screen height
-      this.panLeft(2 * delta.x * targetDistance / this.domElement.clientHeight);
-      this.panUp(2 * delta.y * targetDistance / this.domElement.clientHeight);
+      this.panLeft(
+        (2 * delta.x * targetDistance) / this.domElement.clientHeight,
+      );
+      this.panUp((2 * delta.y * targetDistance) / this.domElement.clientHeight);
     } else if (this.camera instanceof THREE.OrthographicCamera) {
-
       // orthographic
-      this.panLeft(delta.x * (this.camera.right - this.camera.left) / this.domElement.clientWidth);
-      this.panUp(delta.y * (this.camera.top - this.camera.bottom) / this.domElement.clientHeight);
+      this.panLeft(
+        (delta.x * (this.camera.right - this.camera.left)) /
+          this.domElement.clientWidth,
+      );
+      this.panUp(
+        (delta.y * (this.camera.top - this.camera.bottom)) /
+          this.domElement.clientHeight,
+      );
     } else {
-
       // camera neither orthographic or perspective - warn user
-      console.warn('WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
+      console.warn(
+        "WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.",
+      );
     }
 
-    this.update()
-  };
+    this.update();
+  }
 
   public panXY(x: number, y: number) {
     this.doPan(new THREE.Vector2(x, y));
@@ -223,7 +257,10 @@ export class Controls {
     var theta = Math.atan2(offset.x, offset.z);
 
     // angle from y-axis
-    var phi = Math.atan2(Math.sqrt(offset.x * offset.x + offset.z * offset.z), offset.y);
+    var phi = Math.atan2(
+      Math.sqrt(offset.x * offset.x + offset.z * offset.z),
+      offset.y,
+    );
 
     if (this.autoRotate) {
       this.rotateLeft(this.getAutoRotationAngle());
@@ -263,7 +300,7 @@ export class Controls {
   }
 
   private getAutoRotationAngle(): number {
-    return 2 * Math.PI / 60 / 60 * this.autoRotateSpeed;
+    return ((2 * Math.PI) / 60 / 60) * this.autoRotateSpeed;
   }
 
   private getZoomScale() {
@@ -274,25 +311,31 @@ export class Controls {
   private onMouseDown(event: MouseEvent) {
     //console.log("three/controls.onMouseDown event:", event, "enabled:", this.enabled);
 
-    if (this.enabled === false) { return; }
+    if (this.enabled === false) {
+      return;
+    }
     event.preventDefault();
 
     if (event.button === 0) {
-      if (this.noRotate === true) { return; }
+      if (this.noRotate === true) {
+        return;
+      }
 
       this.state = STATE.ROTATE;
 
       this.rotateStart.set(event.clientX, event.clientY);
-
     } else if (event.button === 1) {
-      if (this.noZoom === true) { return; }
+      if (this.noZoom === true) {
+        return;
+      }
 
       this.state = STATE.DOLLY;
 
       this.dollyStart.set(event.clientX, event.clientY);
-
     } else if (event.button === 2) {
-      if (this.noPan === true) { return; }
+      if (this.noPan === true) {
+        return;
+      }
 
       this.state = STATE.PAN;
 
@@ -304,8 +347,12 @@ export class Controls {
     //        removed willy-nilly.  Event listeners need ot be bound, but bind does
     //        not work idepotently, and thus returns a new incomparable object every time.
     // Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
-    this.domElement.addEventListener('mousemove', this.onMouseMoveHandler, false);
-    this.domElement.addEventListener('mouseup', this.onMouseUpHandler, false);
+    this.domElement.addEventListener(
+      "mousemove",
+      this.onMouseMoveHandler,
+      false,
+    );
+    this.domElement.addEventListener("mouseup", this.onMouseUpHandler, false);
   }
 
   private onMouseMove(event: MouseEvent) {
@@ -316,40 +363,37 @@ export class Controls {
     event.preventDefault();
 
     if (this.state === STATE.ROTATE) {
-
       if (this.noRotate === true) return;
 
       this.rotateEnd.set(event.clientX, event.clientY);
       this.rotateDelta.subVectors(this.rotateEnd, this.rotateStart);
 
       // rotating across whole screen goes 360 degrees around
-      this.rotateLeft(2 * Math.PI * this.rotateDelta.x / this.domElement.clientWidth * this.rotateSpeed);
+      this.rotateLeft(
+        ((2 * Math.PI * this.rotateDelta.x) / this.domElement.clientWidth) *
+          this.rotateSpeed,
+      );
       // rotating up and down along whole screen attempts to go 360, but limited to 180
-      this.rotateUp(2 * Math.PI * this.rotateDelta.y / this.domElement.clientHeight * this.rotateSpeed);
+      this.rotateUp(
+        ((2 * Math.PI * this.rotateDelta.y) / this.domElement.clientHeight) *
+          this.rotateSpeed,
+      );
 
       this.rotateStart.copy(this.rotateEnd);
-
     } else if (this.state === STATE.DOLLY) {
-
       if (this.noZoom === true) return;
 
       this.dollyEnd.set(event.clientX, event.clientY);
       this.dollyDelta.subVectors(this.dollyEnd, this.dollyStart);
 
       if (this.dollyDelta.y > 0) {
-
         this.dollyIn();
-
       } else {
-
         this.dollyOut();
-
       }
 
       this.dollyStart.copy(this.dollyEnd);
-
     } else if (this.state === STATE.PAN) {
-
       if (this.noPan === true) return;
 
       this.panEnd.set(event.clientX, event.clientY);
@@ -373,8 +417,16 @@ export class Controls {
     //        removed willy-nilly.  Event listeners need ot be bound, but bind does
     //        not work idepotently, and thus returns a new incomparable object every time.
     // Greggman fix: https://github.com/greggman/three.js/commit/fde9f9917d6d8381f06bf22cdff766029d1761be
-    this.domElement.removeEventListener('mousemove', this.onMouseMoveHandler, false);
-    this.domElement.removeEventListener('mouseup', this.onMouseUpHandler, false);
+    this.domElement.removeEventListener(
+      "mousemove",
+      this.onMouseMoveHandler,
+      false,
+    );
+    this.domElement.removeEventListener(
+      "mouseup",
+      this.onMouseUpHandler,
+      false,
+    );
 
     this.state = STATE.NONE;
   }
@@ -399,13 +451,17 @@ export class Controls {
   }
 
   private onKeyDown(event: KeyboardEvent) {
-
-    if (this.enabled === false) { return; }
-    if (this.noKeys === true) { return; }
-    if (this.noPan === true) { return; }
+    if (this.enabled === false) {
+      return;
+    }
+    if (this.noKeys === true) {
+      return;
+    }
+    if (this.noPan === true) {
+      return;
+    }
 
     switch (event.keyCode) {
-
       case Keys.UP:
         this.doPan(new THREE.Vector2(0, this.keyPanSpeed));
         break;
@@ -419,25 +475,28 @@ export class Controls {
         this.doPan(new THREE.Vector2(-this.keyPanSpeed, 0));
         break;
     }
-
   }
 
   private touchstart(event: TouchEvent) {
-
-    if (this.enabled === false) { return; }
+    if (this.enabled === false) {
+      return;
+    }
 
     switch (event.touches.length) {
-
-      case 1:	// one-fingered touch: rotate
-        if (this.noRotate === true) { return; }
+      case 1: // one-fingered touch: rotate
+        if (this.noRotate === true) {
+          return;
+        }
 
         this.state = STATE.TOUCH_ROTATE;
 
         this.rotateStart.set(event.touches[0].pageX, event.touches[0].pageY);
         break;
 
-      case 2:	// two-fingered touch: dolly
-        if (this.noZoom === true) { return; }
+      case 2: // two-fingered touch: dolly
+        if (this.noZoom === true) {
+          return;
+        }
 
         this.state = STATE.TOUCH_DOLLY;
 
@@ -448,7 +507,9 @@ export class Controls {
         break;
 
       case 3: // three-fingered touch: pan
-        if (this.noPan === true) { return; }
+        if (this.noPan === true) {
+          return;
+        }
 
         this.state = STATE.TOUCH_PAN;
 
@@ -457,38 +518,51 @@ export class Controls {
 
       default:
         this.state = STATE.NONE;
-
     }
   }
 
   // FIXME: Handle mulitple touches somehow
   private touchmove(event: TouchEvent) {
-
-    if (this.enabled === false) { return; }
+    if (this.enabled === false) {
+      return;
+    }
 
     event.preventDefault();
     event.stopPropagation();
 
     switch (event.touches.length) {
-
       case 1: // one-fingered touch: rotate
-        if (this.noRotate === true) { return; }
-        if (this.state !== STATE.TOUCH_ROTATE) { return; }
+        if (this.noRotate === true) {
+          return;
+        }
+        if (this.state !== STATE.TOUCH_ROTATE) {
+          return;
+        }
 
         this.rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
         this.rotateDelta.subVectors(this.rotateEnd, this.rotateStart);
 
         // rotating across whole screen goes 360 degrees around
-        this.rotateLeft(2 * Math.PI * this.rotateDelta.x / this.domElement.clientWidth * this.rotateSpeed);
+        this.rotateLeft(
+          ((2 * Math.PI * this.rotateDelta.x) / this.domElement.clientWidth) *
+            this.rotateSpeed,
+        );
         // rotating up and down along whole screen attempts to go 360, but limited to 180
-        this.rotateUp(2 * Math.PI * this.rotateDelta.y / this.domElement.clientHeight * this.rotateSpeed);
+        this.rotateUp(
+          ((2 * Math.PI * this.rotateDelta.y) / this.domElement.clientHeight) *
+            this.rotateSpeed,
+        );
 
         this.rotateStart.copy(this.rotateEnd);
         break;
 
       case 2: // two-fingered touch: dolly
-        if (this.noZoom === true) { return; }
-        if (this.state !== STATE.TOUCH_DOLLY) { return; }
+        if (this.noZoom === true) {
+          return;
+        }
+        if (this.state !== STATE.TOUCH_DOLLY) {
+          return;
+        }
 
         var dx = event.touches[0].pageX - event.touches[1].pageX;
         var dy = event.touches[0].pageY - event.touches[1].pageY;
@@ -507,8 +581,12 @@ export class Controls {
         break;
 
       case 3: // three-fingered touch: pan
-        if (this.noPan === true) { return; }
-        if (this.state !== STATE.TOUCH_PAN) { return; }
+        if (this.noPan === true) {
+          return;
+        }
+        if (this.state !== STATE.TOUCH_PAN) {
+          return;
+        }
 
         this.panEnd.set(event.touches[0].pageX, event.touches[0].pageY);
         this.panDelta.subVectors(this.panEnd, this.panStart);

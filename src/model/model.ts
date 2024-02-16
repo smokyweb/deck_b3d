@@ -1,11 +1,9 @@
-
-import { Floorplan } from './floorplan';
-import { Scene } from './scene';
-/** 
- * A Model connects a Floorplan and a Scene. 
+import { Floorplan } from "./floorplan";
+import { Scene } from "./scene";
+/**
+ * A Model connects a Floorplan and a Scene.
  */
 export class Model {
-
   /** */
   public floorplan: Floorplan;
 
@@ -31,11 +29,8 @@ export class Model {
     // TODO: a much better serialization format.
     this.roomLoadingCallbacks.fire();
 
-    var data = JSON.parse(json)
-    this.newRoom(
-      data.floorplan,
-      data.items
-    );
+    var data = JSON.parse(json);
+    this.newRoom(data.floorplan, data.items);
 
     this.roomLoadedCallbacks.fire();
   }
@@ -52,12 +47,12 @@ export class Model {
       scale_x: item.threeObj.scale.x,
       scale_y: item.threeObj.scale.y,
       scale_z: item.threeObj.scale.z,
-      fixed: item.fixed
-    })); 
+      fixed: item.fixed,
+    }));
 
     var room = {
-      floorplan: (this.floorplan.saveFloorplan()),
-      items: items_arr
+      floorplan: this.floorplan.saveFloorplan(),
+      items: items_arr,
     };
 
     return JSON.stringify(room);
@@ -68,19 +63,14 @@ export class Model {
     this.scene.clearItems();
     this.floorplan.loadFloorplan(floorplan);
     items.forEach((item: any) => {
-      var position = new THREE.Vector3(
-        item.xpos, item.ypos, item.zpos);
+      var position = new THREE.Vector3(item.xpos, item.ypos, item.zpos);
       var metadata = {
         itemName: item.item_name,
         resizable: item.resizable,
         itemType: item.item_type,
-        modelUrl: item.model_url
+        modelUrl: item.model_url,
       };
-      var scale = new THREE.Vector3(
-        item.scale_x,
-        item.scale_y,
-        item.scale_z
-      );
+      var scale = new THREE.Vector3(item.scale_x, item.scale_y, item.scale_z);
       this.scene.addItem(
         item.item_type,
         item.model_url,
@@ -88,7 +78,8 @@ export class Model {
         position,
         item.rotation,
         scale,
-        item.fixed);
+        item.fixed,
+      );
     });
   }
 }

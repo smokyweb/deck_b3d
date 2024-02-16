@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { Item } from '../items/item';
-import { Main } from './main';
+import * as THREE from "three";
+import { Item } from "../items/item";
+import { Main } from "./main";
 
 /**
  * Drawings on "top" of the scene. e.g. rotate arrows
@@ -15,8 +15,8 @@ export class HUD {
 
   private height: number = 5;
   private distance: number = 20;
-  private color: number|string = "#ffffff";
-  private hoverColor: number|string = "#f1c40f";
+  private color: number | string = "#ffffff";
+  private hoverColor: number | string = "#f1c40f";
 
   private activeObject: THREE.Object3D | null = null;
   constructor(private three: Main) {
@@ -79,7 +79,7 @@ export class HUD {
   }
 
   private getColor() {
-    return (this.mouseover || this.rotating) ? this.hoverColor : this.color;
+    return this.mouseover || this.rotating ? this.hoverColor : this.color;
   }
 
   public update() {
@@ -93,24 +93,24 @@ export class HUD {
   private makeLineGeometry(item: Item) {
     var geometry = new THREE.Geometry();
 
-    geometry.vertices.push(
-      new THREE.Vector3(0, 0, 0),
-      this.rotateVector(item)
-    );
+    geometry.vertices.push(new THREE.Vector3(0, 0, 0), this.rotateVector(item));
 
     return geometry;
   }
 
   private rotateVector(item: Item) {
-    var vec = new THREE.Vector3(0, 0,
-      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + this.distance);
+    var vec = new THREE.Vector3(
+      0,
+      0,
+      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + this.distance,
+    );
     return vec;
   }
 
   private makeLineMaterial(_rotating: boolean) {
     var mat = new THREE.LineBasicMaterial({
       color: this.getColor(),
-      linewidth: 3
+      linewidth: 3,
     });
     return mat;
   }
@@ -118,7 +118,7 @@ export class HUD {
   private makeCone(item: Item) {
     var coneGeo = new THREE.CylinderGeometry(5, 0, 10);
     var coneMat = new THREE.MeshBasicMaterial({
-      color: this.getColor()
+      color: this.getColor(),
     });
     var cone = new THREE.Mesh(coneGeo, coneMat);
     cone.position.copy(this.rotateVector(item));
@@ -131,7 +131,7 @@ export class HUD {
   private makeSphere(_item: Item) {
     var geometry = new THREE.SphereGeometry(4, 16, 16);
     var material = new THREE.MeshBasicMaterial({
-      color: this.getColor()
+      color: this.getColor(),
     });
     var sphere = new THREE.Mesh(geometry, material);
     return sphere;
@@ -142,7 +142,8 @@ export class HUD {
     var line = new THREE.Line(
       this.makeLineGeometry(item),
       this.makeLineMaterial(this.rotating),
-      THREE.LinePieces);
+      THREE.LinePieces,
+    );
 
     var cone = this.makeCone(item);
     var sphere = this.makeSphere(item);

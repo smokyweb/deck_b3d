@@ -1,7 +1,6 @@
-
-import { Model } from './model/model';
-import { Main as ThreeMain } from './three/main';
-import { Floorplanner } from './floorplanner/floorplanner';
+import { Model } from "./model/model";
+import { Main as ThreeMain } from "./three/main";
+import { Floorplanner } from "./floorplanner/floorplanner";
 
 /** Startup options. */
 export interface Options {
@@ -12,7 +11,7 @@ export interface Options {
   threeElement: string;
 
   /** */
-  threeCanvasElement : string;
+  threeCanvasElement: string;
 
   /** */
   floorplannerElement?: string;
@@ -23,10 +22,9 @@ export interface Options {
 
 /** Blueprint3D core application. */
 export class Blueprint3d {
-  
   public model: Model;
 
-  public three: ThreeMain; 
+  public three: ThreeMain;
 
   public floorplanner: Floorplanner | null = null;
 
@@ -35,15 +33,24 @@ export class Blueprint3d {
    */
   constructor(options: Options) {
     this.model = new Model(options.textureDir);
-    this.three = new ThreeMain(this.model, options.threeElement, options.threeCanvasElement, {});
+    this.three = new ThreeMain(
+      this.model,
+      options.threeElement,
+      options.threeCanvasElement,
+      {},
+    );
 
     if (options.floorplannerElement === undefined) {
-      throw Error("can't construct Blueprint3d because no options.floorplannerElement");
+      throw Error(
+        "can't construct Blueprint3d because no options.floorplannerElement",
+      );
     }
     if (!options.widget) {
-      this.floorplanner = new Floorplanner(options.floorplannerElement, this.model.floorplan);
-    }
-    else {
+      this.floorplanner = new Floorplanner(
+        options.floorplannerElement,
+        this.model.floorplan,
+      );
+    } else {
       this.three.getController().enabled = false;
     }
   }

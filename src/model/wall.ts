@@ -1,28 +1,27 @@
-import * as THREE from 'three';
-import * as Cfg  from '../core/configuration';
-import { Utils, WallPlane } from '../core/utils';
-import { Corner } from './corner';
-import { WallItem } from '../items/wall_item';
+import * as THREE from "three";
+import * as Cfg from "../core/configuration";
+import { Utils, WallPlane } from "../core/utils";
+import { Corner } from "./corner";
+import { WallItem } from "../items/wall_item";
 
 /** The default wall texture. */
 const defaultWallTexture = {
   url: "rooms/textures/wallmap.png",
   stretch: true,
-  scale: 0
-}
+  scale: 0,
+};
 
 export enum WallType {
   Blank,
   Railing,
-};
+}
 
-/** 
+/**
  * A Wall is the basic element to create Rooms.
- * 
+ *
  * Walls consists of two half edges.
  */
 export class Wall {
-
   /** The unique id of each wall. */
   public id: string;
 
@@ -62,27 +61,30 @@ export class Wall {
   public readonly interiorTransform: THREE.Matrix4 = new THREE.Matrix4();
   public readonly invInteriorTransform: THREE.Matrix4 = new THREE.Matrix4();
 
-  /** 
+  /**
    * Constructs a new wall.
    * @param start Start corner.
    * @param end End corner.
    */
-  constructor(private _start: Corner, private _end: Corner) {
+  constructor(
+    private _start: Corner,
+    private _end: Corner,
+  ) {
     this.id = this.getUuid();
 
-    this.start.attachStart(this)
+    this.start.attachStart(this);
     this.end.attachEnd(this);
 
     this.plane = this.generatePlane();
     this.fireOnMove(() => this.updateTransforms());
   }
 
-  private generatePlane(): WallPlane { 
+  private generatePlane(): WallPlane {
     const len = this.length();
     const hgt = this.height;
     const pg = new THREE.PlaneGeometry(len, hgt);
     // pg is centered on origin, in XY plane.
-    pg.translate(len/2, hgt/2, 0);
+    pg.translate(len / 2, hgt / 2, 0);
     // pg lower left corner on origin, in XY plane
     const wallDelta = new THREE.Vector2().subVectors(this.end, this.start);
     const angle = -Math.atan2(wallDelta.y, wallDelta.x);
@@ -91,22 +93,22 @@ export class Wall {
     pg.translate(this.start.x, 0, this.start.y);
     // pg is in place
 
-    const mesh = new THREE.Mesh(pg, 
-                        new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); 
-    mesh.visible = false; 
+    const mesh = new THREE.Mesh(
+      pg,
+      new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
+    );
+    mesh.visible = false;
     mesh.rotation.set(Math.PI / 2, 0, 0);
-    return Object.assign(mesh, {wall: this}); 
+    return Object.assign(mesh, { wall: this });
   }
-
-
 
   public center(): THREE.Vector2 {
-    return new
-      THREE.Vector2().addVectors(this.start, this.end).multiplyScalar(0.5);
+    return new THREE.Vector2()
+      .addVectors(this.start, this.end)
+      .multiplyScalar(0.5);
   }
   public length(): number {
-    return new
-      THREE.Vector2().subVectors(this.start, this.end).length();
+    return new THREE.Vector2().subVectors(this.start, this.end).length();
   }
 
   private getUuid(): string {
@@ -137,11 +139,11 @@ export class Wall {
 
   // FIXME:  looks like nothing ever uses action_callbacks.
   public fireOnAction(func: (action: any) => any) {
-    this.action_callbacks.add(func)
+    this.action_callbacks.add(func);
   }
 
   public fireAction(action: any) {
-    this.action_callbacks.fire(action)
+    this.action_callbacks.fire(action);
   }
 
   public relativeMove(dx: number, dy: number) {
@@ -189,18 +191,30 @@ export class Wall {
     this.fireMoved();
   }
   private updateTransforms() {
-    this.computeTransforms(this.interiorTransform, this.invInteriorTransform, 
-                           this.start, this.end);
+    this.computeTransforms(
+      this.interiorTransform,
+      this.invInteriorTransform,
+      this.start,
+      this.end,
+    );
   }
 
   public distanceFrom(x: number, y: number): number {
-    return Utils.pointDistanceFromLine(x, y,
-      this.start.x, this.start.y,
-      this.end.x, this.end.y);
+    return Utils.pointDistanceFromLine(
+      x,
+      y,
+      this.start.x,
+      this.start.y,
+      this.end.x,
+      this.end.y,
+    );
   }
-  private computeTransforms(transform: THREE.Matrix4, invTransform: THREE.Matrix4,
-                            from: THREE.Vector2, to: THREE.Vector2) {
-
+  private computeTransforms(
+    transform: THREE.Matrix4,
+    invTransform: THREE.Matrix4,
+    from: THREE.Vector2,
+    to: THREE.Vector2,
+  ) {
     var v1 = from;
     var v2 = to;
 

@@ -1,32 +1,39 @@
-import * as THREE from 'three';
-import { Main as ThreeMain } from '../three/main';
-import { Scene } from '../model/scene';
-import { Item } from '../items/item';
-import { Model } from '../model/model';
-import { Wall } from '../model/wall';
-import { Controls } from './controls';
-import { HUD } from './hud';
-import { LumberYard } from './lumberyard';
+import * as THREE from "three";
+import { Main as ThreeMain } from "../three/main";
+import { Scene } from "../model/scene";
+import { Item } from "../items/item";
+import { Model } from "../model/model";
+import { Wall } from "../model/wall";
+import { Controls } from "./controls";
+import { HUD } from "./hud";
+import { LumberYard } from "./lumberyard";
 
 enum State {
   UNSELECTED = 0, // no object selected
   SELECTED = 1, // selected but inactive
   DRAGGING = 2, // performing an action while mouse depressed
-  ROTATING = 3,  // rotating with mouse down
+  ROTATING = 3, // rotating with mouse down
   ROTATING_FREE = 4, // rotating with mouse up
-  PANNING = 5
-};
+  PANNING = 5,
+}
 
 // @ts-ignore: this function is used when debugging
 function stateName(s: State): string {
   switch (s) {
-    case State.UNSELECTED: return "UNSELECTED";
-    case State.SELECTED: return "SELECTED";
-    case State.DRAGGING: return "DRAGGING";
-    case State.ROTATING: return "ROTATING";
-    case State.ROTATING_FREE: return "ROTATING_FREE";
-    case State.PANNING: return "PANNING";
-    default: throw Error(`stateName: invalid state ${s}`); 
+    case State.UNSELECTED:
+      return "UNSELECTED";
+    case State.SELECTED:
+      return "SELECTED";
+    case State.DRAGGING:
+      return "DRAGGING";
+    case State.ROTATING:
+      return "ROTATING";
+    case State.ROTATING_FREE:
+      return "ROTATING_FREE";
+    case State.PANNING:
+      return "PANNING";
+    default:
+      throw Error(`stateName: invalid state ${s}`);
   }
 }
 
@@ -54,22 +61,33 @@ export class Controller {
   private state = State.UNSELECTED;
 
   // fixme:  three should be a Three.Main class
-  constructor(private three: ThreeMain, 
-              private model: Model, public camera: THREE.Camera, 
-              private htmlElement: HTMLElement, private controls: Controls, 
-              private hud: HUD) 
-  {
+  constructor(
+    private three: ThreeMain,
+    private model: Model,
+    public camera: THREE.Camera,
+    private htmlElement: HTMLElement,
+    private controls: Controls,
+    private hud: HUD,
+  ) {
     this.scene = model.scene;
     const elt = this.htmlElement;
-    elt.addEventListener("mousedown", (event: MouseEvent) => this.mouseDownEvent(event));
-    elt.addEventListener("mouseup", (event: MouseEvent) => this.mouseUpEvent(event));
-    elt.addEventListener("mousemove", (event: MouseEvent) => this.mouseMoveEvent(event));
+    elt.addEventListener("mousedown", (event: MouseEvent) =>
+      this.mouseDownEvent(event),
+    );
+    elt.addEventListener("mouseup", (event: MouseEvent) =>
+      this.mouseUpEvent(event),
+    );
+    elt.addEventListener("mousemove", (event: MouseEvent) =>
+      this.mouseMoveEvent(event),
+    );
     //console.log("adding keydown listener");
     // can't add this on the canvas because an HTMLElement needs to have the focus
     // in order to get keydown events.  By default, a canvas can't have the focus.
     // Normally the 'body' element has the focus.
     // So we add the listener to the document, events will bubble up.
-    document.addEventListener("keydown", (event: KeyboardEvent) => this.keyboardEvent(event));
+    document.addEventListener("keydown", (event: KeyboardEvent) =>
+      this.keyboardEvent(event),
+    );
     //console.log("added keydown listener");
 
     this.scene.itemRemovedCallbacks.add((item: Item) => this.itemRemoved(item));
@@ -122,7 +140,6 @@ export class Controller {
       } else {
         //console.log("controller.clickDragged got null intersection");
       }
-
     } else {
       //console.log("controller.clickDragged got null selection");
     }
@@ -146,20 +163,19 @@ export class Controller {
     var size = 100000;
     this.groundPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      new THREE.MeshBasicMaterial());
+      new THREE.MeshBasicMaterial(),
+    );
     this.groundPlane.rotation.x = -Math.PI / 2;
     this.groundPlane.visible = false;
     this.scene.add(this.groundPlane);
   }
 
   public checkWallsAndFloors(event: MouseEvent) {
-
     // double click on a wall or floor brings up texture change modal
     if (this.state == State.UNSELECTED && this.mouseoverObject === null) {
       // check walls
       var wallEdgePlanes = this.model.floorplan.wallPlanes();
-      var wallIntersects = this.getIntersections(
-        event, wallEdgePlanes, true);
+      var wallIntersects = this.getIntersections(event, wallEdgePlanes, true);
       if (wallIntersects.length > 0) {
         const obj = wallIntersects[0].object as any;
         const wall = obj?.edge?.wall;
@@ -171,8 +187,7 @@ export class Controller {
 
       // check floors
       var floorPlanes = this.model.floorplan.floorPlanes();
-      var floorIntersects = this.getIntersections(
-        event, floorPlanes, false);
+      var floorIntersects = this.getIntersections(event, floorPlanes, false);
       if (floorIntersects.length > 0) {
         // FIXME:  floorPlanes should be Three.Floor
         var room = (floorIntersects[0].object as any).room;
@@ -182,27 +197,26 @@ export class Controller {
 
       this.three.nothingClicked.fire();
     }
-
   }
   private lastkeys: string = "";
   private keyboardEvent(event: KeyboardEvent) {
     this.lastkeys = this.lastkeys.concat(event.key).slice(-5);
-    //console.log(`keyboardEvent(${event.key}), lastkeys=${this.lastkeys}`); 
-    if (this.lastkeys === 'zebra') {
+    //console.log(`keyboardEvent(${event.key}), lastkeys=${this.lastkeys}`);
+    if (this.lastkeys === "zebra") {
       LumberYard.useZebra = !LumberYard.useZebra;
       this.model.floorplan.update();
     }
   }
 
   public mouseMoveEvent(event: MouseEvent) {
-//    for(const item of this.scene.items) {
-//      const intersections = this.getIntersections(event, item);
-//      if (intersections.length > 0) {
-//        item.mouseOver();
-//      } else {
-//        item.mouseOff();
-//      }
-//    }
+    //    for(const item of this.scene.items) {
+    //      const intersections = this.getIntersections(event, item);
+    //      if (intersections.length > 0) {
+    //        item.mouseOver();
+    //      } else {
+    //        item.mouseOff();
+    //      }
+    //    }
     if (this.enabled) {
       //console.log("controller mouseMove", event, stateName(this.state));
       event.preventDefault();
@@ -229,7 +243,7 @@ export class Controller {
   }
 
   public isRotating() {
-    return (this.state == State.ROTATING || this.state == State.ROTATING_FREE);
+    return this.state == State.ROTATING || this.state == State.ROTATING_FREE;
   }
 
   public mouseDownEvent(event: MouseEvent) {
@@ -359,7 +373,10 @@ export class Controller {
       var hudIntersects = this.getIntersections(
         event,
         hudObject,
-        false, false, true);
+        false,
+        false,
+        true,
+      );
       if (hudIntersects.length > 0) {
         //console.log("updateIntersections: hud object selected");
         this.rotateMouseOver = true;
@@ -374,11 +391,8 @@ export class Controller {
     // check objects
     const items = this.model.scene.getItems();
     const item_threeObjs = items.map((item) => item.threeObj);
-    
-    var intersects = this.getIntersections(
-      event,
-      item_threeObjs,
-      false, true);
+
+    var intersects = this.getIntersections(event, item_threeObjs, false, true);
     //console.log("updateIntersections intersects: ", intersects);
 
     if (intersects.length > 0) {
@@ -404,9 +418,11 @@ export class Controller {
     return new THREE.Vector2(rx, ry);
   }
 
-
   // returns the first intersection object
-  public itemIntersection(event: MouseEvent, item: Item): THREE.Intersection | null {
+  public itemIntersection(
+    event: MouseEvent,
+    item: Item,
+  ): THREE.Intersection | null {
     var customIntersections = item.customIntersectionPlanes();
     var intersections = null;
     if (customIntersections && customIntersections.length > 0) {
@@ -414,7 +430,9 @@ export class Controller {
       intersections = this.getIntersections(event, customIntersections, true);
     } else {
       if (!this.groundPlane) {
-        throw Error("this.groundPlane is not set, but we need it for intersecting");
+        throw Error(
+          "this.groundPlane is not set, but we need it for intersecting",
+        );
       }
       //console.log("ground plane intersection");
       // FIXME: This is horrible.  Raycaster only intersects with visible objects
@@ -432,11 +450,14 @@ export class Controller {
 
   // filter by normals will only return objects facing the camera
   // objects can be an array of objects or a single object
-  public getIntersections(event: MouseEvent, objects: THREE.Object3D[] | THREE.Object3D, 
-        filterByNormals?: boolean, onlyVisible?: boolean, 
-        recursive?: boolean, linePrecision?: number): THREE.Intersection[] {
-
-
+  public getIntersections(
+    event: MouseEvent,
+    objects: THREE.Object3D[] | THREE.Object3D,
+    filterByNormals?: boolean,
+    onlyVisible?: boolean,
+    recursive?: boolean,
+    linePrecision?: number,
+  ): THREE.Intersection[] {
     onlyVisible = onlyVisible || false;
     filterByNormals = filterByNormals || false;
     recursive = recursive || false;
@@ -444,9 +465,8 @@ export class Controller {
     var raycaster = new THREE.Raycaster();
     const normPointer = this.screenNormalPointer(event);
     raycaster.setFromCamera(normPointer, this.camera);
-    
 
-    if (typeof linePrecision !== 'undefined') {
+    if (typeof linePrecision !== "undefined") {
       raycaster.linePrecision = linePrecision;
     }
     let intersections: THREE.Intersection[] = [];
@@ -460,14 +480,16 @@ export class Controller {
     //console.log("getIntersections", intersections);
     // filter by visible, if true
     if (onlyVisible) {
-      intersections = intersections.filter((intersection) => intersection.object.visible);
+      intersections = intersections.filter(
+        (intersection) => intersection.object.visible,
+      );
     }
 
     // filter by normals, if true
     if (filterByNormals) {
       intersections = intersections.filter((intersection) => {
         var dot = intersection.face.normal.dot(raycaster.ray.direction);
-        return (dot <= 0); // camera ray and surface normal are generally opposite
+        return dot <= 0; // camera ray and surface normal are generally opposite
       });
     }
     //console.log("getIntersections after filtering", intersections);
@@ -526,5 +548,4 @@ export class Controller {
       this.needsUpdate = true;
     }
   }
-
 }

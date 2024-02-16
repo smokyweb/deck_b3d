@@ -1,4 +1,4 @@
-import * as Dim from './dimensioning';
+import * as Dim from "./dimensioning";
 
 // GENERAL:
 
@@ -16,11 +16,11 @@ export const configWallThickness = "wallThickness";
 /** Global configuration to customize the whole system.  */
 export class Configuration {
   /** Configuration data loaded from/stored to extern. */
-  private static data: {[key: string]: any} = {
+  private static data: { [key: string]: any } = {
     dimUnit: Dim.dimInch,
 
     wallHeight: 160,
-    wallThickness: 1
+    wallThickness: 1,
   };
 
   /** Set a configuration parameter. */

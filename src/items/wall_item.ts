@@ -1,10 +1,9 @@
-import * as THREE from 'three';
-import { Utils } from '../core/utils';
-import { Model } from '../model/model';
-import { Wall } from '../model/wall';
-import { Item } from './item';
-import { Metadata } from './metadata';
-
+import * as THREE from "three";
+import { Utils } from "../core/utils";
+import { Model } from "../model/model";
+import { Wall } from "../model/wall";
+import { Item } from "./item";
+import { Metadata } from "./metadata";
 
 /**
  * A Wall Item is an entity to be placed related to a wall.
@@ -43,17 +42,24 @@ export abstract class WallItem extends Item {
   /** */
   protected backVisible = false;
 
-  constructor(model: Model, metadata: Metadata, geometry: THREE.Geometry, material: THREE.MeshFaceMaterial, position: THREE.Vector3, rotation: number, scale: THREE.Vector3) {
+  constructor(
+    model: Model,
+    metadata: Metadata,
+    geometry: THREE.Geometry,
+    material: THREE.MeshFaceMaterial,
+    position: THREE.Vector3,
+    rotation: number,
+    scale: THREE.Vector3,
+  ) {
     super(model, metadata, geometry, material, position, rotation, scale);
 
     this.allowRotate = false;
-  };
+  }
 
   /** Get the closet wall edge.
    * @returns The wall edge.
    */
   public closestWall(): Wall | null {
-
     var walls = this.model.floorplan.walls;
 
     var closestWall: Wall | null = null;
@@ -95,20 +101,35 @@ export abstract class WallItem extends Item {
     } else {
       this.backVisible = visible;
     }
-    this.threeObj.visible = (this.frontVisible || this.backVisible);
+    this.threeObj.visible = this.frontVisible || this.backVisible;
   }
 
   /** */
   private updateSize() {
-    this.wallOffsetScalar = (this.threeObj.geometry.boundingBox.max.z - this.threeObj.geometry.boundingBox.min.z) * this.threeObj.scale.z / 2.0;
-    this.sizeX = (this.threeObj.geometry.boundingBox.max.x - this.threeObj.geometry.boundingBox.min.x) * this.threeObj.scale.x;
-    this.sizeY = (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y) * this.threeObj.scale.y;
+    this.wallOffsetScalar =
+      ((this.threeObj.geometry.boundingBox.max.z -
+        this.threeObj.geometry.boundingBox.min.z) *
+        this.threeObj.scale.z) /
+      2.0;
+    this.sizeX =
+      (this.threeObj.geometry.boundingBox.max.x -
+        this.threeObj.geometry.boundingBox.min.x) *
+      this.threeObj.scale.x;
+    this.sizeY =
+      (this.threeObj.geometry.boundingBox.max.y -
+        this.threeObj.geometry.boundingBox.min.y) *
+      this.threeObj.scale.y;
   }
 
   /** */
   public resized() {
     if (this.boundToFloor) {
-      this.threeObj.position.y = 0.5 * (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y) * this.threeObj.scale.y + 0.01;
+      this.threeObj.position.y =
+        0.5 *
+          (this.threeObj.geometry.boundingBox.max.y -
+            this.threeObj.geometry.boundingBox.min.y) *
+          this.threeObj.scale.y +
+        0.01;
     }
 
     this.updateSize();
@@ -117,7 +138,7 @@ export abstract class WallItem extends Item {
 
   /** */
   public placeInRoom() {
-    const closestWall= this.closestWall();
+    const closestWall = this.closestWall();
     if (closestWall) {
       this.changeWall(closestWall);
     }
@@ -129,12 +150,13 @@ export abstract class WallItem extends Item {
       var newPos = new THREE.Vector3(
         center.x,
         closestWall.height / 2.0,
-        center.y);
+        center.y,
+      );
       this.boundMove(newPos);
       this.threeObj.position.copy(newPos);
       this.redrawWall();
     }
-  };
+  }
 
   /** */
   // FIXME:  Figure out proper type of intersection arg
@@ -172,19 +194,17 @@ export abstract class WallItem extends Item {
     var normal2 = new THREE.Vector2();
     // FIXME:  THREE.Mesh.geometry has type Geometry|BufferGeometry,
     //         and BufferGeometry may have a 'normal' BufferAttribute, but no
-    //         'faces' member.  Right now we know this geometry has a faces attribute 
-    //         because we just made it, but the normal should really be calculated 
+    //         'faces' member.  Right now we know this geometry has a faces attribute
+    //         because we just made it, but the normal should really be calculated
     //         independently.
-    if (wall.plane.geometry && 'faces' in wall.plane.geometry) {
+    if (wall.plane.geometry && "faces" in wall.plane.geometry) {
       const faces = wall.plane.geometry.faces;
       var normal3 = faces[0].normal;
       normal2.x = normal3.x;
       normal2.y = normal3.z;
     }
 
-    var angle = Utils.angle(
-      this.refVec.x, this.refVec.y,
-      normal2.x, normal2.y);
+    var angle = Utils.angle(this.refVec.x, this.refVec.y, normal2.x, normal2.y);
     this.threeObj.rotation.y = angle;
 
     // update currentWall
@@ -208,7 +228,6 @@ export abstract class WallItem extends Item {
     var tolerance = 1;
     var wall = this.currentWall;
     if (wall) {
-
       const minX = this.sizeX / 2.0 + tolerance;
       const maxX = wall.length() - minX;
       vec3.x = Utils.clamp(vec3.x, minX, maxX);

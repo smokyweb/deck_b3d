@@ -1,16 +1,15 @@
-import * as THREE from 'three';
-import { Utils } from '../core/utils';
-import { Factory } from '../items/factory';
-import { Item } from '../items/item';
-import { Model } from './model';
-import { Wall } from './wall';
-import { Metadata } from '../items/metadata';
+import * as THREE from "three";
+import { Utils } from "../core/utils";
+import { Factory } from "../items/factory";
+import { Item } from "../items/item";
+import { Model } from "./model";
+import { Wall } from "./wall";
+import { Metadata } from "../items/metadata";
 
 /**
  * The Scene is a manager of Items and also links to a ThreeJS scene.
  */
 export class Scene {
-
   /** The associated ThreeJS scene. */
   public scene: THREE.Scene;
 
@@ -35,7 +34,7 @@ export class Scene {
   public itemRemovedCallbacks = $.Callbacks();
 
   /** rail item for future use */
-  private railGeom: THREE.Geometry | null = null; 
+  private railGeom: THREE.Geometry | null = null;
   private railMat: THREE.Material[] | null = null;
 
   /**
@@ -43,7 +42,10 @@ export class Scene {
    * @param model The associated model.
    * @param textureDir The directory from which to load the textures.
    */
-  constructor(public model: Model, _textureDir: string) {
+  constructor(
+    public model: Model,
+    _textureDir: string,
+  ) {
     this.scene = new THREE.Scene();
 
     // init item loader
@@ -52,24 +54,29 @@ export class Scene {
 
     // load the rail item
     const scope = this;
-    const loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
+    const loaderCallback = function (
+      geometry: THREE.Geometry,
+      materials: THREE.Material[],
+    ) {
       scope.railGeom = geometry;
       geometry.computeBoundingBox();
       scope.railMat = materials;
       scope.model.floorplan.update();
-    }
+    };
 
     console.log("loading DeckRail");
     this.loader.load(
       "models/js/Olson_Deck_DeckRail.js",
       loaderCallback,
-      undefined // TODO_Ekki 
+      undefined, // TODO_Ekki
     );
   }
 
-  private midpoint(p1: {x: number, y: number}, p2: {x: number, y: number}): {x: number, y: number} 
-  {
-    return { x: (p1.x + p2.x)*0.5, y: (p1.y + p2.y)*0.5 }
+  private midpoint(
+    p1: { x: number; y: number },
+    p2: { x: number; y: number },
+  ): { x: number; y: number } {
+    return { x: (p1.x + p2.x) * 0.5, y: (p1.y + p2.y) * 0.5 };
   }
   public makeRailItem(wall: Wall): Item | null {
     if (this.railGeom !== null && this.railMat !== null) {
@@ -88,12 +95,14 @@ export class Scene {
       const railHeight = railBox.max.y - railBox.min.y;
       const vertscale = wall.height / railHeight;
       const pos = this.midpoint(start, end);
-      const item = new (theClass)(
+      const item = new theClass(
         this.model,
-        {}, geom,
+        {},
+        geom,
         new THREE.MeshFaceMaterial(mat),
-        new THREE.Vector3(pos.x, 0, pos.y), rotation, 
-        new THREE.Vector3(horizscale, vertscale, horizscale) 
+        new THREE.Vector3(pos.x, 0, pos.y),
+        rotation,
+        new THREE.Vector3(horizscale, vertscale, horizscale),
       );
       item.initObject();
       this.itemLoadedCallbacks.fire(item);
@@ -138,16 +147,16 @@ export class Scene {
    * @returns The count.
    */
   public itemCount(): number {
-    return this.items.length
+    return this.items.length;
   }
 
   /** Removes all items. */
   public clearItems() {
-    const items_copy = this.items.slice()
+    const items_copy = this.items.slice();
     items_copy.forEach((item) => {
       this.removeItem(item);
     });
-    this.items = []
+    this.items = [];
   }
 
   /**
@@ -173,29 +182,43 @@ export class Scene {
    * @param scale The initial scaling.
    * @param fixed True if fixed.
    */
-  public addItem(itemType: number, fileName: string, metadata: Metadata, position?: THREE.Vector3, rotation?: number, scale?: THREE.Vector3, fixed?: boolean) {
+  public addItem(
+    itemType: number,
+    fileName: string,
+    metadata: Metadata,
+    position?: THREE.Vector3,
+    rotation?: number,
+    scale?: THREE.Vector3,
+    fixed?: boolean,
+  ) {
     itemType = itemType || 1;
     var scope = this;
     // FIXME:  Make this an arrow function, get rid of scope
-    var loaderCallback = function (geometry: THREE.Geometry, materials: THREE.Material[]) {
+    var loaderCallback = function (
+      geometry: THREE.Geometry,
+      materials: THREE.Material[],
+    ) {
       const item: Item = new (Factory.getClass(itemType))(
         scope.model,
-        metadata, geometry,
+        metadata,
+        geometry,
         new THREE.MeshFaceMaterial(materials),
-        position, rotation, scale
+        position,
+        rotation,
+        scale,
       );
       item.fixed = fixed || false;
       scope.items.push(item);
       scope.add(item.threeObj);
       item.initObject();
       scope.itemLoadedCallbacks.fire(item);
-    }
+    };
 
     this.itemLoadingCallbacks.fire();
     this.loader.load(
       fileName,
       loaderCallback,
-      undefined // TODO_Ekki 
+      undefined, // TODO_Ekki
     );
   }
 }

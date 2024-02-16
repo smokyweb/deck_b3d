@@ -1,13 +1,15 @@
-import * as THREE from 'three';
-import { Scene } from '../model/scene';
-import { Room } from '../model/room';
+import * as THREE from "three";
+import { Scene } from "../model/scene";
+import { Room } from "../model/room";
 
 export class Floor {
-
   private floorPlane: THREE.Mesh;
   private floorTexture: THREE.Texture | null = null;
 
-  constructor(private scene: Scene, private room: Room) {
+  constructor(
+    private scene: Scene,
+    private room: Room,
+  ) {
     this.room.fireOnFloorChange(() => this.redraw);
     this.floorPlane = this.buildFloor();
     // roofs look weird, so commented out
@@ -24,9 +26,12 @@ export class Floor {
     // setup texture
     const textureLoader = new THREE.TextureLoader();
     // FIXME: Every instance of floor loads the texture again.  Should cache and share.
-    this.floorTexture = 
-      textureLoader.load(textureSettings.url, 
-        (_t: THREE.Texture) => { this.scene.needsUpdate = true });
+    this.floorTexture = textureLoader.load(
+      textureSettings.url,
+      (_t: THREE.Texture) => {
+        this.scene.needsUpdate = true;
+      },
+    );
     this.floorTexture.wrapS = THREE.RepeatWrapping;
     this.floorTexture.wrapT = THREE.RepeatWrapping;
     this.floorTexture.repeat.set(1, 1);
@@ -35,7 +40,7 @@ export class Floor {
       side: THREE.DoubleSide,
       // ambient: 0xffffff, TODO_Ekki
       color: 0xcccccc,
-      specular: 0x0a0a0a
+      specular: 0x0a0a0a,
     });
 
     var textureScale = textureSettings.scale;
@@ -44,9 +49,9 @@ export class Floor {
 
     var points: THREE.Vector2[] = [];
     this.room.corners.forEach((corner) => {
-      points.push(new THREE.Vector2(
-        corner.x / textureScale,
-        corner.y / textureScale));
+      points.push(
+        new THREE.Vector2(corner.x / textureScale, corner.y / textureScale),
+      );
     });
     var shape = new THREE.Shape(points);
 
@@ -61,27 +66,27 @@ export class Floor {
     return floor;
   }
 
-//  private buildRoof() {
-//    // setup texture
-//    var roofMaterial = new THREE.MeshBasicMaterial({
-//      side: THREE.FrontSide,
-//      color: 0xe5e5e5
-//    });
-//
-//    var points: THREE.Vector2[] = [];
-//    this.room.interiorCorners.forEach((corner) => {
-//      points.push(new THREE.Vector2(
-//        corner.x,
-//        corner.y));
-//    });
-//    var shape = new THREE.Shape(points);
-//    var geometry = new THREE.ShapeGeometry(shape);
-//    var roof = new THREE.Mesh(geometry, roofMaterial);
-//
-//    roof.rotation.set(Math.PI / 2, 0, 0);
-//    roof.position.y = 250;
-//    return roof;
-//  }
+  //  private buildRoof() {
+  //    // setup texture
+  //    var roofMaterial = new THREE.MeshBasicMaterial({
+  //      side: THREE.FrontSide,
+  //      color: 0xe5e5e5
+  //    });
+  //
+  //    var points: THREE.Vector2[] = [];
+  //    this.room.interiorCorners.forEach((corner) => {
+  //      points.push(new THREE.Vector2(
+  //        corner.x,
+  //        corner.y));
+  //    });
+  //    var shape = new THREE.Shape(points);
+  //    var geometry = new THREE.ShapeGeometry(shape);
+  //    var roof = new THREE.Mesh(geometry, roofMaterial);
+  //
+  //    roof.rotation.set(Math.PI / 2, 0, 0);
+  //    roof.position.y = 250;
+  //    return roof;
+  //  }
 
   public addToScene() {
     this.scene.add(this.floorPlane);

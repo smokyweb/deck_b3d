@@ -5,7 +5,7 @@ export interface Metadata {
 
   /** Type of the item. */
   itemType?: number;
-  
+
   /** Url of the model. */
   modelUrl?: string;
 

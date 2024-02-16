@@ -1,16 +1,24 @@
-import * as THREE from 'three';
-import { Model } from '../model/model';
-import { Item } from './item';
-import { Metadata } from './metadata';
-import { Utils } from '../core/utils';
+import * as THREE from "three";
+import { Model } from "../model/model";
+import { Item } from "./item";
+import { Metadata } from "./metadata";
+import { Utils } from "../core/utils";
 
 /**
  * A Floor Item is an entity to be placed related to a floor.
  */
 export abstract class FloorItem extends Item {
-  constructor(model: Model, metadata: Metadata, geometry: THREE.Geometry, material: THREE.MeshFaceMaterial, position: THREE.Vector3, rotation: number, scale: THREE.Vector3) {
+  constructor(
+    model: Model,
+    metadata: Metadata,
+    geometry: THREE.Geometry,
+    material: THREE.MeshFaceMaterial,
+    position: THREE.Vector3,
+    rotation: number,
+    scale: THREE.Vector3,
+  ) {
     super(model, metadata, geometry, material, position, rotation, scale);
-  };
+  }
 
   /** */
   public placeInRoom() {
@@ -19,9 +27,12 @@ export abstract class FloorItem extends Item {
       // FIXME: CoordinateConfusion
       this.threeObj.position.x = center2.x;
       this.threeObj.position.z = center2.y;
-      this.threeObj.position.y = 0.5 * (this.threeObj.geometry.boundingBox.max.y - this.threeObj.geometry.boundingBox.min.y);
+      this.threeObj.position.y =
+        0.5 *
+        (this.threeObj.geometry.boundingBox.max.y -
+          this.threeObj.geometry.boundingBox.min.y);
     }
-  };
+  }
 
   /** Take action after a resize */
   public resized() {
@@ -29,7 +40,10 @@ export abstract class FloorItem extends Item {
   }
 
   /** */
-  public override moveToPosition(vec3: THREE.Vector3, _intersection: THREE.Intersection) {
+  public override moveToPosition(
+    vec3: THREE.Vector3,
+    _intersection: THREE.Intersection,
+  ) {
     //console.log("floor_item moveToPosition", vec3, intersection);
     // keeps the position in the room and on the floor
     if (!this.isValidPosition(vec3)) {
@@ -46,14 +60,16 @@ export abstract class FloorItem extends Item {
 
   /** */
   public isValidPosition(vec3: THREE.Vector3): boolean {
-    var corners = this.getCorners('x', 'z', vec3);
+    var corners = this.getCorners("x", "z", vec3);
 
     // check if we are in a room
     var rooms = this.model.floorplan.getRooms();
     var isInARoom = false;
     for (var i = 0; i < rooms.length; i++) {
-      if (Utils.pointInPolygon(vec3.x, vec3.z, rooms[i].corners) &&
-        !Utils.polygonPolygonIntersect(corners, rooms[i].corners)) {
+      if (
+        Utils.pointInPolygon(vec3.x, vec3.z, rooms[i].corners) &&
+        !Utils.polygonPolygonIntersect(corners, rooms[i].corners)
+      ) {
         isInARoom = true;
       }
     }

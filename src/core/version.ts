@@ -8,10 +8,15 @@ module BP3D.Core {
 
     /** The technical version. */
     public static getTechnicalVersion(): string {
-      return "1.0.0.1"
+      return "1.0.0.1";
     }
   }
 }
 
-console.log("Blueprint3D " + BP3D.Core.Version.getInformalVersion()
-  + " (" + BP3D.Core.Version.getTechnicalVersion() + ")")
+console.log(
+  "Blueprint3D " +
+    BP3D.Core.Version.getInformalVersion() +
+    " (" +
+    BP3D.Core.Version.getTechnicalVersion() +
+    ")",
+);

@@ -1,12 +1,14 @@
+import * as THREE from "three";
 
-import * as THREE from 'three';
+import { Utils, FloorPlane, WallPlane } from "../core/utils";
+import { Wall } from "./wall";
+import { Corner } from "./corner";
+import { Room } from "./room";
 
-import { Utils, FloorPlane, WallPlane } from '../core/utils';
-import { Wall } from './wall';
-import { Corner } from './corner';
-import { Room } from './room';
-
-export interface TextureSpec { url: string, scale: number };
+export interface TextureSpec {
+  url: string;
+  scale: number;
+}
 /** */
 const defaultFloorPlanTolerance = 10.0;
 
@@ -55,14 +57,14 @@ export class Floorplan {
    * floorTextures is a map of room UUIDs (string) to a object with
    * url and scale attributes.
    */
-  private floorTextures: {[index: string]: TextureSpec} = {};
+  private floorTextures: { [index: string]: TextureSpec } = {};
 
   /** Constructs a floorplan. */
   constructor() {}
   public wallPlanes(): WallPlane[] {
     var planes: WallPlane[] = [];
     this.walls.forEach((wall) => {
-        planes.push(wall.plane);
+      planes.push(wall.plane);
     });
     return planes;
   }
@@ -157,7 +159,11 @@ export class Floorplan {
     return this.rooms;
   }
 
-  public overlappedCorner(x: number, y: number, tolerance?: number): Corner | null {
+  public overlappedCorner(
+    x: number,
+    y: number,
+    tolerance?: number,
+  ): Corner | null {
     tolerance = tolerance || defaultFloorPlanTolerance;
     for (var i = 0; i < this.corners.length; i++) {
       if (this.corners[i].distanceFrom(x, y) < tolerance) {
@@ -210,7 +216,7 @@ export class Floorplan {
     console.log("loadFloorplan", floorplan);
     this.reset();
 
-    var corners : {[index: string]: Corner} = {};
+    var corners: { [index: string]: Corner } = {};
     if (
       floorplan == null ||
       !("corners" in floorplan) ||
@@ -229,7 +235,7 @@ export class Floorplan {
       console.log("adding wall");
       var newWall = scope.newWall(
         corners[wall.corner1 as string],
-        corners[wall.corner2 as string]
+        corners[wall.corner2 as string],
       );
       if (wall.frontTexture) {
         newWall.frontTexture = wall.frontTexture;
@@ -310,7 +316,6 @@ export class Floorplan {
    */
   public getCenter2(): THREE.Vector2 {
     return this.getBounds().getCenter();
-
   }
 
   public getSize2(): THREE.Vector2 {
@@ -323,7 +328,6 @@ export class Floorplan {
     return result;
   }
 
-
   /*
    * Find the "rooms" in our planar straight-line graph.
    * Rooms are set of the smallest (by area) possible cycles in this graph.
@@ -334,13 +338,13 @@ export class Floorplan {
     function _calculateTheta(
       previousCorner: Corner,
       currentCorner: Corner,
-      nextCorner: Corner
+      nextCorner: Corner,
     ) {
       var theta = Utils.angle2pi(
         previousCorner.x - currentCorner.x,
         previousCorner.y - currentCorner.y,
         nextCorner.x - currentCorner.x,
-        nextCorner.y - currentCorner.y
+        nextCorner.y - currentCorner.y,
       );
       return theta;
     }
@@ -374,19 +378,19 @@ export class Floorplan {
 
     function _findTightestCycle(
       firstCorner: Corner,
-      secondCorner: Corner
+      secondCorner: Corner,
     ): Corner[] {
       interface thing {
         corner: Corner;
         previousCorners: Corner[];
-      };
+      }
       var stack: thing[] = [];
 
-      let next: thing| undefined = {
+      let next: thing | undefined = {
         corner: secondCorner,
         previousCorners: [firstCorner],
       };
-      let visited: { [index: string]: boolean} = {};
+      let visited: { [index: string]: boolean } = {};
       visited[firstCorner.id] = true;
 
       while (next) {

@@ -1,18 +1,17 @@
-import { Dimensioning } from '../core/dimensioning';
-import { Floorplan } from '../model/floorplan';
-import { Wall, WallType } from '../model/wall';
-import { Room } from '../model/room';
-import { Corner } from '../model/corner';
-import { Floorplanner } from './floorplanner';
-import { Point } from '../core/utils';
-
+import { Dimensioning } from "../core/dimensioning";
+import { Floorplan } from "../model/floorplan";
+import { Wall, WallType } from "../model/wall";
+import { Room } from "../model/room";
+import { Corner } from "../model/corner";
+import { Floorplanner } from "./floorplanner";
+import { Point } from "../core/utils";
 
 /** */
 export enum FloorplannerMode {
   MOVE,
   DRAW,
-  DELETE
-};
+  DELETE,
+}
 
 // grid parameters
 const gridWidth = 1;
@@ -24,9 +23,9 @@ const roomColor = "#f9f9f9";
 // wall config
 const wallWidth = 5;
 const wallWidthHover = 7;
-const wallColorDefault = "#bbbbbb"
-const wallColorRailing = "#bb8888"
-const wallColorHover = "#008cba"
+const wallColorDefault = "#bbbbbb";
+const wallColorRailing = "#bb8888";
+const wallColorHover = "#008cba";
 /*
 const edgeColor = "#888888"
 const edgeColorHover = "#008cba"
@@ -36,16 +35,15 @@ const edgeWidth = 1
 const deleteColor = "#ff0000";
 
 // corner config
-const cornerRadius = 0
-const cornerRadiusHover = 7
-const cornerColor = "#cccccc"
-const cornerColorHover = "#008cba"
+const cornerRadius = 0;
+const cornerRadiusHover = 7;
+const cornerColor = "#cccccc";
+const cornerColorHover = "#008cba";
 
 /**
  * The View to be used by a Floorplanner to render in/interact with.
  */
 export class FloorplannerView {
-
   /** The canvas element. */
   private canvasElement: HTMLCanvasElement;
 
@@ -53,9 +51,13 @@ export class FloorplannerView {
   private context: CanvasRenderingContext2D | null;
 
   /** */
-  constructor(private floorplan: Floorplan, private viewmodel: Floorplanner, private canvas: string) {
+  constructor(
+    private floorplan: Floorplan,
+    private viewmodel: Floorplanner,
+    private canvas: string,
+  ) {
     this.canvasElement = <HTMLCanvasElement>document.getElementById(canvas);
-    this.context = this.canvasElement.getContext('2d');
+    this.context = this.canvasElement.getContext("2d");
 
     var scope = this;
     window.addEventListener("resize", () => {
@@ -84,14 +86,19 @@ export class FloorplannerView {
   /** */
   public draw() {
     if (this.context) {
-      this.context.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
-    }     
+      this.context.clearRect(
+        0,
+        0,
+        this.canvasElement.width,
+        this.canvasElement.height,
+      );
+    }
 
     this.drawGrid();
 
     this.floorplan.getRooms().forEach((room) => {
       this.drawRoom(room);
-    })
+    });
 
     this.floorplan.getWalls().forEach((wall) => {
       this.drawWall(wall);
@@ -112,7 +119,7 @@ export class FloorplannerView {
 
   /** */
   private drawWall(wall: Wall) {
-    const hover = (wall === this.viewmodel.activeWall);
+    const hover = wall === this.viewmodel.activeWall;
     let color = wallColorDefault;
     if (wall.wallType == WallType.Railing) {
       color = wallColorRailing;
@@ -125,10 +132,12 @@ export class FloorplannerView {
     const start = this.viewmodel.worldToCanvas(wall.start);
     const end = this.viewmodel.worldToCanvas(wall.end);
     this.drawLine(
-      start.x, start.y,
-      end.x, end.y,
+      start.x,
+      start.y,
+      end.x,
+      end.y,
       hover ? wallWidthHover : wallWidth,
-      color
+      color,
     );
   }
 
@@ -149,12 +158,16 @@ export class FloorplannerView {
       this.context.lineWidth = 4;
 
       const screenPos = this.viewmodel.worldToCanvas(pos);
-      this.context.strokeText(Dimensioning.cmToMeasure(length),
+      this.context.strokeText(
+        Dimensioning.cmToMeasure(length),
         screenPos.x,
-        screenPos.y);
-      this.context.fillText(Dimensioning.cmToMeasure(length),
+        screenPos.y,
+      );
+      this.context.fillText(
+        Dimensioning.cmToMeasure(length),
         screenPos.x,
-        screenPos.y);
+        screenPos.y,
+      );
     }
   }
 
@@ -167,7 +180,7 @@ export class FloorplannerView {
 
   /** */
   private drawCorner(corner: Corner) {
-    var hover = (corner === this.viewmodel.activeCorner);
+    var hover = corner === this.viewmodel.activeCorner;
     var color = cornerColor;
     if (hover && this.viewmodel.mode == FloorplannerMode.DELETE) {
       color = deleteColor;
@@ -176,19 +189,21 @@ export class FloorplannerView {
     }
     const screenCorner = this.viewmodel.worldToCanvas(corner);
     this.drawCircle(
-      screenCorner.x, screenCorner.y,
+      screenCorner.x,
+      screenCorner.y,
       hover ? cornerRadiusHover : cornerRadius,
-      color
+      color,
     );
   }
 
   /** */
   private drawTarget(x: number, y: number) {
-    const screenPos = this.viewmodel.worldToCanvas({x,y});
+    const screenPos = this.viewmodel.worldToCanvas({ x, y });
     this.drawCircle(
-      screenPos.x, screenPos.y,
+      screenPos.x,
+      screenPos.y,
       cornerRadiusHover,
-      cornerColorHover
+      cornerColorHover,
     );
     if (this.viewmodel.lastNode) {
       const lastNodePos = this.viewmodel.worldToCanvas(this.viewmodel.lastNode);
@@ -198,13 +213,20 @@ export class FloorplannerView {
         screenPos.x,
         screenPos.y,
         wallWidthHover,
-        wallColorHover
+        wallColorHover,
       );
     }
   }
 
   /** */
-  private drawLine(startX: number, startY: number, endX: number, endY: number, width: number, color: string) {
+  private drawLine(
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+    width: number,
+    color: string,
+  ) {
     // width is an integer
     // color is a hex string, i.e. #ff0000
     if (this.context) {
@@ -218,13 +240,20 @@ export class FloorplannerView {
   }
 
   /** */
-  private drawPolygon(corners: Point[],
-                      fill: boolean, fillColor: string | null, 
-                      stroke?: boolean, strokeColor?: string, strokeWidth?: number) {
+  private drawPolygon(
+    corners: Point[],
+    fill: boolean,
+    fillColor: string | null,
+    stroke?: boolean,
+    strokeColor?: string,
+    strokeWidth?: number,
+  ) {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
-    const cornerPosArr = corners.map((corner) => this.viewmodel.worldToCanvas(corner));
+    const cornerPosArr = corners.map((corner) =>
+      this.viewmodel.worldToCanvas(corner),
+    );
     if (this.context) {
       this.context.beginPath();
       this.context.moveTo(cornerPosArr[0].x, cornerPosArr[0].y);
@@ -232,7 +261,7 @@ export class FloorplannerView {
         this.context.lineTo(cornerPosArr[i].x, cornerPosArr[i].y);
       }
       this.context.closePath();
-      if (fill && (fillColor !== null)) {
+      if (fill && fillColor !== null) {
         this.context.fillStyle = fillColor;
         this.context.fill();
       }
@@ -245,8 +274,12 @@ export class FloorplannerView {
   }
 
   /** */
-  private drawCircle(centerX: number, centerY: number, 
-                     radius: number, fillColor: string) {
+  private drawCircle(
+    centerX: number,
+    centerY: number,
+    radius: number,
+    fillColor: string,
+  ) {
     if (this.context) {
       this.context.beginPath();
       this.context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
@@ -255,11 +288,11 @@ export class FloorplannerView {
     }
   }
 
-  private calcGrid( start: number, end: number, interval: number): number[] {
+  private calcGrid(start: number, end: number, interval: number): number[] {
     const ifirst = Math.floor(start / interval);
     const ilast = Math.ceil(end / interval);
     const result = new Array<number>(ilast - ifirst + 1);
-    for(let i = ifirst; i <= ilast; i++) {
+    for (let i = ifirst; i <= ilast; i++) {
       result[i] = i * interval;
     }
     return result;
@@ -268,19 +301,22 @@ export class FloorplannerView {
   /** */
   private drawGrid() {
     const gridSpacing = this.viewmodel.pixelsPerFoot;
-    //const gridSpacing = 49.3; 
+    //const gridSpacing = 49.3;
     //console.log(gridSpacing);
     const bounds = this.canvasElement.getBoundingClientRect();
-    const ul = this.viewmodel.canvasToWorld({x: 0, y: 0});
-    const lr = this.viewmodel.canvasToWorld({x: bounds.width, y: bounds.height});
+    const ul = this.viewmodel.canvasToWorld({ x: 0, y: 0 });
+    const lr = this.viewmodel.canvasToWorld({
+      x: bounds.width,
+      y: bounds.height,
+    });
     const gridX = this.calcGrid(ul.x, lr.x, gridSpacing);
     const gridY = this.calcGrid(ul.y, lr.y, gridSpacing);
-    gridX.forEach((x) => { 
-      const p = this.viewmodel.worldToCanvas({x, y: 0});
+    gridX.forEach((x) => {
+      const p = this.viewmodel.worldToCanvas({ x, y: 0 });
       this.drawLine(p.x, 0, p.x, bounds.height, gridWidth, gridColor);
     });
     gridY.forEach((y) => {
-      const p = this.viewmodel.worldToCanvas({x: 0, y});
+      const p = this.viewmodel.worldToCanvas({ x: 0, y });
       this.drawLine(0, p.y, bounds.width, p.y, gridWidth, gridColor);
     });
   }
