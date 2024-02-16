@@ -34,10 +34,10 @@ export class Floorplanner {
   /** drawing state */
   public lastNode: Corner | null = null;
 
-  /** */
+  /** set on mousedown(), cleared on mouseup() or mouseleave() */
   private mouseDown = false;
 
-  /** */
+  /** set on mousemove(), cleared on mousedown() */
   private mouseMoved = false;
 
   /** */
