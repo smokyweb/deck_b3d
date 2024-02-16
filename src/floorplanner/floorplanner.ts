@@ -376,15 +376,12 @@ export class Floorplanner {
   public readonly viewCenter: V2 = new V2(0, 0);
 
   // Transformation between Canvas coords and World coords
-  // is defined by this.cmPerPixel and this.viewCenter
-  //
-  // 
+  // is defined by this.cmPerPixel and this.viewCenter // // 
   // (p.x - centerX) * cmPerPixel == worldPt.x - viewCenter.x
   // so worldPt.x = (p.x - centerX)*cmPerPixel + viewCenter.x
   public canvasToWorld(p: { x: number; y: number }): V2 {
-    const bounds = this.canvasElement.getBoundingClientRect();
-    const centerX = bounds.width/2;
-    const centerY = bounds.height/2;
+    const centerX = this.canvasElement.clientWidth/2;
+    const centerY = this.canvasElement.clientHeight/2;
     const centerOffsetX = p.x - centerX;
     const centerOffsetY = p.y - centerY;
     return new V2(centerOffsetX, centerOffsetY)
@@ -396,9 +393,8 @@ export class Floorplanner {
   // (p.x - centerX) == (worldPt.x - viewCenter.x) / cmPerPixel
   // (p.x = centerX + (worldPt.x - viewCenter.x) / cmPerPixel
   public worldToCanvas(w: { x: number; y: number }): V2 {
-    const bounds = this.canvasElement.getBoundingClientRect();
-    const centerX = bounds.width/2;
-    const centerY = bounds.height/2;
+    const centerX = this.canvasElement.clientWidth/2;
+    const centerY = this.canvasElement.clientHeight/2;
     const ox = (w.x - this.viewCenter.x)/this.cmPerPixel;
     const oy = (w.y - this.viewCenter.y)/this.cmPerPixel;
     return new V2(ox + centerX, oy + centerY);
@@ -407,9 +403,8 @@ export class Floorplanner {
     // want to set the viewCenter so that worldPt goes to screenPt
     // (screenPt.x - centerX) * scale == worldPt.x - viewCenter.x
     // viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale
-    const bounds = this.canvasElement.getBoundingClientRect();
-    const centerX = bounds.width/2;
-    const centerY = bounds.height/2;
+    const centerX = this.canvasElement.clientWidth/2;
+    const centerY = this.canvasElement.clientHeight/2;
     this.viewCenter.x = worldPt.x - (screenPt.x - centerX)*scale;
     this.viewCenter.y = worldPt.y - (screenPt.y - centerY)*scale;
     this.cmPerPixel = scale;
