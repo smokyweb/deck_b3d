@@ -21,8 +21,7 @@ export class Main {
 
   private scene: Scene;
 
-  private element: JQuery<HTMLElement>;
-  private domElement: HTMLElement;
+  private element: HTMLElement;
 
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
@@ -57,11 +56,16 @@ export class Main {
 
   constructor(
     private model: Model,
-    element: string,
+    elementSelector: string,
     _canvasElement: string,
     opts: any,
   ) {
-    this.element = $(element);
+    const element = $(elementSelector).get(0);
+    if (element instanceof HTMLElement) {
+      this.element = element;
+    } else {
+      throw Error(`Couldn't find element ${elementSelector}`);
+    }
     // override with manually set options
     for (var opt in this.options) {
       if (this.options.hasOwnProperty(opt) && opts.hasOwnProperty(opt)) {
@@ -70,13 +74,6 @@ export class Main {
     }
     THREE.ImageUtils.crossOrigin = "";
 
-    {
-      const e = this.element.get(0);
-      if (!(e instanceof HTMLElement)) {
-        throw Error(`Three.Main element '${element}' is not an HTMLElement`);
-      }
-      this.domElement = e;
-    }
     this.camera = new THREE.PerspectiveCamera(45, 1, 1, 10000);
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -90,11 +87,11 @@ export class Main {
     this.scene = model.scene;
     new Skybox(this.scene);
 
-    this.controls = new Controls(this.camera, this.domElement);
+    this.controls = new Controls(this.camera, this.element);
 
     this.hud = new HUD(this);
 
-    this.domElement.appendChild(this.renderer.domElement);
+    this.element.appendChild(this.renderer.domElement);
 
     this.controller = new Controller(
       this,
@@ -108,7 +105,7 @@ export class Main {
     // handle window resizing
     this.updateWindowSize();
     if (this.options.resize) {
-      $(window).resize(() => this.updateWindowSize());
+      window.addEventListener("resize", (_event: Event) => this.updateWindowSize());
     }
 
     // setup camera nicely
@@ -121,13 +118,13 @@ export class Main {
 
     this.animate();
 
-    this.element.mouseenter(() => {
+    this.element.addEventListener("mouseenter", (_event: Event) => {
       this.mouseOver = true;
     });
-    this.element.mouseleave(() => {
+    this.element.addEventListener("mouseleave", (_event: Event) => {
       this.mouseOver = false;
     });
-    this.element.click(() => {
+    this.element.addEventListener("click", (_event: MouseEvent) => {
       this.hasClicked = true;
     });
 
@@ -181,9 +178,12 @@ export class Main {
       this.renderer.render(this.scene.getScene(), this.camera);
       this.renderer.clearDepth();
       this.renderer.render(this.hud.getScene(), this.camera);
-      console.log(
-        `renderer.info.memory.textures: ${this.renderer.info.memory.textures}`,
-      );
+      const chatter = false;
+      if (chatter) {
+        console.log(
+          `renderer.info.memory.textures: ${this.renderer.info.memory.textures}`,
+        );
+      }
     }
     this.lastRender = Date.now();
   }
@@ -197,18 +197,18 @@ export class Main {
   }
 
   public setCursorStyle(cursorStyle: string) {
-    this.domElement.style.cursor = cursorStyle;
+    this.element.style.cursor = cursorStyle;
   }
 
   public updateWindowSize() {
-    this.heightMargin = this.domElement.offsetTop;
-    this.widthMargin = this.domElement.offsetLeft;
+    this.heightMargin = this.element.offsetTop;
+    this.widthMargin = this.element.offsetLeft;
 
-    this.elementWidth = this.domElement.clientWidth;
+    this.elementWidth = this.element.clientWidth;
     if (this.options.resize) {
       this.elementHeight = window.innerHeight - this.heightMargin;
     } else {
-      this.elementHeight = this.domElement.clientHeight;
+      this.elementHeight = this.element.clientHeight;
     }
 
     this.camera.aspect = this.elementWidth / this.elementHeight;
