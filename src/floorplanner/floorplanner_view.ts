@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 import { Dimensioning } from "../core/dimensioning";
 import { Floorplan } from "../model/floorplan";
 import { Wall, WallType } from "../model/wall";
@@ -126,24 +126,49 @@ export class FloorplannerView {
   private drawWorldStar(world: THREE.Vector2, radius: number, color: string) {
     const NPTS = 8;
     for (let i = 0; i < NPTS; i++) {
-      const angle = Math.PI * i / NPTS
-      const delta = new THREE.Vector2(Math.cos(angle), Math.sin(angle)).multiplyScalar(radius);
+      const angle = (Math.PI * i) / NPTS;
+      const delta = new THREE.Vector2(
+        Math.cos(angle),
+        Math.sin(angle),
+      ).multiplyScalar(radius);
       const startWorld = new THREE.Vector2().addVectors(world, delta);
       const endWorld = new THREE.Vector2().subVectors(world, delta);
       const startCanvas = this.viewmodel.worldToCanvas(startWorld);
       const endCanvas = this.viewmodel.worldToCanvas(endWorld);
-      this.drawLine(startCanvas.x, startCanvas.y, endCanvas.x, endCanvas.y, 2, color);
+      this.drawLine(
+        startCanvas.x,
+        startCanvas.y,
+        endCanvas.x,
+        endCanvas.y,
+        2,
+        color,
+      );
     }
   }
   private drawViewChecks() {
-    this.drawWorldStar(new THREE.Vector2(0,0), 50, 'green');
+    this.drawWorldStar(new THREE.Vector2(0, 0), 50, "green");
     const width = this.canvasElement.width;
     const height = this.canvasElement.height;
-    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(0,0)), 50, 'red');
-    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(width,0)), 50, 'yello');
-    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(0, height)), 50, 'orange');
-    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(width,height)), 50, 'gray');
-
+    this.drawWorldStar(
+      this.viewmodel.canvasToWorld(new THREE.Vector2(0, 0)),
+      50,
+      "red",
+    );
+    this.drawWorldStar(
+      this.viewmodel.canvasToWorld(new THREE.Vector2(width, 0)),
+      50,
+      "yello",
+    );
+    this.drawWorldStar(
+      this.viewmodel.canvasToWorld(new THREE.Vector2(0, height)),
+      50,
+      "orange",
+    );
+    this.drawWorldStar(
+      this.viewmodel.canvasToWorld(new THREE.Vector2(width, height)),
+      50,
+      "gray",
+    );
   }
 
   /** */

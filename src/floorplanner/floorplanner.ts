@@ -221,7 +221,6 @@ export class Floorplanner {
       console.log("client, canvas, world: ", client, canvas, world);
     }
 
-
     this.mouse.copy(this.canvasToWorld(canvas));
 
     // update target (snapped position of actual mouse)
@@ -435,7 +434,7 @@ export class Floorplanner {
   private checkTransforms() {
     const width = this.canvasElement.clientWidth;
     const height = this.canvasElement.clientHeight;
-    this.checkCanvasRt(new V2(0,0), "ul");
+    this.checkCanvasRt(new V2(0, 0), "ul");
     this.checkCanvasRt(new V2(width, 0), "ur");
     this.checkCanvasRt(new V2(0, height), "ll");
     this.checkCanvasRt(new V2(width, height), "lr");
