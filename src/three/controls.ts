@@ -13,10 +13,10 @@ import * as THREE from "three";
 const EPS = 0.000001;
 // The four arrow keys
 enum Keys {
-  LEFT = 37,
-  UP = 38,
-  RIGHT = 39,
-  BOTTOM = 40,
+  LEFT = "ArrowLeft",
+  UP = "ArrowUp",
+  RIGHT = "ArrowRight",
+  BOTTOM = "ArrowDown",
 }
 
 enum STATE {
@@ -461,7 +461,7 @@ export class Controls {
       return;
     }
 
-    switch (event.keyCode) {
+    switch (event.key) {
       case Keys.UP:
         this.doPan(new THREE.Vector2(0, this.keyPanSpeed));
         break;
