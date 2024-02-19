@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Dimensioning } from "../core/dimensioning";
 import { Floorplan } from "../model/floorplan";
 import { Wall, WallType } from "../model/wall";
@@ -15,7 +16,7 @@ export enum FloorplannerMode {
 
 // grid parameters
 const gridWidth = 1;
-const gridColor = "#f1f1f1";
+const gridColor = "#a0a0a0";
 
 // room config
 const roomColor = "#f9f9f9";
@@ -115,6 +116,34 @@ export class FloorplannerView {
     this.floorplan.getWalls().forEach((wall) => {
       this.drawWallLabel(wall);
     });
+
+    const drawChecks = false;
+    if (drawChecks) {
+      this.drawViewChecks();
+    }
+  }
+
+  private drawWorldStar(world: THREE.Vector2, radius: number, color: string) {
+    const NPTS = 8;
+    for (let i = 0; i < NPTS; i++) {
+      const angle = Math.PI * i / NPTS
+      const delta = new THREE.Vector2(Math.cos(angle), Math.sin(angle)).multiplyScalar(radius);
+      const startWorld = new THREE.Vector2().addVectors(world, delta);
+      const endWorld = new THREE.Vector2().subVectors(world, delta);
+      const startCanvas = this.viewmodel.worldToCanvas(startWorld);
+      const endCanvas = this.viewmodel.worldToCanvas(endWorld);
+      this.drawLine(startCanvas.x, startCanvas.y, endCanvas.x, endCanvas.y, 2, color);
+    }
+  }
+  private drawViewChecks() {
+    this.drawWorldStar(new THREE.Vector2(0,0), 50, 'green');
+    const width = this.canvasElement.width;
+    const height = this.canvasElement.height;
+    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(0,0)), 50, 'red');
+    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(width,0)), 50, 'yello');
+    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(0, height)), 50, 'orange');
+    this.drawWorldStar(this.viewmodel.canvasToWorld(new THREE.Vector2(width,height)), 50, 'gray');
+
   }
 
   /** */
@@ -218,7 +247,7 @@ export class FloorplannerView {
     }
   }
 
-  /** */
+  /** Draws line in canvas coords*/
   private drawLine(
     startX: number,
     startY: number,
@@ -291,16 +320,16 @@ export class FloorplannerView {
   private calcGrid(start: number, end: number, interval: number): number[] {
     const ifirst = Math.floor(start / interval);
     const ilast = Math.ceil(end / interval);
-    const result = new Array<number>(ilast - ifirst + 1);
+    const result = new Array<number>();
     for (let i = ifirst; i <= ilast; i++) {
-      result[i] = i * interval;
+      result.push(i * interval);
     }
     return result;
   }
 
   /** */
   private drawGrid() {
-    const gridSpacing = this.viewmodel.pixelsPerFoot;
+    const gridSpacing = 12 / 0.3048; // cm per foot
     //const gridSpacing = 49.3;
     //console.log(gridSpacing);
     const bounds = this.canvasElement.getBoundingClientRect();
@@ -311,6 +340,7 @@ export class FloorplannerView {
     });
     const gridX = this.calcGrid(ul.x, lr.x, gridSpacing);
     const gridY = this.calcGrid(ul.y, lr.y, gridSpacing);
+    //console.log("ul, lr, gridX:", ul, lr, gridX);
     gridX.forEach((x) => {
       const p = this.viewmodel.worldToCanvas({ x, y: 0 });
       this.drawLine(p.x, 0, p.x, bounds.height, gridWidth, gridColor);

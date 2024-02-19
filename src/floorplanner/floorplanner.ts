@@ -212,7 +212,15 @@ export class Floorplanner {
     //console.log("move", event);
 
     // update mouse
+    const client = new V2(event.clientX, event.clientY);
     const canvas = this.toCanvas(event);
+    const world = this.canvasToWorld(canvas);
+    const chatter = false;
+
+    if (chatter) {
+      console.log("client, canvas, world: ", client, canvas, world);
+    }
+
 
     this.mouse.copy(this.canvasToWorld(canvas));
 
@@ -381,6 +389,7 @@ export class Floorplanner {
   public canvasToWorld(p: { x: number; y: number }): V2 {
     const centerX = this.canvasElement.clientWidth / 2;
     const centerY = this.canvasElement.clientHeight / 2;
+
     const centerOffsetX = p.x - centerX;
     const centerOffsetY = p.y - centerY;
     return new V2(centerOffsetX, centerOffsetY)
@@ -409,5 +418,26 @@ export class Floorplanner {
     this.cmPerPixel = scale;
     this.view.draw();
     //console.log(bounds, scale, worldPt, screenPt, this.viewCenter);
+    this.checkTransforms();
+  }
+  private checkSamePoint(p1: V2, p2: V2, name: string): Boolean {
+    if (p1.distanceTo(p2) > 0.001) {
+      console.error(`Bad point check for "${name}": `, p1, p2);
+      return false;
+    }
+    return true;
+  }
+  private checkCanvasRt(pCanvas: V2, name: string): Boolean {
+    const pWorld = this.canvasToWorld(pCanvas);
+    const pCanvasRt = this.worldToCanvas(pWorld);
+    return this.checkSamePoint(pCanvas, pCanvasRt, `canvas roundtrip ${name}`);
+  }
+  private checkTransforms() {
+    const width = this.canvasElement.clientWidth;
+    const height = this.canvasElement.clientHeight;
+    this.checkCanvasRt(new V2(0,0), "ul");
+    this.checkCanvasRt(new V2(width, 0), "ur");
+    this.checkCanvasRt(new V2(0, height), "ll");
+    this.checkCanvasRt(new V2(width, height), "lr");
   }
 }
