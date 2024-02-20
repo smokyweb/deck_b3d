@@ -9,6 +9,7 @@ export class RailSpec {
   public slatStock: string = "1x1";
   public includeStartPost: boolean = true;
   public includeEndPost: boolean = true;
+  public includeRailing: boolean = true;
   public postTopInches: number = 40;
   public postBottomInches: number = -5;
   public railTopInches: number = 36;
@@ -41,7 +42,15 @@ export class RailMaker {
     if (spec.includeEndPost) {
       group.add(this.newPost(spec, spec.endBase));
     }
+    if (spec.includeRailing) {
+      group.add(this.makeRailing(spec));
+    }
 
+    return group;
+  }
+
+  private makeRailing(spec: RailSpec): THREE.Group {
+    const group = new THREE.Group();
     const topStock = LumberYard.lumberDimensions.get(spec.railTopStock);
     if (!topStock) {
       throw Error(`railtopStock '${spec.railTopStock}' doesn't exist`);

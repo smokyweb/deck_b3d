@@ -41,25 +41,27 @@ export class Floorplan {
     });
 
     this.floorplan.getWalls().forEach((wall) => {
+      let segments = 1;
+      let includeRailing = false;
       if (wall.wallType == WallType.Railing) {
         // if it's too long, break it up.
         const MAX_RAIL_LENGTH_FEET = 8;
         const MAX_RAIL_LENGTH_CM = MAX_RAIL_LENGTH_FEET * 12 * 2.54;
 
-        const segments = Math.ceil((wall.length() + 0.001) / MAX_RAIL_LENGTH_CM);
+        segments = Math.ceil((wall.length() - 0.001) / MAX_RAIL_LENGTH_CM);
+        includeRailing = true;
+      }
 
-        for (let seg = 0; seg < segments; seg++) {
-          const start_t = seg / segments;
-          const end_t = (seg + 1)/segments;
-          const startBase = Utils.interp2(wall.start, wall.end, start_t);
-          const endBase = Utils.interp2(wall.start, wall.end, end_t);
-          const spec = new RailSpec({ startBase, endBase });
-          const rails = this.railMaker.makeRail(spec);
-          rails.userData = wall;
-          this.railObjects.push(rails);
-          this.scene.add(rails);
-        }
-
+      for (let seg = 0; seg < segments; seg++) {
+        const start_t = seg / segments;
+        const end_t = (seg + 1)/segments;
+        const startBase = Utils.interp2(wall.start, wall.end, start_t);
+        const endBase = Utils.interp2(wall.start, wall.end, end_t);
+        const spec = new RailSpec({ startBase, endBase, includeRailing, includeEndPost: false });
+        const rails = this.railMaker.makeRail(spec);
+        rails.userData = wall;
+        this.railObjects.push(rails);
+        this.scene.add(rails);
       }
     });
   }
