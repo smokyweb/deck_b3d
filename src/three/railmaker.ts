@@ -94,7 +94,7 @@ export class RailMaker {
         (i + 0.5) * spec.slatIntervalInches;
       // normalized interpolation parameter, 0 to 1
       const t = interpDistInches / baseDistInches;
-      const slatloc = this.interp2(spec.startBase, spec.endBase, t);
+      const slatloc = Utils.interp2(spec.startBase, spec.endBase, t);
       const slatBase = Utils.deflatten(
         slatloc,
         inToCm(bottomRailCenterHeightInches),
@@ -112,18 +112,6 @@ export class RailMaker {
       group.add(slat);
     }
     return group;
-  }
-
-  // t=0 means result is a1, t=1 means result is a2
-  private interp1(a1: number, a2: number, t: number) {
-    return a1 * (1 - t) + a2 * t;
-  }
-  // t=0 means result is p1, t=1 means result is p2
-  private interp2(p1: THREE.Vector2, p2: THREE.Vector2, t: number) {
-    return new THREE.Vector2(
-      this.interp1(p1.x, p2.x, t),
-      this.interp1(p1.y, p2.y, t),
-    );
   }
 
   private newPost(spec: RailSpec, base2: THREE.Vector2): THREE.Object3D {

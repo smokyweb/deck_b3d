@@ -520,6 +520,18 @@ export class Utils {
       obj.dispose();
     }
   }
+  // t=0 means result is a1, t=1 means result is a2
+  public static interp1(a1: number, a2: number, t: number) {
+    return a1 * (1 - t) + a2 * t;
+  }
+  // t=0 means result is p1, t=1 means result is p2
+  public static interp2(p1: THREE.Vector2, p2: THREE.Vector2, t: number) {
+    return new THREE.Vector2(
+      this.interp1(p1.x, p2.x, t),
+      this.interp1(p1.y, p2.y, t),
+    );
+  }
+
 }
 
 export function inToCm(inches: number): number {
