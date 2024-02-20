@@ -101,6 +101,10 @@ export class FloorplannerView {
       this.drawRoom(room);
     });
 
+    if (this.viewmodel.lastActiveWall) {
+      this.drawWallHalo(this.viewmodel.lastActiveWall);
+    }
+
     this.floorplan.getWalls().forEach((wall) => {
       this.drawWall(wall);
     });
@@ -193,6 +197,23 @@ export class FloorplannerView {
       hover ? wallWidthHover : wallWidth,
       color,
     );
+  }
+  private drawWallHalo(wall: Wall) {
+    const start = this.viewmodel.worldToCanvas(wall.start);
+    const end = this.viewmodel.worldToCanvas(wall.end);
+    const ctx = this.context;
+    if (ctx) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.lineWidth = wallWidth*3;
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = 'gray';
+      ctx.stroke();
+      ctx.restore()
+    }
   }
 
   /** */

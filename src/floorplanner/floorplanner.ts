@@ -57,6 +57,7 @@ export class Floorplanner {
 
   private contextMenuWall: HTMLElement;
   private contextMenuRailingCheckbox: HTMLInputElement;
+  public lastActiveWall: Wall | null = null;
 
   public get activeWall(): Wall | null {
     return this._activeWall;
@@ -64,24 +65,27 @@ export class Floorplanner {
   public set activeWall(newWall: Wall | null) {
     if (newWall !== this._activeWall) {
       this._activeWall = newWall;
-      this.updateContextMenu();
+    }
+    if (newWall) {
+      this.lastActiveWall = newWall;
+      this.updateContextMenu(); 
     }
   }
   private updateContextMenu() {
-    if (this.activeWall) {
+    if (this.lastActiveWall) {
       this.contextMenuWall.hidden = false;
       this.contextMenuRailingCheckbox.checked =
-        this.activeWall.wallType == WallType.Railing;
+        this.lastActiveWall.wallType == WallType.Railing;
     } else {
       this.contextMenuWall.hidden = true;
     }
   }
   private railingCheckboxHandler(_e: Event) {
-    if (this.activeWall) {
+    if (this.lastActiveWall) {
       if (this.contextMenuRailingCheckbox.checked) {
-        this.activeWall.wallType = WallType.Railing;
+        this.lastActiveWall.wallType = WallType.Railing;
       } else {
-        this.activeWall.wallType = WallType.Blank;
+        this.lastActiveWall.wallType = WallType.Blank;
       }
       this.view.draw();
     }
