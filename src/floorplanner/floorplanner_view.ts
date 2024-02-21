@@ -209,7 +209,7 @@ export class FloorplannerView {
       ctx.lineTo(end.x, end.y);
       ctx.lineWidth = wallWidth*3;
       ctx.lineCap = 'round';
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.3;
       ctx.strokeStyle = 'gray';
       ctx.stroke();
       ctx.restore()
