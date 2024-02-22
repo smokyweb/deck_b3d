@@ -60,7 +60,7 @@ export class Utils {
     y1: number,
     x2: number,
     y2: number,
-  ): { x: number; y: number } {
+  ): THREE.Vector2 {
     // Inspired by: http://stackoverflow.com/a/6853926
     var tA = x - x1;
     var tB = y - y1;
@@ -84,10 +84,7 @@ export class Utils {
       tYy = y1 + tParam * tD;
     }
 
-    return {
-      x: tXx,
-      y: tYy,
-    };
+    return new THREE.Vector2(tXx, tYy);
   }
 
   /** Gets the distance between two points.

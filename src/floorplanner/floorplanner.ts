@@ -3,7 +3,7 @@ import { Corner } from "../model/corner";
 import { Wall, WallType } from "../model/wall";
 import { FloorplannerView, FloorplannerMode } from "./floorplanner_view";
 import { Vector2 as V2 } from "three";
-import { Point } from "../core/utils";
+import { Utils, Point } from "../core/utils";
 
 /** how much will we move a corner to make a wall axis aligned (cm) */
 const snapTolerance = 25;
@@ -55,6 +55,8 @@ export class Floorplanner {
   /** mouse position at last click, canvas coords */
   private readonly last = new V2(0, 0);
 
+  public newPostHalo: THREE.Vector2 | null = null;
+
   private contextMenuWall: HTMLElement;
   private contextMenuRailingCheckbox: HTMLInputElement;
 
@@ -80,6 +82,7 @@ export class Floorplanner {
       this.updateContextMenu();
     }
   }
+
   private updateContextMenu() {
     if (this.lastActiveWall) {
       this.contextMenuWall.hidden = false;
@@ -217,6 +220,11 @@ export class Floorplanner {
       } else {
         this.setMode(FloorplannerMode.MOVE);
       }
+    } else if (this.mode == FloorplannerMode.ADDPOST) {
+      const p = this.toCanvas(event);
+      const w = this.canvasToWorld(p);
+      const newCorner = this.floorplan.newCorner(w.x, w.y);
+      newCorner.mergeWithIntersected();
     }
   }
 
@@ -265,6 +273,21 @@ export class Floorplanner {
         }
       } else {
         this.activeWall = null;
+      }
+      if (this.mode == FloorplannerMode.ADDPOST && this.activeWall) {
+        const wall = this.activeWall;
+        const intersect = Utils.closestPointOnLine(world.x, world.y, wall.start.x, wall.start.y,
+                                                   wall.end.x, wall.end.y);
+        const dist = intersect.distanceTo(world);
+        if (dist < snapTolerance) {
+          this.newPostHalo = intersect;
+          draw = true;
+        }
+      } else {
+        if (this.newPostHalo) {
+          this.newPostHalo = null;
+          draw = true;
+        }
       }
       if (draw) {
         this.view.draw();

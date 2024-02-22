@@ -123,6 +123,21 @@ export class FloorplannerView {
       this.drawWallLabel(wall);
     });
 
+    if (this.viewmodel.newPostHalo) {
+      const h = this.viewmodel.newPostHalo;
+      const h_w = this.viewmodel.worldToCanvas(h);
+      const ctx = this.context;
+      if (ctx) {
+        const radius = 15;
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(h_w.x, h_w.y, radius, radius, 0, 0, Math.PI*2);
+        ctx.fillStyle = '#c44';
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
     const drawChecks = false;
     if (drawChecks) {
       this.drawViewChecks();
