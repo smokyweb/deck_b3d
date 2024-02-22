@@ -531,7 +531,6 @@ export class Utils {
       this.interp1(p1.y, p2.y, t),
     );
   }
-
 }
 
 export function inToCm(inches: number): number {

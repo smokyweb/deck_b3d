@@ -12,11 +12,26 @@ import { Controls as OrbitControls } from "./three/controls";
  */
 
 function sel(selector: string): HTMLElement {
-  const elem = $(selector).get(0);
-  if (!elem || !(elem instanceof HTMLElement)) {
-    throw Error(`Cannot find element for selector "${selector}"`);
+  const elems: NodeList = document.querySelectorAll(selector);
+  if (!elems || elems.length < 1) {
+    throw Error(`Can't find selector "${selector}"`);
   }
-  return elem;
+  if (elems.length > 1) {
+    throw Error(`Found too many elements for selector "${selector}"`);
+  }
+  const elem = elems[0];
+  if (elem instanceof HTMLElement) {
+    return elem;
+  } else {
+    throw Error(`Selector "${selector}" does not find HTMLElement`);
+  }
+}
+function selAll(selector: string): NodeList {
+  const elems: NodeList = document.querySelectorAll(selector);
+  if (!elems) {
+    throw Error(`Can't find selector "${selector}"`);
+  }
+  return elems;
 }
 class CameraButtons {
   private orbitControls: OrbitControls;
@@ -290,7 +305,7 @@ class SideMenu {
     _modalEffects: ModalEffects,
   ) {
     for (const [name, elem] of Object.entries(this.tabs)) {
-      console.log(`adding click respone for ${name}`);
+      // console.log(`adding click response for ${name}`);
       sel(elem).addEventListener("click", this.tabClicked(name as TabName));
     }
 
@@ -306,8 +321,8 @@ class SideMenu {
     this.initItems();
 
     this.setCurrentState(this.states.DESIGN);
-    console.log("this.tabs: ", this.tabs);
-    console.log("this.states: ", this.states);
+    // console.log("this.tabs: ", this.tabs);
+    // console.log("this.states: ", this.states);
   }
 
   private floorplanUpdate() {
@@ -316,7 +331,7 @@ class SideMenu {
 
   private tabClicked(name: TabName) {
     return (_event: MouseEvent) => {
-      console.log(`tabClicked(${name})`);
+      // console.log(`tabClicked(${name})`);
       // Stop three from spinning
       this.blueprint3d.three.stopSpin();
 
@@ -437,20 +452,22 @@ class TextureSelector {
 
   private initTextureSelectors() {
     const objscope = this;
-    sel(".texture-select-thumbnail").addEventListener(
-      "click",
-      function (event: MouseEvent) {
-        const eltscope = this as Element;
-        var textureUrl = $(eltscope).attr("texture-url");
-        var textureStretch = $(eltscope).attr("texture-stretch") == "true";
-        var textureScale = parseInt($(eltscope).attr("texture-scale") || "1");
-        const t = objscope.currentTarget;
-        /* FIXME: this is just an edge thing, right? */
-        if (t instanceof Room && textureUrl) {
-          t.setTexture(textureUrl, textureStretch, textureScale);
+    selAll(".texture-select-thumbnail").forEach((elem) =>
+      elem.addEventListener("click", (event: Event) => {
+        if (elem instanceof HTMLElement) {
+          var textureUrl = elem.getAttribute("texture-url");
+          var textureStretch = elem.getAttribute("texture-stretch") == "true";
+          var textureScale = parseInt(
+            elem.getAttribute("texture-scale") || "1",
+          );
+          const t = objscope.currentTarget;
+          /* FIXME: this is just an edge thing, right? */
+          if (t instanceof Room && textureUrl) {
+            t.setTexture(textureUrl, textureStretch, textureScale);
+          }
+          event.preventDefault();
         }
-        event.preventDefault();
-      },
+      }),
     );
   }
 
@@ -493,6 +510,8 @@ class ViewerFloorplanner {
   private move = sel("#move");
   private remove = sel("#delete");
   private draw = sel("#draw");
+  private addPostBtn = sel("#addPost");
+  private deletePostBtn = sel("#deletePost");
 
   private activeStyles: string[] = ["btn-primary", "disabled"];
 
@@ -509,16 +528,23 @@ class ViewerFloorplanner {
     window.addEventListener("resize", () => this.handleWindowResize());
     this.handleWindowResize();
     this.floorplanner.modeResetCallbacks.add((mode: FloorplannerMode) => {
-      console.log("floorplanner mode reset, " + mode.toString());
+      //console.log("floorplanner mode reset, " + mode.toString());
       this.makeInactive(this.draw);
       this.makeInactive(this.remove);
       this.makeInactive(this.move);
+      this.makeInactive(this.addPostBtn);
+      this.makeInactive(this.deletePostBtn);
+
       if (mode == FloorplannerMode.MOVE) {
         this.makeActive(this.move);
       } else if (mode == FloorplannerMode.DRAW) {
         this.makeActive(this.draw);
       } else if (mode == FloorplannerMode.DELETE) {
         this.makeActive(this.remove);
+      } else if (mode == FloorplannerMode.ADDPOST) {
+        this.makeActive(this.addPostBtn);
+      } else if (mode == FloorplannerMode.DELETEPOST) {
+        this.makeActive(this.deletePostBtn);
       }
 
       if (mode == FloorplannerMode.DRAW) {
@@ -540,6 +566,21 @@ class ViewerFloorplanner {
     this.remove.addEventListener("click", () => {
       this.floorplanner.setMode(FloorplannerMode.DELETE);
     });
+    this.addPostBtn.addEventListener("click", () => {
+      this.floorplanner.setMode(FloorplannerMode.ADDPOST);
+    });
+    this.deletePostBtn.addEventListener("click", () => {
+      this.floorplanner.setMode(FloorplannerMode.DELETEPOST);
+    });
+    //console.log("setting up reset-view");
+    sel("#reset-view-floorplan").addEventListener(
+      "click",
+      (_event: MouseEvent) => {
+        //console.log('resetting view');
+        this.floorplanner.reset();
+      },
+    );
+    //console.log("set up reset-view");
   }
   private makeActive(elem: HTMLElement) {
     DOMTokenList.prototype.add.apply(elem.classList, this.activeStyles);
@@ -640,7 +681,7 @@ class MainControls {
  * Initialize!
  */
 
-console.log("example.ts setting upready hook");
+//console.log("example.ts setting up ready hook");
 
 window.addEventListener("load", function () {
   console.log("example.ts ready entry");
@@ -664,9 +705,9 @@ window.addEventListener("load", function () {
 
   // This serialization format needs work
   // Load a simple rectangle room
-  console.log("loading rectangle room");
+  // console.log("loading rectangle room");
   blueprint3d.model.loadSerialized(
     '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}',
   );
-  console.log("example.ts ready exit");
+  // console.log("example.ts ready exit");
 });

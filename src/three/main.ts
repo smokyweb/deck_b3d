@@ -105,7 +105,9 @@ export class Main {
     // handle window resizing
     this.updateWindowSize();
     if (this.options.resize) {
-      window.addEventListener("resize", (_event: Event) => this.updateWindowSize());
+      window.addEventListener("resize", (_event: Event) =>
+        this.updateWindowSize(),
+      );
     }
 
     // setup camera nicely

@@ -35,6 +35,7 @@ export class RailMaker {
   constructor(public lumberYard: LumberYard) {}
   // uses the current settings to make a
   public makeRail(spec: RailSpec): THREE.Group {
+    // console.log("makeRail", spec.startBase, spec.endBase);
     const group = new THREE.Group();
     if (spec.includeStartPost) {
       group.add(this.newPost(spec, spec.startBase));

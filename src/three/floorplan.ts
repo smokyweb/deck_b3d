@@ -54,10 +54,15 @@ export class Floorplan {
 
       for (let seg = 0; seg < segments; seg++) {
         const start_t = seg / segments;
-        const end_t = (seg + 1)/segments;
+        const end_t = (seg + 1) / segments;
         const startBase = Utils.interp2(wall.start, wall.end, start_t);
         const endBase = Utils.interp2(wall.start, wall.end, end_t);
-        const spec = new RailSpec({ startBase, endBase, includeRailing, includeEndPost: false });
+        const spec = new RailSpec({
+          startBase,
+          endBase,
+          includeRailing,
+          includeEndPost: false,
+        });
         const rails = this.railMaker.makeRail(spec);
         rails.userData = wall;
         this.railObjects.push(rails);

@@ -12,6 +12,8 @@ export enum FloorplannerMode {
   MOVE,
   DRAW,
   DELETE,
+  ADDPOST,
+  DELETEPOST,
 }
 
 // grid parameters
@@ -207,12 +209,12 @@ export class FloorplannerView {
       ctx.beginPath();
       ctx.moveTo(start.x, start.y);
       ctx.lineTo(end.x, end.y);
-      ctx.lineWidth = wallWidth*3;
-      ctx.lineCap = 'round';
+      ctx.lineWidth = wallWidth * 3;
+      ctx.lineCap = "round";
       ctx.globalAlpha = 0.3;
-      ctx.strokeStyle = 'gray';
+      ctx.strokeStyle = "gray";
       ctx.stroke();
-      ctx.restore()
+      ctx.restore();
     }
   }
 

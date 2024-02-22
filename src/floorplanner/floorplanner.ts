@@ -58,7 +58,6 @@ export class Floorplanner {
   private contextMenuWall: HTMLElement;
   private contextMenuRailingCheckbox: HTMLInputElement;
 
-
   public get activeWall(): Wall | null {
     return this._activeWall;
   }
@@ -68,7 +67,7 @@ export class Floorplanner {
     }
     if (newWall) {
       this.lastActiveWall = newWall;
-      this.updateContextMenu(); 
+      this.updateContextMenu();
     }
   }
   public _lastActiveWall: Wall | null = null;
