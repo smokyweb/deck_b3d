@@ -225,6 +225,8 @@ export class Floorplanner {
       const w = this.canvasToWorld(p);
       const newCorner = this.floorplan.newCorner(w.x, w.y);
       newCorner.mergeWithIntersected();
+      this.activeCorner = newCorner;
+      this.setMode(FloorplannerMode.MOVE);
     }
   }
 
@@ -379,6 +381,7 @@ export class Floorplanner {
   public setMode(mode: FloorplannerMode) {
     this.lastNode = null;
     this.mode = mode;
+    this.newPostHalo = null;
     this.modeResetCallbacks.fire(mode);
     this.updateTarget();
   }
