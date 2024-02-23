@@ -278,8 +278,14 @@ export class Floorplanner {
       }
       if (this.mode == FloorplannerMode.ADDPOST && this.activeWall) {
         const wall = this.activeWall;
-        const intersect = Utils.closestPointOnLine(world.x, world.y, wall.start.x, wall.start.y,
-                                                   wall.end.x, wall.end.y);
+        const intersect = Utils.closestPointOnLine(
+          world.x,
+          world.y,
+          wall.start.x,
+          wall.start.y,
+          wall.end.x,
+          wall.end.y,
+        );
         const dist = intersect.distanceTo(world);
         if (dist < snapTolerance) {
           this.newPostHalo = intersect;

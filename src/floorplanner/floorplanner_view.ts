@@ -131,8 +131,8 @@ export class FloorplannerView {
         const radius = 15;
         ctx.save();
         ctx.beginPath();
-        ctx.ellipse(h_w.x, h_w.y, radius, radius, 0, 0, Math.PI*2);
-        ctx.fillStyle = '#c44';
+        ctx.ellipse(h_w.x, h_w.y, radius, radius, 0, 0, Math.PI * 2);
+        ctx.fillStyle = "#c44";
         ctx.fill();
         ctx.restore();
       }
