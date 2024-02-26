@@ -78,15 +78,13 @@ export class Corner extends THREE.Vector2 {
       y: false,
     };
 
-    var scope = this;
-
     this.adjacentCorners().forEach((corner) => {
-      if (Math.abs(corner.x - scope.x) < tolerance) {
-        scope.x = corner.x;
+      if (Math.abs(corner.x - this.x) < tolerance) {
+        this.x = corner.x;
         snapped.x = true;
       }
-      if (Math.abs(corner.y - scope.y) < tolerance) {
-        scope.y = corner.y;
+      if (Math.abs(corner.y - this.y) < tolerance) {
+        this.y = corner.y;
         snapped.y = true;
       }
     });

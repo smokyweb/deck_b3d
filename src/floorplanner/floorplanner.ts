@@ -349,7 +349,7 @@ export class Floorplanner {
   /** */
   private mouseleave() {
     this.mouseDown = false;
-    //scope.setMode(scope.modes.MOVE);
+    //this.setMode(this.modes.MOVE);
   }
 
   private wheelEvent(event: WheelEvent) {

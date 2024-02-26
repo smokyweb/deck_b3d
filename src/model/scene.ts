@@ -53,15 +53,14 @@ export class Scene {
     this.loader.crossOrigin = "";
 
     // load the rail item
-    const scope = this;
-    const loaderCallback = function (
+    const loaderCallback = (
       geometry: THREE.Geometry,
       materials: THREE.Material[],
-    ) {
-      scope.railGeom = geometry;
+    ) => {
+      this.railGeom = geometry;
       geometry.computeBoundingBox();
-      scope.railMat = materials;
-      scope.model.floorplan.update();
+      this.railMat = materials;
+      this.model.floorplan.update();
     };
 
     console.log("loading DeckRail");
@@ -192,14 +191,12 @@ export class Scene {
     fixed?: boolean,
   ) {
     itemType = itemType || 1;
-    var scope = this;
-    // FIXME:  Make this an arrow function, get rid of scope
-    var loaderCallback = function (
+    const loaderCallback = (
       geometry: THREE.Geometry,
       materials: THREE.Material[],
-    ) {
+    ) => {
       const item: Item = new (Factory.getClass(itemType))(
-        scope.model,
+        this.model,
         metadata,
         geometry,
         new THREE.MeshFaceMaterial(materials),
@@ -208,10 +205,10 @@ export class Scene {
         scale,
       );
       item.fixed = fixed || false;
-      scope.items.push(item);
-      scope.add(item.threeObj);
+      this.items.push(item);
+      this.add(item.threeObj);
       item.initObject();
-      scope.itemLoadedCallbacks.fire(item);
+      this.itemLoadedCallbacks.fire(item);
     };
 
     this.itemLoadingCallbacks.fire();

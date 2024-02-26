@@ -108,9 +108,8 @@ export class Floorplan {
   public newWall(start: Corner, end: Corner): Wall {
     var wall = new Wall(start, end);
     this.walls.push(wall);
-    var scope = this;
     wall.fireOnDelete(() => {
-      scope.removeWall(wall);
+      this.removeWall(wall);
     });
     this.new_wall_callbacks.fire(wall);
     this.update();
@@ -230,10 +229,9 @@ export class Floorplan {
       var corner = floorplan.corners[id];
       corners[id] = this.newCorner(corner.x, corner.y, id);
     }
-    var scope = this;
     floorplan.walls.forEach((wall: any) => {
       console.log("adding wall");
-      var newWall = scope.newWall(
+      var newWall = this.newWall(
         corners[wall.corner1 as string],
         corners[wall.corner2 as string],
       );
@@ -302,9 +300,8 @@ export class Floorplan {
 
     var roomCorners = this.findRooms(this.corners);
     this.rooms = [];
-    var scope = this;
     roomCorners.forEach((corners) => {
-      scope.rooms.push(new Room(scope, corners));
+      this.rooms.push(new Room(this, corners));
     });
 
     this.updateFloorTextures();
