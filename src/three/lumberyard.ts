@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { inToCm, cmToIn } from "../core/utils";
+import * as CSG from "csg";
 
 export interface LumberDim {
   // These are cross-grain dimensions.  Width is typically the longer one.
@@ -239,5 +240,11 @@ export class LumberYard {
       results.forEach((r) => group.add(r));
       return group;
     }
+  }
+  public makeWoodFromCSG(_csg: number): THREE.Object3D {
+    const v: CSG.Vector = new CSG.Vector(1, 2, 3);
+    const w = v.dividedBy(2).unit();
+    console.log(v, w);
+    return new THREE.Group();
   }
 }
