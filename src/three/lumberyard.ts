@@ -241,7 +241,7 @@ export class LumberYard {
       return group;
     }
   }
-  public makeWoodFromCSG(_csg: number): THREE.Object3D {
+  public makeWoodFromCSG(_csg: CSG.CSG): THREE.Object3D {
     const v: CSG.Vector = new CSG.Vector(1, 2, 3);
     const w = v.dividedBy(2).unit();
     console.log(v, w);
