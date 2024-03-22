@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { FloorPlane } from "../core/utils";
 import { Corner } from "./corner";
 import { Floorplan, TextureSpec } from "./floorplan";
-import * as CSG from 'csg';
+import * as CSG from "csg";
 
 //TODO
 //var Vec2 = require('vec2')
@@ -77,7 +77,6 @@ export class Room {
     return shape;
   }
   private generatePlane() {
-
     console.log("Room.generatePlane()");
     this.triangulate();
     var shape = this.shape();
@@ -96,7 +95,6 @@ export class Room {
   private do_triangulate_call(contour: THREE.Vector2[]): THREE.Vector2[][] {
     const res = THREE.ShapeUtils.triangulate(contour as any as number[], false);
     return res as any as THREE.Vector2[][];
-
   }
   private triangulate(): THREE.Vector2[][] {
     const contour = this.points();
@@ -107,7 +105,7 @@ export class Room {
 
   private csgClipRegion(): CSG.CSG {
     const THICKNESS = 50;
-    const halfThickness = THICKNESS/2;
+    const halfThickness = THICKNESS / 2;
     function toV3(p: THREE.Vector2, height: number): CSG.Vector {
       return new CSG.Vector(p.x, height, p.y);
     }
@@ -123,14 +121,14 @@ export class Room {
         toV3(tri[2], +halfThickness),
         toV3(tri[0], -halfThickness),
         toV3(tri[1], -halfThickness),
-        toV3(tri[2], -halfThickness)
+        toV3(tri[2], -halfThickness),
       ];
       const faces: number[][] = [
         [0, 1, 2],
         [5, 4, 3],
         [0, 3, 4, 1],
         [1, 4, 5, 2],
-        [2, 5, 3, 0]
+        [2, 5, 3, 0],
       ];
       const polys = faces.map((indices) => {
         const ps = indices.map((i) => corners[i]);
