@@ -63,13 +63,23 @@ export class Room {
     this.floorChangeCallbacks.fire();
   }
 
-  private generatePlane() {
+  private points(): THREE.Vector2[] {
     var points: THREE.Vector2[] = [];
     this.corners.forEach((corner: Corner) => {
       points.push(new THREE.Vector2(corner.x, corner.y));
     });
+    return points;
+  }
+  private shape(): THREE.Shape {
+    const points = this.points();
+    const shape = new THREE.Shape(points);
+    return shape;
+  }
+  private generatePlane() {
 
-    var shape = new THREE.Shape(points);
+    console.log("Room.generatePlane()");
+    this.triangulate();
+    var shape = this.shape();
     var geometry = new THREE.ShapeGeometry(shape);
     const mesh = new THREE.Mesh(
       geometry,
@@ -81,9 +91,17 @@ export class Room {
     mesh.rotation.set(Math.PI / 2, 0, 0);
     this.floorPlane = Object.assign(mesh, { room: this });
   }
+  // the typings for THREE.js are wrong here.
+  private do_triangulate_call(contour: THREE.Vector2[]): number[][] {
+    const res = THREE.ShapeUtils.triangulate(contour as any as number[], true);
+    return res as any as number[][];
 
-  /**
-   * Populates each wall's half edge relating to this room
-   * this creates a fancy doubly connected edge list (DCEL)
-   */
+  }
+  private triangulate(): void {
+    const contour = this.points();
+    const tri_indices: number[][] = this.do_triangulate_call(contour);
+    console.log("triangulation: ", tri_indices);
+
+  }
+
 }
