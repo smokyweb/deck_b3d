@@ -1,23 +1,31 @@
 import * as THREE from "three";
 import { Scene } from "../model/scene";
 import { Room } from "../model/room";
+import * as CSG from "csg";
+import { csgToBlueMesh } from "../core/csgutil";
 
 export class Floor {
-  private floorPlane: THREE.Mesh;
+  private floorPlane: THREE.Mesh | null = null;
   private floorTexture: THREE.Texture | null = null;
+  private floorClip: THREE.Object3D | null = null;
 
   constructor(
     private scene: Scene,
     private room: Room,
   ) {
     this.room.fireOnFloorChange(() => this.redraw);
-    this.floorPlane = this.buildFloor();
+    this.build();
     // roofs look weird, so commented out
+  }
+
+  private build() {
+    this.floorPlane = this.buildFloor();
+    this.floorClip = this.buildFloorClip();
   }
 
   private redraw() {
     this.removeFromScene();
-    this.floorPlane = this.buildFloor();
+    this.build();
     this.addToScene();
   }
 
@@ -66,6 +74,14 @@ export class Floor {
     return floor;
   }
 
+  private buildFloorClip(): THREE.Object3D {
+
+    const csg: CSG.CSG = this.room.csgClipRegion();
+    //console.log("floor csg is", csg);
+    const mesh: THREE.Object3D = csgToBlueMesh(csg);
+    return mesh;
+  }
+
   //  private buildRoof() {
   //    // setup texture
   //    var roofMaterial = new THREE.MeshBasicMaterial({
@@ -89,18 +105,28 @@ export class Floor {
   //  }
 
   public addToScene() {
-    this.scene.add(this.floorPlane);
+    if (this.floorPlane) {
+      this.scene.add(this.floorPlane);
+    }
     // hack so we can do intersect testing
     if (this.room.floorPlane) {
       this.scene.add(this.room.floorPlane);
     }
+    if (this.floorClip) {
+      this.scene.add(this.floorClip);
+    }
   }
 
   public removeFromScene() {
-    this.scene.remove(this.floorPlane);
+    if (this.floorPlane) {
+      this.scene.remove(this.floorPlane);
+    }
     this.floorTexture?.dispose();
     if (this.room.floorPlane) {
       this.scene.remove(this.room.floorPlane);
+    }
+    if (this.floorClip) {
+      this.scene.remove(this.floorClip);
     }
   }
 }

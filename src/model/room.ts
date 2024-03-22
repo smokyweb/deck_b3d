@@ -77,7 +77,7 @@ export class Room {
     return shape;
   }
   private generatePlane() {
-    console.log("Room.generatePlane()");
+    //console.log("Room.generatePlane()");
     this.triangulate();
     var shape = this.shape();
     var geometry = new THREE.ShapeGeometry(shape);
@@ -99,15 +99,15 @@ export class Room {
   private triangulate(): THREE.Vector2[][] {
     const contour = this.points();
     const triangles: THREE.Vector2[][] = this.do_triangulate_call(contour);
-    console.log("triangulation: ", triangles);
+    //console.log("triangulation: ", triangles);
     return triangles;
   }
 
-  private csgClipRegion(): CSG.CSG {
+  public csgClipRegion(): CSG.CSG {
     const THICKNESS = 50;
     const halfThickness = THICKNESS / 2;
     function toV3(p: THREE.Vector2, height: number): CSG.Vector {
-      return new CSG.Vector(p.x, height, p.y);
+      return new CSG.Vector(p.x, -height, p.y);
     }
     function toPolygon(pts: CSG.Vector[], shared: any): CSG.Polygon {
       const plane: CSG.Plane = CSG.Plane.fromPoints(pts[0], pts[1], pts[2]);
@@ -138,6 +138,16 @@ export class Room {
     }
     const triangles = this.triangulate();
     const prisms = triangles.map(triangleToCSG);
-    return prisms.reduce((a, b) => a.union(b));
+    let result: CSG.CSG | null = null;
+    prisms.forEach((prism) => {
+      //console.log("unioning in prism ", prism);
+      if (result) {
+        result = result.union(prism);
+      } else {
+        result = prism;
+      }
+      //console.log("result so far is ", result);
+    });
+    return result || CSG.fromPolygons([]);;
   }
 }

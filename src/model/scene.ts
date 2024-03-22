@@ -121,8 +121,8 @@ export class Scene {
   /** Removes a non-item, basically a mesh, from the scene.
    * @param mesh The mesh to be removed.
    */
-  public remove(mesh: THREE.Mesh) {
-    this.scene.remove(mesh);
+  public remove(obj: THREE.Object3D) {
+    this.scene.remove(obj);
     // If this call removes items, why is it removing an item from the items list?
     // FIXME: I don't think this is necessary, but I want a bread crumb.
     //Utils.removeValue(this.items, mesh);
