@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { FloorPlane } from "../core/utils";
 import { Corner } from "./corner";
 import { Floorplan, TextureSpec } from "./floorplan";
+import * as CSG from 'csg';
 
 //TODO
 //var Vec2 = require('vec2')
@@ -92,16 +93,53 @@ export class Room {
     this.floorPlane = Object.assign(mesh, { room: this });
   }
   // the typings for THREE.js are wrong here.
-  private do_triangulate_call(contour: THREE.Vector2[]): number[][] {
-    const res = THREE.ShapeUtils.triangulate(contour as any as number[], true);
-    return res as any as number[][];
+  private do_triangulate_call(contour: THREE.Vector2[]): THREE.Vector2[][] {
+    const res = THREE.ShapeUtils.triangulate(contour as any as number[], false);
+    return res as any as THREE.Vector2[][];
 
   }
-  private triangulate(): void {
+  private triangulate(): THREE.Vector2[][] {
     const contour = this.points();
-    const tri_indices: number[][] = this.do_triangulate_call(contour);
-    console.log("triangulation: ", tri_indices);
-
+    const triangles: THREE.Vector2[][] = this.do_triangulate_call(contour);
+    console.log("triangulation: ", triangles);
+    return triangles;
   }
 
+  private csgClipRegion(): CSG.CSG {
+    const THICKNESS = 50;
+    const halfThickness = THICKNESS/2;
+    function toV3(p: THREE.Vector2, height: number): CSG.Vector {
+      return new CSG.Vector(p.x, height, p.y);
+    }
+    function toPolygon(pts: CSG.Vector[], shared: any): CSG.Polygon {
+      const plane: CSG.Plane = CSG.Plane.fromPoints(pts[0], pts[1], pts[2]);
+      const vertices = pts.map((p) => new CSG.Vertex(p, plane.normal));
+      return new CSG.Polygon(vertices, shared);
+    }
+    function triangleToCSG(tri: THREE.Vector2[]): CSG.CSG {
+      const corners: CSG.Vector[] = [
+        toV3(tri[0], +halfThickness),
+        toV3(tri[1], +halfThickness),
+        toV3(tri[2], +halfThickness),
+        toV3(tri[0], -halfThickness),
+        toV3(tri[1], -halfThickness),
+        toV3(tri[2], -halfThickness)
+      ];
+      const faces: number[][] = [
+        [0, 1, 2],
+        [5, 4, 3],
+        [0, 3, 4, 1],
+        [1, 4, 5, 2],
+        [2, 5, 3, 0]
+      ];
+      const polys = faces.map((indices) => {
+        const ps = indices.map((i) => corners[i]);
+        return toPolygon(ps, null);
+      });
+      return CSG.fromPolygons(polys);
+    }
+    const triangles = this.triangulate();
+    const prisms = triangles.map(triangleToCSG);
+    return prisms.reduce((a, b) => a.union(b));
+  }
 }
