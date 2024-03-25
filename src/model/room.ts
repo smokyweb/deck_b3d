@@ -91,7 +91,8 @@ export class Room {
     mesh.rotation.set(Math.PI / 2, 0, 0);
     this.floorPlane = Object.assign(mesh, { room: this });
   }
-  // the typings for THREE.js are wrong here.
+  // the typings for THREE.js are wrong here, so we need
+  // to lie about the types involved.
   private do_triangulate_call(contour: THREE.Vector2[]): THREE.Vector2[][] {
     const res = THREE.ShapeUtils.triangulate(contour as any as number[], false);
     return res as any as THREE.Vector2[][];
@@ -102,10 +103,17 @@ export class Room {
     //console.log("triangulation: ", triangles);
     return triangles;
   }
+  private static readonly PRISM_THICKNESS = 50;
+  private static readonly PRISM_HALF_THICKNESS = Room.PRISM_THICKNESS / 2;
+  private static readonly PRISM_FACES: number[][] = [
+    [0, 1, 2],
+    [5, 4, 3],
+    [0, 3, 4, 1],
+    [1, 4, 5, 2],
+    [2, 5, 3, 0],
+  ];
 
   public csgClipRegion(): CSG.CSG {
-    const THICKNESS = 50;
-    const halfThickness = THICKNESS / 2;
     function toV3(p: THREE.Vector2, height: number): CSG.Vector {
       return new CSG.Vector(p.x, -height, p.y);
     }
@@ -114,40 +122,26 @@ export class Room {
       const vertices = pts.map((p) => new CSG.Vertex(p, plane.normal));
       return new CSG.Polygon(vertices, shared);
     }
-    function triangleToCSG(tri: THREE.Vector2[]): CSG.CSG {
+    function triangleToPrism(tri: THREE.Vector2[]): CSG.CSG {
+      const ht = Room.PRISM_HALF_THICKNESS;
       const corners: CSG.Vector[] = [
-        toV3(tri[0], +halfThickness),
-        toV3(tri[1], +halfThickness),
-        toV3(tri[2], +halfThickness),
-        toV3(tri[0], -halfThickness),
-        toV3(tri[1], -halfThickness),
-        toV3(tri[2], -halfThickness),
+        toV3(tri[0], +ht),
+        toV3(tri[1], +ht),
+        toV3(tri[2], +ht),
+        toV3(tri[0], -ht),
+        toV3(tri[1], -ht),
+        toV3(tri[2], -ht),
       ];
-      const faces: number[][] = [
-        [0, 1, 2],
-        [5, 4, 3],
-        [0, 3, 4, 1],
-        [1, 4, 5, 2],
-        [2, 5, 3, 0],
-      ];
-      const polys = faces.map((indices) => {
-        const ps = indices.map((i) => corners[i]);
+      const polys = Room.PRISM_FACES.map((face) => {
+        const ps = face.map((i) => corners[i]);
         return toPolygon(ps, null);
       });
       return CSG.fromPolygons(polys);
     }
     const triangles = this.triangulate();
-    const prisms = triangles.map(triangleToCSG);
-    let result: CSG.CSG | null = null;
-    prisms.forEach((prism) => {
-      //console.log("unioning in prism ", prism);
-      if (result) {
-        result = result.union(prism);
-      } else {
-        result = prism;
-      }
-      //console.log("result so far is ", result);
-    });
-    return result || CSG.fromPolygons([]);;
+    const prisms = triangles.map(triangleToPrism);
+
+    const result = prisms.reduce((a,b) => a.union(b), CSG.fromPolygons([]));
+    return result;
   }
 }
