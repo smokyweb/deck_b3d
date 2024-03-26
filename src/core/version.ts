@@ -18,5 +18,5 @@ console.log(
     BP3D.Core.Version.getInformalVersion() +
     " (" +
     BP3D.Core.Version.getTechnicalVersion() +
-    ")",
+    ")"
 );

@@ -10,10 +10,7 @@ export class Lights {
   private dirLight: THREE.DirectionalLight;
 
   // function contents here used to be in init()
-  constructor(
-    private scene: Scene,
-    private floorplan: ModelFloorplan,
-  ) {
+  constructor(private scene: Scene, private floorplan: ModelFloorplan) {
     var light = new THREE.HemisphereLight(0xffffff, 0x888888, 1.1);
     light.position.set(0, this.height, 0);
     this.scene.add(light);

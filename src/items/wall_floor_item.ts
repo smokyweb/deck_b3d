@@ -12,7 +12,7 @@ export abstract class WallFloorItem extends WallItem {
     material: THREE.MeshFaceMaterial,
     position: THREE.Vector3,
     rotation: number,
-    scale: THREE.Vector3,
+    scale: THREE.Vector3
   ) {
     super(model, metadata, geometry, material, position, rotation, scale);
     this.boundToFloor = true;

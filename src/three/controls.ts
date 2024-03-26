@@ -101,7 +101,7 @@ export class Controls {
 
   constructor(
     public camera: THREE.Camera,
-    domElement?: HTMLElement | Document,
+    domElement?: HTMLElement | Document
   ) {
     if (domElement === document || domElement == undefined) {
       this.domElement = document.body;
@@ -116,39 +116,39 @@ export class Controls {
       (event) => {
         event.preventDefault();
       },
-      false,
+      false
     );
     this.domElement.addEventListener(
       "mousedown",
       (event: MouseEvent) => this.onMouseDown(event),
-      false,
+      false
     );
     // FIXME: Add support for scroll and scrollend events
     this.domElement.addEventListener(
       "wheel",
       (event: WheelEvent) => this.onMouseWheel(event),
-      false,
+      false
     );
     this.domElement.addEventListener(
       "touchstart",
       (event: TouchEvent) => this.touchstart(event),
-      false,
+      false
     );
     this.domElement.addEventListener(
       "touchend",
       (event: TouchEvent) => this.touchend(event),
-      false,
+      false
     );
     this.domElement.addEventListener(
       "touchmove",
       (event: TouchEvent) => this.touchmove(event),
-      false,
+      false
     );
 
     window.addEventListener(
       "keydown",
       (event: KeyboardEvent) => this.onKeyDown(event),
-      false,
+      false
     );
   }
 
@@ -204,23 +204,23 @@ export class Controls {
       targetDistance *= Math.tan(((this.camera.fov / 2) * Math.PI) / 180.0);
       // we actually don't use screenWidth, since perspective camera is fixed to screen height
       this.panLeft(
-        (2 * delta.x * targetDistance) / this.domElement.clientHeight,
+        (2 * delta.x * targetDistance) / this.domElement.clientHeight
       );
       this.panUp((2 * delta.y * targetDistance) / this.domElement.clientHeight);
     } else if (this.camera instanceof THREE.OrthographicCamera) {
       // orthographic
       this.panLeft(
         (delta.x * (this.camera.right - this.camera.left)) /
-          this.domElement.clientWidth,
+          this.domElement.clientWidth
       );
       this.panUp(
         (delta.y * (this.camera.top - this.camera.bottom)) /
-          this.domElement.clientHeight,
+          this.domElement.clientHeight
       );
     } else {
       // camera neither orthographic or perspective - warn user
       console.warn(
-        "WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.",
+        "WARNING: OrbitControls.js encountered an unknown camera type - pan disabled."
       );
     }
 
@@ -259,7 +259,7 @@ export class Controls {
     // angle from y-axis
     var phi = Math.atan2(
       Math.sqrt(offset.x * offset.x + offset.z * offset.z),
-      offset.y,
+      offset.y
     );
 
     if (this.autoRotate) {
@@ -350,7 +350,7 @@ export class Controls {
     this.domElement.addEventListener(
       "mousemove",
       this.onMouseMoveHandler,
-      false,
+      false
     );
     this.domElement.addEventListener("mouseup", this.onMouseUpHandler, false);
   }
@@ -371,12 +371,12 @@ export class Controls {
       // rotating across whole screen goes 360 degrees around
       this.rotateLeft(
         ((2 * Math.PI * this.rotateDelta.x) / this.domElement.clientWidth) *
-          this.rotateSpeed,
+          this.rotateSpeed
       );
       // rotating up and down along whole screen attempts to go 360, but limited to 180
       this.rotateUp(
         ((2 * Math.PI * this.rotateDelta.y) / this.domElement.clientHeight) *
-          this.rotateSpeed,
+          this.rotateSpeed
       );
 
       this.rotateStart.copy(this.rotateEnd);
@@ -420,12 +420,12 @@ export class Controls {
     this.domElement.removeEventListener(
       "mousemove",
       this.onMouseMoveHandler,
-      false,
+      false
     );
     this.domElement.removeEventListener(
       "mouseup",
       this.onMouseUpHandler,
-      false,
+      false
     );
 
     this.state = STATE.NONE;
@@ -545,12 +545,12 @@ export class Controls {
         // rotating across whole screen goes 360 degrees around
         this.rotateLeft(
           ((2 * Math.PI * this.rotateDelta.x) / this.domElement.clientWidth) *
-            this.rotateSpeed,
+            this.rotateSpeed
         );
         // rotating up and down along whole screen attempts to go 360, but limited to 180
         this.rotateUp(
           ((2 * Math.PI * this.rotateDelta.y) / this.domElement.clientHeight) *
-            this.rotateSpeed,
+            this.rotateSpeed
         );
 
         this.rotateStart.copy(this.rotateEnd);

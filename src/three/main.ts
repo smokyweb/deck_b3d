@@ -58,7 +58,7 @@ export class Main {
     private model: Model,
     elementSelector: string,
     _canvasElement: string,
-    opts: any,
+    opts: any
   ) {
     const element = $(elementSelector).get(0);
     if (element instanceof HTMLElement) {
@@ -99,14 +99,14 @@ export class Main {
       this.camera,
       this.renderer.domElement,
       this.controls,
-      this.hud,
+      this.hud
     );
 
     // handle window resizing
     this.updateWindowSize();
     if (this.options.resize) {
       window.addEventListener("resize", (_event: Event) =>
-        this.updateWindowSize(),
+        this.updateWindowSize()
       );
     }
 
@@ -183,7 +183,7 @@ export class Main {
       const chatter = false;
       if (chatter) {
         console.log(
-          `renderer.info.memory.textures: ${this.renderer.info.memory.textures}`,
+          `renderer.info.memory.textures: ${this.renderer.info.memory.textures}`
         );
       }
     }

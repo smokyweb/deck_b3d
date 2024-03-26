@@ -48,7 +48,7 @@ export class Skybox {
     var skyGeo = new THREE.SphereGeometry(
       this.sphereRadius,
       this.widthSegments,
-      this.heightSegments,
+      this.heightSegments
     );
     var skyMat = new THREE.ShaderMaterial({
       vertexShader: this.vertexShader,

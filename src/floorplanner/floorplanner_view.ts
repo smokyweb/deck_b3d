@@ -57,7 +57,7 @@ export class FloorplannerView {
   constructor(
     private floorplan: Floorplan,
     private viewmodel: Floorplanner,
-    private canvas: string,
+    private canvas: string
   ) {
     this.canvasElement = <HTMLCanvasElement>document.getElementById(canvas);
     this.context = this.canvasElement.getContext("2d");
@@ -92,7 +92,7 @@ export class FloorplannerView {
         0,
         0,
         this.canvasElement.width,
-        this.canvasElement.height,
+        this.canvasElement.height
       );
     }
 
@@ -149,7 +149,7 @@ export class FloorplannerView {
       const angle = (Math.PI * i) / NPTS;
       const delta = new THREE.Vector2(
         Math.cos(angle),
-        Math.sin(angle),
+        Math.sin(angle)
       ).multiplyScalar(radius);
       const startWorld = new THREE.Vector2().addVectors(world, delta);
       const endWorld = new THREE.Vector2().subVectors(world, delta);
@@ -161,7 +161,7 @@ export class FloorplannerView {
         endCanvas.x,
         endCanvas.y,
         2,
-        color,
+        color
       );
     }
   }
@@ -172,22 +172,22 @@ export class FloorplannerView {
     this.drawWorldStar(
       this.viewmodel.canvasToWorld(new THREE.Vector2(0, 0)),
       50,
-      "red",
+      "red"
     );
     this.drawWorldStar(
       this.viewmodel.canvasToWorld(new THREE.Vector2(width, 0)),
       50,
-      "yello",
+      "yello"
     );
     this.drawWorldStar(
       this.viewmodel.canvasToWorld(new THREE.Vector2(0, height)),
       50,
-      "orange",
+      "orange"
     );
     this.drawWorldStar(
       this.viewmodel.canvasToWorld(new THREE.Vector2(width, height)),
       50,
-      "gray",
+      "gray"
     );
   }
 
@@ -211,7 +211,7 @@ export class FloorplannerView {
       end.x,
       end.y,
       hover ? wallWidthHover : wallWidth,
-      color,
+      color
     );
   }
   private drawWallHalo(wall: Wall) {
@@ -252,12 +252,12 @@ export class FloorplannerView {
       this.context.strokeText(
         Dimensioning.cmToMeasure(length),
         screenPos.x,
-        screenPos.y,
+        screenPos.y
       );
       this.context.fillText(
         Dimensioning.cmToMeasure(length),
         screenPos.x,
-        screenPos.y,
+        screenPos.y
       );
     }
   }
@@ -283,7 +283,7 @@ export class FloorplannerView {
       screenCorner.x,
       screenCorner.y,
       hover ? cornerRadiusHover : cornerRadius,
-      color,
+      color
     );
   }
 
@@ -294,7 +294,7 @@ export class FloorplannerView {
       screenPos.x,
       screenPos.y,
       cornerRadiusHover,
-      cornerColorHover,
+      cornerColorHover
     );
     if (this.viewmodel.lastNode) {
       const lastNodePos = this.viewmodel.worldToCanvas(this.viewmodel.lastNode);
@@ -304,7 +304,7 @@ export class FloorplannerView {
         screenPos.x,
         screenPos.y,
         wallWidthHover,
-        wallColorHover,
+        wallColorHover
       );
     }
   }
@@ -316,7 +316,7 @@ export class FloorplannerView {
     endX: number,
     endY: number,
     width: number,
-    color: string,
+    color: string
   ) {
     // width is an integer
     // color is a hex string, i.e. #ff0000
@@ -337,13 +337,13 @@ export class FloorplannerView {
     fillColor: string | null,
     stroke?: boolean,
     strokeColor?: string,
-    strokeWidth?: number,
+    strokeWidth?: number
   ) {
     // fillColor is a hex string, i.e. #ff0000
     fill = fill || false;
     stroke = stroke || false;
     const cornerPosArr = corners.map((corner) =>
-      this.viewmodel.worldToCanvas(corner),
+      this.viewmodel.worldToCanvas(corner)
     );
     if (this.context) {
       this.context.beginPath();
@@ -369,7 +369,7 @@ export class FloorplannerView {
     centerX: number,
     centerY: number,
     radius: number,
-    fillColor: string,
+    fillColor: string
   ) {
     if (this.context) {
       this.context.beginPath();

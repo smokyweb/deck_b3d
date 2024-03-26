@@ -37,7 +37,7 @@ export class Corner extends THREE.Vector2 {
     private floorplan: Floorplan,
     x: number,
     y: number,
-    _id?: string,
+    _id?: string
   ) {
     super(x, y);
     this.id = _id || Utils.guid();
@@ -299,7 +299,7 @@ export class Corner extends THREE.Vector2 {
           wall.start.x,
           wall.start.y,
           wall.end.x,
-          wall.end.y,
+          wall.end.y
         );
         this.x = intersection.x;
         this.y = intersection.y;

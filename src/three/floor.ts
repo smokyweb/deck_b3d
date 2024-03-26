@@ -9,10 +9,7 @@ export class Floor {
   private floorTexture: THREE.Texture | null = null;
   private floorClip: THREE.Object3D | null = null;
 
-  constructor(
-    private scene: Scene,
-    private room: Room,
-  ) {
+  constructor(private scene: Scene, private room: Room) {
     this.room.fireOnFloorChange(() => this.redraw);
     this.build();
     // roofs look weird, so commented out
@@ -38,7 +35,7 @@ export class Floor {
       textureSettings.url,
       (_t: THREE.Texture) => {
         this.scene.needsUpdate = true;
-      },
+      }
     );
     this.floorTexture.wrapS = THREE.RepeatWrapping;
     this.floorTexture.wrapT = THREE.RepeatWrapping;
@@ -58,7 +55,7 @@ export class Floor {
     var points: THREE.Vector2[] = [];
     this.room.corners.forEach((corner) => {
       points.push(
-        new THREE.Vector2(corner.x / textureScale, corner.y / textureScale),
+        new THREE.Vector2(corner.x / textureScale, corner.y / textureScale)
       );
     });
     var shape = new THREE.Shape(points);
@@ -75,7 +72,6 @@ export class Floor {
   }
 
   private buildFloorClip(): THREE.Object3D {
-
     const csg: CSG.CSG = this.room.csgClipRegion();
     //console.log("floor csg is", csg);
     const mesh: THREE.Object3D = csgToBlueMesh(csg);

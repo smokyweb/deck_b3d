@@ -80,7 +80,7 @@ export abstract class Item {
     material: THREE.MeshFaceMaterial,
     position: THREE.Vector3,
     rotation: number,
-    scale: THREE.Vector3,
+    scale: THREE.Vector3
   ) {
     this.threeObj = new THREE.Mesh(geometry, material);
     this.threeObj.userData = this;
@@ -111,8 +111,8 @@ export abstract class Item {
         -0.5 *
           (tobj.geometry.boundingBox.max.y + tobj.geometry.boundingBox.min.y),
         -0.5 *
-          (tobj.geometry.boundingBox.max.z + tobj.geometry.boundingBox.min.z),
-      ),
+          (tobj.geometry.boundingBox.max.z + tobj.geometry.boundingBox.min.z)
+      )
     );
     tobj.geometry.computeBoundingBox();
     this.halfSize = this.objectHalfSize();
@@ -193,7 +193,7 @@ export abstract class Item {
       (material) => {
         // TODO_Ekki emissive doesn't exist anymore?
         (<any>material).emissive.setHex(hex);
-      },
+      }
     );
     this.scene.needsUpdate = true;
   }
@@ -208,7 +208,7 @@ export abstract class Item {
     if (intersection) {
       this.moveToPosition(
         intersection.point.sub(this.dragOffset),
-        intersection,
+        intersection
       );
     }
   }
@@ -219,7 +219,7 @@ export abstract class Item {
       0,
       1,
       intersection.point.x - this.threeObj.position.x,
-      intersection.point.z - this.threeObj.position.z,
+      intersection.point.z - this.threeObj.position.z
     );
 
     var snapTolerance = Math.PI / 16.0;
@@ -238,7 +238,7 @@ export abstract class Item {
   /** */
   public moveToPosition(
     vec3: THREE.Vector3,
-    _intersection: THREE.Intersection,
+    _intersection: THREE.Intersection
   ) {
     this.threeObj.position.copy(vec3);
   }
@@ -269,7 +269,7 @@ export abstract class Item {
   public getCorners(
     _xDim: PropertyKey,
     _yDim: PropertyKey,
-    position: THREE.Vector3,
+    position: THREE.Vector3
   ) {
     position = position || this.threeObj.position;
 
@@ -342,7 +342,7 @@ export abstract class Item {
   public createGlow(
     color: any,
     opacity: number,
-    ignoreDepth: boolean,
+    ignoreDepth: boolean
   ): THREE.Mesh {
     ignoreDepth = ignoreDepth || false;
     opacity = opacity || 0.2;
@@ -356,7 +356,7 @@ export abstract class Item {
 
     var glow = new THREE.Mesh(
       <THREE.Geometry>this.threeObj.geometry.clone(),
-      glowMaterial,
+      glowMaterial
     );
     glow.position.copy(this.threeObj.position);
     glow.rotation.copy(this.threeObj.rotation);

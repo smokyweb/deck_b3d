@@ -50,46 +50,46 @@ class CameraButtons {
     this.three = this.blueprint3d.three;
     // Camera controls
     sel("#zoom-in").addEventListener("click", (e: MouseEvent) =>
-      this.zoomIn(e),
+      this.zoomIn(e)
     );
     sel("#zoom-out").addEventListener("click", (e: MouseEvent) =>
-      this.zoomOut(e),
+      this.zoomOut(e)
     );
     sel("#zoom-in").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
     sel("#zoom-out").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
 
     sel("#reset-view").addEventListener("click", (_e: MouseEvent) =>
-      this.three.centerCamera(),
+      this.three.centerCamera()
     );
 
     sel("#move-left").addEventListener("click", (_e: MouseEvent) =>
-      this.pan(this.directions.LEFT),
+      this.pan(this.directions.LEFT)
     );
     sel("#move-right").addEventListener("click", (_e: MouseEvent) =>
-      this.pan(this.directions.RIGHT),
+      this.pan(this.directions.RIGHT)
     );
     sel("#move-up").addEventListener("click", (_e: MouseEvent) =>
-      this.pan(this.directions.UP),
+      this.pan(this.directions.UP)
     );
     sel("#move-down").addEventListener("click", (_e: MouseEvent) =>
-      this.pan(this.directions.DOWN),
+      this.pan(this.directions.DOWN)
     );
 
     sel("#move-left").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
     sel("#move-right").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
     sel("#move-up").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
     sel("#move-down").addEventListener("dblclick", (e: MouseEvent) =>
-      this.preventDefault(e),
+      this.preventDefault(e)
     );
   }
 
@@ -141,11 +141,11 @@ class ContextMenu {
       "click",
       (_event: MouseEvent) => {
         this.selectedItem?.remove();
-      },
+      }
     );
     this.three = this.blueprint3d.three;
     this.three.itemSelectedCallbacks.add((item: Item) =>
-      this.itemSelected(item),
+      this.itemSelected(item)
     );
     this.three.itemUnselectedCallbacks.add(() => this.itemUnselected());
 
@@ -191,7 +191,7 @@ class ContextMenu {
     $("#item-width").val(this.cmToIn(this.selectedItem.getWidth()).toFixed(0));
     setupField("#item-height", item.resizable, this.selectedItem.getHeight());
     $("#item-height").val(
-      this.cmToIn(this.selectedItem.getHeight()).toFixed(0),
+      this.cmToIn(this.selectedItem.getHeight()).toFixed(0)
     );
     setupField("#item-depth", item.resizable, this.selectedItem.getDepth());
     $("#item-depth").val(this.cmToIn(this.selectedItem.getDepth()).toFixed(0));
@@ -302,7 +302,7 @@ class SideMenu {
   constructor(
     private blueprint3d: Blueprint3d,
     private floorplanControls: ViewerFloorplanner,
-    _modalEffects: ModalEffects,
+    _modalEffects: ModalEffects
   ) {
     for (const [name, elem] of Object.entries(this.tabs)) {
       // console.log(`adding click response for ${name}`);
@@ -310,7 +310,7 @@ class SideMenu {
     }
 
     sel("#update-floorplan").addEventListener("click", (_event: MouseEvent) =>
-      this.floorplanUpdate(),
+      this.floorplanUpdate()
     );
 
     this.initLeftMenu();
@@ -408,11 +408,11 @@ class SideMenu {
     function addItemHandler(this: HTMLInputElement, _event: Event) {
       var modelUrl: string | null = this.getAttribute("model-url");
       var itemType: number = parseInt(
-        this.getAttribute("model-type") || "-999",
+        this.getAttribute("model-type") || "-999"
       );
       if (typeof modelUrl === "undefined" || typeof itemType === "undefined") {
         throw Error(
-          "Item metadata is bad for url=${modelUrl} type=${itemType}",
+          "Item metadata is bad for url=${modelUrl} type=${itemType}"
         );
       }
       const modelName = this.getAttribute("model-name") || "#MISSING";
@@ -434,7 +434,7 @@ class SideMenu {
     }
     const addItemButtons = sel("#add-items").querySelectorAll(".add-item");
     addItemButtons.forEach((e: Element) =>
-      e.addEventListener("mousedown", addItemHandler),
+      e.addEventListener("mousedown", addItemHandler)
     );
   }
 }
@@ -458,7 +458,7 @@ class TextureSelector {
           var textureUrl = elem.getAttribute("texture-url");
           var textureStretch = elem.getAttribute("texture-stretch") == "true";
           var textureScale = parseInt(
-            elem.getAttribute("texture-scale") || "1",
+            elem.getAttribute("texture-scale") || "1"
           );
           const t = objscope.currentTarget;
           /* FIXME: this is just an edge thing, right? */
@@ -467,7 +467,7 @@ class TextureSelector {
           }
           event.preventDefault();
         }
-      }),
+      })
     );
   }
 
@@ -520,7 +520,7 @@ class ViewerFloorplanner {
   constructor(private blueprint3d: Blueprint3d) {
     if (!this.blueprint3d.floorplanner) {
       throw Error(
-        "ViewerFloorplanner: floorplanner is not there but I need it.",
+        "ViewerFloorplanner: floorplanner is not there but I need it."
       );
     }
     this.floorplanner = this.blueprint3d.floorplanner;
@@ -578,7 +578,7 @@ class ViewerFloorplanner {
       (_event: MouseEvent) => {
         //console.log('resetting view');
         this.floorplanner.reset();
-      },
+      }
     );
     //console.log("set up reset-view");
   }
@@ -607,7 +607,7 @@ class ViewerFloorplanner {
 class MainControls {
   private newDesign() {
     this.blueprint3d.model.loadSerialized(
-      '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}',
+      '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}'
     );
   }
 
@@ -672,7 +672,7 @@ class MainControls {
     sel("#new").addEventListener("click", () => this.newDesign());
     sel("#loadFile").addEventListener("change", () => this.loadDesign());
     sel("#saveFile").addEventListener("click", (_e: MouseEvent) =>
-      this.saveDesign(),
+      this.saveDesign()
     );
   }
 }
@@ -707,7 +707,7 @@ window.addEventListener("load", function () {
   // Load a simple rectangle room
   // console.log("loading rectangle room");
   blueprint3d.model.loadSerialized(
-    '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}',
+    '{"floorplan":{"corners":{"f90da5e3-9e0e-eba7-173d-eb0b071e838e":{"x":204.85099999999989,"y":289.052},"da026c08-d76a-a944-8e7b-096b752da9ed":{"x":672.2109999999999,"y":289.052},"4e3d65cb-54c0-0681-28bf-bddcc7bdb571":{"x":672.2109999999999,"y":-178.308},"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2":{"x":204.85099999999989,"y":-178.308}},"walls":[{"corner1":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","corner2":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"f90da5e3-9e0e-eba7-173d-eb0b071e838e","corner2":"da026c08-d76a-a944-8e7b-096b752da9ed","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"da026c08-d76a-a944-8e7b-096b752da9ed","corner2":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}},{"corner1":"4e3d65cb-54c0-0681-28bf-bddcc7bdb571","corner2":"71d4f128-ae80-3d58-9bd2-711c6ce6cdf2","frontTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300},"backTexture":{"url":"rooms/textures/wallmap.png","stretch":false,"scale":300}}],"wallTextures":[],"floorTextures":{},"newFloorTextures":{}},"items":[]}'
   );
   // console.log("example.ts ready exit");
 });

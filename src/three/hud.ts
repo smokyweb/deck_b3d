@@ -102,7 +102,7 @@ export class HUD {
     var vec = new THREE.Vector3(
       0,
       0,
-      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + this.distance,
+      Math.max(item.halfSize.x, item.halfSize.z) + 1.4 + this.distance
     );
     return vec;
   }
@@ -142,7 +142,7 @@ export class HUD {
     var line = new THREE.Line(
       this.makeLineGeometry(item),
       this.makeLineMaterial(this.rotating),
-      THREE.LinePieces,
+      THREE.LinePieces
     );
 
     var cone = this.makeCone(item);

@@ -32,7 +32,7 @@ export class Utils {
     x1: number,
     y1: number,
     x2: number,
-    y2: number,
+    y2: number
   ): number {
     var tPoint = Utils.closestPointOnLine(x, y, x1, y1, x2, y2);
     var tDx = x - tPoint.x;
@@ -59,7 +59,7 @@ export class Utils {
     x1: number,
     y1: number,
     x2: number,
-    y2: number,
+    y2: number
   ): THREE.Vector2 {
     // Inspired by: http://stackoverflow.com/a/6853926
     var tA = x - x1;
@@ -183,7 +183,7 @@ export class Utils {
   */
   static polygonPolygonIntersect(
     firstCorners: Point[],
-    secondCorners: Point[],
+    secondCorners: Point[]
   ): boolean {
     for (var tI = 0; tI < firstCorners.length; tI++) {
       var tFirstCorner = firstCorners[tI],
@@ -207,7 +207,7 @@ export class Utils {
           tFirstCorner.y,
           tSecondCorner.x,
           tSecondCorner.y,
-          secondCorners,
+          secondCorners
         )
       ) {
         return true;
@@ -227,7 +227,7 @@ export class Utils {
     y1: number,
     x2: number,
     y2: number,
-    corners: Point[],
+    corners: Point[]
   ): boolean {
     for (var tI = 0; tI < corners.length; tI++) {
       var tFirstCorner = corners[tI],
@@ -253,7 +253,7 @@ export class Utils {
           tFirstCorner.x,
           tFirstCorner.y,
           tSecondCorner.x,
-          tSecondCorner.y,
+          tSecondCorner.y
         )
       ) {
         return true;
@@ -274,7 +274,7 @@ export class Utils {
     x3: number,
     y3: number,
     x4: number,
-    y4: number,
+    y4: number
   ): boolean {
     /* the intent is that it figures out if p1, p2, p3 go CCW.
        Everything else assumes a left-handed coordinate system.
@@ -335,7 +335,7 @@ export class Utils {
     y: number,
     corners: Point[],
     startX?: number,
-    startY?: number,
+    startY?: number
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -372,7 +372,7 @@ export class Utils {
           tFirstCorner.x,
           tFirstCorner.y,
           tSecondCorner.x,
-          tSecondCorner.y,
+          tSecondCorner.y
         )
       ) {
         tIntersects++;
@@ -387,7 +387,7 @@ export class Utils {
     insideCorners: Point[],
     outsideCorners: Point[],
     startX: number,
-    startY: number,
+    startY: number
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -399,7 +399,7 @@ export class Utils {
           insideCorners[tI].y,
           outsideCorners,
           startX,
-          startY,
+          startY
         )
       ) {
         return false;
@@ -418,7 +418,7 @@ export class Utils {
     insideCorners: Point[],
     outsideCorners: Point[],
     startX: number,
-    startY: number,
+    startY: number
   ): boolean {
     startX = startX || 0;
     startY = startY || 0;
@@ -430,7 +430,7 @@ export class Utils {
           insideCorners[tI].y,
           outsideCorners,
           startX,
-          startY,
+          startY
         )
       ) {
         return false;
@@ -525,7 +525,7 @@ export class Utils {
   public static interp2(p1: THREE.Vector2, p2: THREE.Vector2, t: number) {
     return new THREE.Vector2(
       this.interp1(p1.x, p2.x, t),
-      this.interp1(p1.y, p2.y, t),
+      this.interp1(p1.y, p2.y, t)
     );
   }
 }

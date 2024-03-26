@@ -66,10 +66,7 @@ export class Wall {
    * @param start Start corner.
    * @param end End corner.
    */
-  constructor(
-    private _start: Corner,
-    private _end: Corner,
-  ) {
+  constructor(private _start: Corner, private _end: Corner) {
     this.id = this.getUuid();
 
     this.start.attachStart(this);
@@ -95,7 +92,7 @@ export class Wall {
 
     const mesh = new THREE.Mesh(
       pg,
-      new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }),
+      new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })
     );
     mesh.visible = false;
     mesh.rotation.set(Math.PI / 2, 0, 0);
@@ -195,7 +192,7 @@ export class Wall {
       this.interiorTransform,
       this.invInteriorTransform,
       this.start,
-      this.end,
+      this.end
     );
   }
 
@@ -206,14 +203,14 @@ export class Wall {
       this.start.x,
       this.start.y,
       this.end.x,
-      this.end.y,
+      this.end.y
     );
   }
   private computeTransforms(
     transform: THREE.Matrix4,
     invTransform: THREE.Matrix4,
     from: THREE.Vector2,
-    to: THREE.Vector2,
+    to: THREE.Vector2
   ) {
     var v1 = from;
     var v2 = to;

@@ -78,7 +78,7 @@ export class Model {
         position,
         item.rotation,
         scale,
-        item.fixed,
+        item.fixed
       );
     });
   }

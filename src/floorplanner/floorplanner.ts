@@ -114,10 +114,7 @@ export class Floorplanner {
   }
 
   /** */
-  constructor(
-    canvas: string,
-    private floorplan: Floorplan,
-  ) {
+  constructor(canvas: string, private floorplan: Floorplan) {
     const canvasElement = $("#" + canvas).get(0);
     if (!canvasElement) {
       throw Error("Canvas selector does not work");
@@ -139,7 +136,7 @@ export class Floorplanner {
     if (rc instanceof HTMLInputElement) {
       this.contextMenuRailingCheckbox = rc;
       rc.addEventListener("change", (e: Event) =>
-        this.railingCheckboxHandler(e),
+        this.railingCheckboxHandler(e)
       );
     } else {
       throw Error("Couldn't find railing checkbox");
@@ -259,7 +256,7 @@ export class Floorplanner {
     if (this.mode != FloorplannerMode.DRAW && !this.mouseDown) {
       var hoverCorner = this.floorplan.overlappedCorner(
         this.mouse.x,
-        this.mouse.y,
+        this.mouse.y
       );
       var hoverWall = this.floorplan.overlappedWall(this.mouse.x, this.mouse.y);
       var draw = false;
@@ -284,7 +281,7 @@ export class Floorplanner {
           wall.start.x,
           wall.start.y,
           wall.end.x,
-          wall.end.y,
+          wall.end.y
         );
         const dist = intersect.distanceTo(world);
         if (dist < snapTolerance) {

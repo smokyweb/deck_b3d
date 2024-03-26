@@ -37,18 +37,18 @@ export class Blueprint3d {
       this.model,
       options.threeElement,
       options.threeCanvasElement,
-      {},
+      {}
     );
 
     if (options.floorplannerElement === undefined) {
       throw Error(
-        "can't construct Blueprint3d because no options.floorplannerElement",
+        "can't construct Blueprint3d because no options.floorplannerElement"
       );
     }
     if (!options.widget) {
       this.floorplanner = new Floorplanner(
         options.floorplannerElement,
-        this.model.floorplan,
+        this.model.floorplan
       );
     } else {
       this.three.getController().enabled = false;

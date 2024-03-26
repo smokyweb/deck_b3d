@@ -42,10 +42,7 @@ export class Scene {
    * @param model The associated model.
    * @param textureDir The directory from which to load the textures.
    */
-  constructor(
-    public model: Model,
-    _textureDir: string,
-  ) {
+  constructor(public model: Model, _textureDir: string) {
     this.scene = new THREE.Scene();
 
     // init item loader
@@ -55,7 +52,7 @@ export class Scene {
     // load the rail item
     const loaderCallback = (
       geometry: THREE.Geometry,
-      materials: THREE.Material[],
+      materials: THREE.Material[]
     ) => {
       this.railGeom = geometry;
       geometry.computeBoundingBox();
@@ -67,13 +64,13 @@ export class Scene {
     this.loader.load(
       "models/js/Olson_Deck_DeckRail.js",
       loaderCallback,
-      undefined, // TODO_Ekki
+      undefined // TODO_Ekki
     );
   }
 
   private midpoint(
     p1: { x: number; y: number },
-    p2: { x: number; y: number },
+    p2: { x: number; y: number }
   ): { x: number; y: number } {
     return { x: (p1.x + p2.x) * 0.5, y: (p1.y + p2.y) * 0.5 };
   }
@@ -101,7 +98,7 @@ export class Scene {
         new THREE.MeshFaceMaterial(mat),
         new THREE.Vector3(pos.x, 0, pos.y),
         rotation,
-        new THREE.Vector3(horizscale, vertscale, horizscale),
+        new THREE.Vector3(horizscale, vertscale, horizscale)
       );
       item.initObject();
       this.itemLoadedCallbacks.fire(item);
@@ -188,12 +185,12 @@ export class Scene {
     position?: THREE.Vector3,
     rotation?: number,
     scale?: THREE.Vector3,
-    fixed?: boolean,
+    fixed?: boolean
   ) {
     itemType = itemType || 1;
     const loaderCallback = (
       geometry: THREE.Geometry,
-      materials: THREE.Material[],
+      materials: THREE.Material[]
     ) => {
       const item: Item = new (Factory.getClass(itemType))(
         this.model,
@@ -202,7 +199,7 @@ export class Scene {
         new THREE.MeshFaceMaterial(materials),
         position,
         rotation,
-        scale,
+        scale
       );
       item.fixed = fixed || false;
       this.items.push(item);
@@ -215,7 +212,7 @@ export class Scene {
     this.loader.load(
       fileName,
       loaderCallback,
-      undefined, // TODO_Ekki
+      undefined // TODO_Ekki
     );
   }
 }

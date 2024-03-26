@@ -71,13 +71,19 @@ export class LumberYard {
   // width, depth, height:  x, y, and z dimensions of box
   // s, t:  starting coordinate in texture
   // box needs to be in its initial position, centered on origin.
+  //
+  // TODO: Do this smarter, to handle non-axis-aligned cuts on the lumber.
+  //       Project the actual y,z of the vertex from the x-axis to the
+  //       nominal surface of the lumber and use that coordinate.  This won't
+  //       be physically accurate but it will be consistent with the current
+  //       method.
   private retextureBox(
     geom: THREE.BoxBufferGeometry,
     width: number,
     height: number,
     depth: number,
     s?: number,
-    t?: number,
+    t?: number
   ) {
     if (typeof s === "undefined") {
       s = Math.random();
@@ -157,7 +163,7 @@ export class LumberYard {
   // thickness is z axis
   public makeLumber(
     nomDimension: string,
-    lengthInches: number,
+    lengthInches: number
   ): THREE.Object3D {
     const size = LumberYard.lumberDimensions.get(nomDimension);
     if (!size) {
@@ -170,7 +176,7 @@ export class LumberYard {
     nomDimension: string,
     from: THREE.Vector3,
     to: THREE.Vector3,
-    rotation?: number,
+    rotation?: number
   ): THREE.Object3D {
     rotation = rotation || 0;
     const length = from.distanceTo(to);
@@ -202,13 +208,13 @@ export class LumberYard {
     lengthInches: number,
     widthInches: number,
     heightInches: number,
-    outline: boolean = false,
+    outline: boolean = false
   ): THREE.Object3D {
     return this.makeWood(
       inToCm(lengthInches),
       inToCm(widthInches),
       inToCm(heightInches),
-      outline,
+      outline
     );
   }
   // Arguments are in cm.
@@ -216,7 +222,7 @@ export class LumberYard {
     length: number,
     width: number,
     height: number,
-    outline: boolean = false,
+    outline: boolean = false
   ): THREE.Object3D {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
     const box = new THREE.BoxBufferGeometry(length, width, height);
@@ -229,7 +235,7 @@ export class LumberYard {
       const edgeGeo = new THREE.EdgesGeometry(box, 1),
         line = new THREE.Line(
           edgeGeo,
-          new THREE.LineBasicMaterial({ color: 0x000000 }),
+          new THREE.LineBasicMaterial({ color: 0x000000 })
         );
       results.push(line);
     }

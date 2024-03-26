@@ -28,10 +28,7 @@ export class Room {
   /**
    *  ordered CCW
    */
-  constructor(
-    private floorplan: Floorplan,
-    public corners: Corner[],
-  ) {
+  constructor(private floorplan: Floorplan, public corners: Corner[]) {
     this.generatePlane();
   }
 
@@ -57,7 +54,7 @@ export class Room {
   public setTexture(
     textureUrl: string,
     _textureStretch: boolean,
-    textureScale: number,
+    textureScale: number
   ) {
     var uuid = this.getUuid();
     this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
@@ -85,7 +82,7 @@ export class Room {
       geometry,
       new THREE.MeshBasicMaterial({
         side: THREE.DoubleSide,
-      }),
+      })
     );
     mesh.visible = false;
     mesh.rotation.set(Math.PI / 2, 0, 0);
@@ -141,7 +138,7 @@ export class Room {
     const triangles = this.triangulate();
     const prisms = triangles.map(triangleToPrism);
 
-    const result = prisms.reduce((a,b) => a.union(b), CSG.fromPolygons([]));
+    const result = prisms.reduce((a, b) => a.union(b), CSG.fromPolygons([]));
     return result;
   }
 }

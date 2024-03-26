@@ -67,18 +67,18 @@ export class Controller {
     public camera: THREE.Camera,
     private htmlElement: HTMLElement,
     private controls: Controls,
-    private hud: HUD,
+    private hud: HUD
   ) {
     this.scene = model.scene;
     const elt = this.htmlElement;
     elt.addEventListener("mousedown", (event: MouseEvent) =>
-      this.mouseDownEvent(event),
+      this.mouseDownEvent(event)
     );
     elt.addEventListener("mouseup", (event: MouseEvent) =>
-      this.mouseUpEvent(event),
+      this.mouseUpEvent(event)
     );
     elt.addEventListener("mousemove", (event: MouseEvent) =>
-      this.mouseMoveEvent(event),
+      this.mouseMoveEvent(event)
     );
     //console.log("adding keydown listener");
     // can't add this on the canvas because an HTMLElement needs to have the focus
@@ -86,7 +86,7 @@ export class Controller {
     // Normally the 'body' element has the focus.
     // So we add the listener to the document, events will bubble up.
     document.addEventListener("keydown", (event: KeyboardEvent) =>
-      this.keyboardEvent(event),
+      this.keyboardEvent(event)
     );
     //console.log("added keydown listener");
 
@@ -163,7 +163,7 @@ export class Controller {
     var size = 100000;
     this.groundPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      new THREE.MeshBasicMaterial(),
+      new THREE.MeshBasicMaterial()
     );
     this.groundPlane.rotation.x = -Math.PI / 2;
     this.groundPlane.visible = false;
@@ -375,7 +375,7 @@ export class Controller {
         hudObject,
         false,
         false,
-        true,
+        true
       );
       if (hudIntersects.length > 0) {
         //console.log("updateIntersections: hud object selected");
@@ -421,7 +421,7 @@ export class Controller {
   // returns the first intersection object
   public itemIntersection(
     event: MouseEvent,
-    item: Item,
+    item: Item
   ): THREE.Intersection | null {
     var customIntersections = item.customIntersectionPlanes();
     var intersections = null;
@@ -431,7 +431,7 @@ export class Controller {
     } else {
       if (!this.groundPlane) {
         throw Error(
-          "this.groundPlane is not set, but we need it for intersecting",
+          "this.groundPlane is not set, but we need it for intersecting"
         );
       }
       //console.log("ground plane intersection");
@@ -456,7 +456,7 @@ export class Controller {
     filterByNormals?: boolean,
     onlyVisible?: boolean,
     recursive?: boolean,
-    linePrecision?: number,
+    linePrecision?: number
   ): THREE.Intersection[] {
     onlyVisible = onlyVisible || false;
     filterByNormals = filterByNormals || false;
@@ -481,7 +481,7 @@ export class Controller {
     // filter by visible, if true
     if (onlyVisible) {
       intersections = intersections.filter(
-        (intersection) => intersection.object.visible,
+        (intersection) => intersection.object.visible
       );
     }
 

@@ -14,10 +14,7 @@ export class Floorplan {
   private lumberYard = new LumberYard();
   private railMaker = new RailMaker(this.lumberYard);
 
-  constructor(
-    private scene: Scene,
-    private floorplan: ModelFloorplan,
-  ) {
+  constructor(private scene: Scene, private floorplan: ModelFloorplan) {
     this.floorplan.fireOnUpdatedRooms(() => this.redraw());
   }
 

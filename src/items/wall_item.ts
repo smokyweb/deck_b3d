@@ -49,7 +49,7 @@ export abstract class WallItem extends Item {
     material: THREE.MeshFaceMaterial,
     position: THREE.Vector3,
     rotation: number,
-    scale: THREE.Vector3,
+    scale: THREE.Vector3
   ) {
     super(model, metadata, geometry, material, position, rotation, scale);
 
@@ -150,7 +150,7 @@ export abstract class WallItem extends Item {
       var newPos = new THREE.Vector3(
         center.x,
         closestWall.height / 2.0,
-        center.y,
+        center.y
       );
       this.boundMove(newPos);
       this.threeObj.position.copy(newPos);

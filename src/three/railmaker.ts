@@ -59,7 +59,7 @@ export class RailMaker {
     const topRailCenterHeightInches =
       spec.railTopInches - topStock.thickness / 2;
     group.add(
-      this.newHoriz(spec, spec.railTopStock, topRailCenterHeightInches),
+      this.newHoriz(spec, spec.railTopStock, topRailCenterHeightInches)
     );
     const bottomStock = LumberYard.lumberDimensions.get(spec.railBottomStock);
     if (!bottomStock) {
@@ -68,7 +68,7 @@ export class RailMaker {
     const bottomRailCenterHeightInches =
       spec.railBottomInches + bottomStock.thickness / 2;
     group.add(
-      this.newHoriz(spec, spec.railBottomStock, bottomRailCenterHeightInches),
+      this.newHoriz(spec, spec.railBottomStock, bottomRailCenterHeightInches)
     );
 
     const postStock = LumberYard.lumberDimensions.get(spec.postStock);
@@ -88,7 +88,7 @@ export class RailMaker {
     //   1/2 post stock width
     // so postStockWidth + 2*offset + nslats*slatInterval = baseDist
     const nslats = Math.floor(
-      (baseDistInches - postStock.width) / spec.slatIntervalInches,
+      (baseDistInches - postStock.width) / spec.slatIntervalInches
     );
     const offsetInches =
       (baseDistInches - postStock.width - nslats * spec.slatIntervalInches) / 2;
@@ -107,17 +107,17 @@ export class RailMaker {
       const slatloc = Utils.interp2(spec.startBase, spec.endBase, t);
       const slatBase = Utils.deflatten(
         slatloc,
-        inToCm(bottomRailCenterHeightInches),
+        inToCm(bottomRailCenterHeightInches)
       );
       const slatTop = Utils.deflatten(
         slatloc,
-        inToCm(topRailCenterHeightInches),
+        inToCm(topRailCenterHeightInches)
       );
       const slat = this.lumberYard.makeLumberFromTo(
         spec.slatStock,
         slatBase,
         slatTop,
-        slatAngle,
+        slatAngle
       );
       group.add(slat);
     }
@@ -135,7 +135,7 @@ export class RailMaker {
   private newHoriz(
     spec: RailSpec,
     stock: string,
-    centerHeightInches: number,
+    centerHeightInches: number
   ): THREE.Object3D {
     const centerHeight = inToCm(centerHeightInches);
     const from = Utils.deflatten(spec.startBase, centerHeight);

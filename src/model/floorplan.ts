@@ -161,7 +161,7 @@ export class Floorplan {
   public overlappedCorner(
     x: number,
     y: number,
-    tolerance?: number,
+    tolerance?: number
   ): Corner | null {
     tolerance = tolerance || defaultFloorPlanTolerance;
     for (var i = 0; i < this.corners.length; i++) {
@@ -233,7 +233,7 @@ export class Floorplan {
       console.log("adding wall");
       var newWall = this.newWall(
         corners[wall.corner1 as string],
-        corners[wall.corner2 as string],
+        corners[wall.corner2 as string]
       );
       if (wall.frontTexture) {
         newWall.frontTexture = wall.frontTexture;
@@ -335,13 +335,13 @@ export class Floorplan {
     function _calculateTheta(
       previousCorner: Corner,
       currentCorner: Corner,
-      nextCorner: Corner,
+      nextCorner: Corner
     ) {
       var theta = Utils.angle2pi(
         previousCorner.x - currentCorner.x,
         previousCorner.y - currentCorner.y,
         nextCorner.x - currentCorner.x,
-        nextCorner.y - currentCorner.y,
+        nextCorner.y - currentCorner.y
       );
       return theta;
     }
@@ -375,7 +375,7 @@ export class Floorplan {
 
     function _findTightestCycle(
       firstCorner: Corner,
-      secondCorner: Corner,
+      secondCorner: Corner
     ): Corner[] {
       interface thing {
         corner: Corner;

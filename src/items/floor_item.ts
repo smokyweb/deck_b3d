@@ -15,7 +15,7 @@ export abstract class FloorItem extends Item {
     material: THREE.MeshFaceMaterial,
     position: THREE.Vector3,
     rotation: number,
-    scale: THREE.Vector3,
+    scale: THREE.Vector3
   ) {
     super(model, metadata, geometry, material, position, rotation, scale);
   }
@@ -42,7 +42,7 @@ export abstract class FloorItem extends Item {
   /** */
   public override moveToPosition(
     vec3: THREE.Vector3,
-    _intersection: THREE.Intersection,
+    _intersection: THREE.Intersection
   ) {
     //console.log("floor_item moveToPosition", vec3, intersection);
     // keeps the position in the room and on the floor
