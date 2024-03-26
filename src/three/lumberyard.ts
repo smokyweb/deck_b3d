@@ -82,13 +82,20 @@ export class LumberYard {
     width: number,
     height: number,
     depth: number,
-    s?: number,
-    t?: number
+    in_s?: number,
+    in_t?: number
   ) {
-    if (typeof s === "undefined") {
+    var s: number;
+    if (typeof in_s === "number") {
+      s = in_s;
+    } else {
       s = Math.random();
     }
-    if (typeof t === "undefined") {
+
+    var t: number;
+    if (typeof in_t === "number") {
+      t = in_t;
+    } else {
       t = Math.random();
     }
 
@@ -105,6 +112,65 @@ export class LumberYard {
     const nnodes = vertices.length / 3;
     const norm = new THREE.Vector3();
     const vert = new THREE.Vector3();
+    const uvgen = function (
+      x: number,
+      y: number,
+      z: number
+    ): { u: number; v: number } {
+      var ubase: number, u_xm: number, u_ym: number, u_zm: number;
+      var vbase: number, v_xm: number, v_ym: number, v_zm: number;
+      ubase = s + udelta / 2;
+      u_xm = udelta / width;
+      u_ym = 0;
+      u_zm = 0;
+
+      // divide the surfaces of the sides of the board into 4 regions, the
+      // top surface (+z), front surface(-y), the bottom surface (-z),
+      // and the back surface(+y).  These surface regions meet up at the lines
+      // where y=+-height/2 and z=+-depth/2.
+      // For arbitrary xyz coordinates we can make a projection from (x,0,0) through the
+      // (x,y,z) point onto the surface region and use the uv surface calculation
+      // for that projected point to make a uv coordinate for the vertex.
+      // This isn't the most accurate way to texture wood, but it's consistent and
+      // conitnuous and good enough.
+
+      // is (y,z) in the upper right?  i.e. is it above the line extending from (-height/2,+depth/2)
+      // to (+height/2,  -depth/2)?  (0,0) and these endpoints should evaluate as 0 in the expression, (+y,+z)
+      // should be positive.
+      const upper_right = y * depth + z * height > 0;
+      // is (y,z) in the upper left?  above the line extending from (-height/2,-depth/2) to (+height/2,+depth/2).
+      // (0,0) and the endpoints should be 0, (-y,+z) should be positive.
+      const upper_left = y * -depth + z * height > 0;
+      if (upper_right) {
+        if (upper_left) {
+          // top surface
+          vbase = t + y_vdelta / 2;
+          v_xm = v_zm = 0;
+          v_ym = y_vdelta / height;
+        } else {
+          // front surface
+          vbase = t + y_vdelta + z_vdelta / 2;
+          v_xm = v_ym = 0;
+          v_zm = z_vdelta / depth;
+        }
+      } else {
+        if (!upper_left) {
+          // bottom surface
+          vbase = t + 1.5 * y_vdelta + z_vdelta;
+          v_xm = v_zm = 0;
+          v_ym = -y_vdelta / height;
+        } else {
+          // back surface
+          vbase = t + 2 * y_vdelta + 1.5 * z_vdelta;
+          v_xm = v_ym = 0;
+          v_zm = -z_vdelta / depth;
+        }
+      }
+
+      const u = ubase + u_xm * x + u_ym * y + u_zm * z;
+      const v = vbase + v_xm * x + v_ym * y + v_zm * z;
+      return { u, v };
+    };
     // Loop over all vertices.  Look at the normal to see which
     // face we're on.  Then look at the position to figure out
     // what the texture coordinate should be.
@@ -119,41 +185,7 @@ export class LumberYard {
       vert.z = vertices[o3 + 2];
       // Figure out which face we're on, and set the appropriate texture coordinate
       if (Math.abs(norm.x) < 0.1) {
-        // not nx or px face
-        let u = s;
-        let v = t;
-        if (vert.x > 0) {
-          u += udelta;
-        }
-        if (norm.z > 0.9) {
-          // pz face
-          if (vert.y < 0) {
-            v += y_vdelta;
-          }
-        } else if (norm.y < -0.9) {
-          // ny face
-          if (vert.z > 0) {
-            v += y_vdelta;
-          } else {
-            v += y_vdelta + z_vdelta;
-          }
-        } else if (norm.z < -0.9) {
-          // nz face
-          if (vert.y < 0) {
-            v += y_vdelta + z_vdelta;
-          } else {
-            v += 2 * y_vdelta + z_vdelta;
-          }
-        } else if (norm.y > 0) {
-          // py face
-          if (vert.z < 0) {
-            v += 2 * y_vdelta + z_vdelta;
-          } else {
-            v += 2 * y_vdelta + 2 * z_vdelta;
-          }
-        } else {
-          throw Error(`Failed retextureBox on i=${i}`);
-        }
+        const { u, v } = uvgen(vert.x, vert.y, vert.z);
         uvattr.setXY(i, u, v);
       }
     }
