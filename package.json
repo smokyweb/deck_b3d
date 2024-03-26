@@ -33,7 +33,7 @@
   "scripts": {
     "build": "npx webpack",
     "serve": "cd example; ./serve",
-    "reformat": "find src -name '*.ts' -exec prettier -w {} \\;"
+    "reformat": "find src -name '*.ts' -print0 | xargs -0 prettier -w "
   },
   "author": ""
 }
