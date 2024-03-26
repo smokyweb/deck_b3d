@@ -119,6 +119,7 @@ export class LumberYard {
     ): { u: number; v: number } {
       var ubase: number, u_xm: number, u_ym: number, u_zm: number;
       var vbase: number, v_xm: number, v_ym: number, v_zm: number;
+      var yzscale: number;
       ubase = s + udelta / 2;
       u_xm = udelta / width;
       u_ym = 0;
@@ -144,11 +145,13 @@ export class LumberYard {
       if (upper_right) {
         if (upper_left) {
           // top surface
+          yzscale = (depth/2) / z;
           vbase = t + y_vdelta / 2;
           v_xm = v_zm = 0;
           v_ym = y_vdelta / height;
         } else {
           // front surface
+          yzscale = (height/2) / (-y);
           vbase = t + y_vdelta + z_vdelta / 2;
           v_xm = v_ym = 0;
           v_zm = z_vdelta / depth;
@@ -156,16 +159,22 @@ export class LumberYard {
       } else {
         if (!upper_left) {
           // bottom surface
+          yzscale = (depth/2) / (-z);
           vbase = t + 1.5 * y_vdelta + z_vdelta;
           v_xm = v_zm = 0;
           v_ym = -y_vdelta / height;
         } else {
           // back surface
+          yzscale = (height/2) / y;
           vbase = t + 2 * y_vdelta + 1.5 * z_vdelta;
           v_xm = v_ym = 0;
           v_zm = -z_vdelta / depth;
         }
       }
+
+      // project the y and z out to the surface
+      y *= yzscale;
+      z *= yzscale;
 
       const u = ubase + u_xm * x + u_ym * y + u_zm * z;
       const v = vbase + v_xm * x + v_ym * y + v_zm * z;
