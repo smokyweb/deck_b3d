@@ -537,3 +537,11 @@ export function inToCm(inches: number): number {
 export function cmToIn(cm: number): number {
   return cm / 2.54;
 }
+
+export function degToRad(deg: number): number {
+  return deg * (Math.PI / 180);
+}
+
+export function radToDeg(rad: number) {
+  return rad * (180 / Math.PI);
+}

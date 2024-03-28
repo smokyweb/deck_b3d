@@ -32,7 +32,7 @@ export class Floorplan {
 
     // draw floors
     this.floorplan.getRooms().forEach((room) => {
-      var threeFloor = new Floor(this.scene, room);
+      var threeFloor = new Floor(this.scene, room, this.lumberYard);
       this.floors.push(threeFloor);
       threeFloor.addToScene();
     });

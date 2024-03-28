@@ -96,6 +96,7 @@ export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
 export function bufferGeometryToCSG(geom: THREE.BufferGeometry, matrix: THREE.Matrix4, shared?: any): CSG.CSG {
   const positions = geom.getAttribute("position");
   const normals = geom.getAttribute("normal");
+  const index = geom.getIndex();
 
   const quaternion = new THREE.Quaternion();
   matrix.decompose(undefined, quaternion, undefined);
@@ -117,16 +118,22 @@ export function bufferGeometryToCSG(geom: THREE.BufferGeometry, matrix: THREE.Ma
     return new CSG.Vertex(new CSG.Vector(coord.x, coord.y, coord.z), new CSG.Vector(norm.x, norm.y, norm.z));
   }
 
-  function extractTriangle(startIndex: number) {
-    const vecs = [extractWorldV3(startIndex), 
-      extractWorldV3(startIndex+1),
-      extractWorldV3(startIndex+2)];
+  function extractTriangle(i1: number, i2: number, i3: number) {
+    const vecs = [extractWorldV3(i1), 
+      extractWorldV3(i2),
+      extractWorldV3(i3)];
     const poly = new CSG.Polygon(vecs, shared);
     triangles.push(poly);
   }
 
-  for(let i = 0; i < positions.count; i += 3) {
-    extractTriangle(i);
+  if (index) {
+    for(let i = 0; i < index.count; i += 3) {
+      extractTriangle(index.array[i], index.array[i+1], index.array[i+2]);
+    }
+  } else {
+    for(let i = 0; i < positions.count; i += 3) {
+      extractTriangle(i, i+1, i+2);
+    }
   }
   return CSG.fromPolygons(triangles);
 }
