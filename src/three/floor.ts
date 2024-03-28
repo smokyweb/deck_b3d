@@ -32,21 +32,8 @@ export class Floor {
     this.addToScene();
   }
 
-  private static experiment() {
-    const mat: THREE.Matrix4 = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    q.setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0.2);
-    const translation = new THREE.Vector3(0.1, 0.2, 0.3);
-    const scale = new THREE.Vector3(1, 1, 1);
-
-    mat.compose(translation, q, scale);
-    console.log("mat: ", mat);
-    console.log("mat.elements:", mat.elements);
-  }
-
 
   private buildFloorBoards() {
-    Floor.experiment();
     {
       const children = this.floorBoards.children.slice();
       children.forEach((child) => {
@@ -70,13 +57,11 @@ export class Floor {
       console.error("dim is null");
       return;
     }
-    console.log("fp: ", fp);
     fp.updateMatrix();
     fp.geometry.computeBoundingSphere();
     const bs = fp.geometry.boundingSphere.clone();
     bs.applyMatrix4(fp.matrix);
 
-    console.log("boundingSphere: ", bs);
     const floorCenter = new THREE.Vector2(bs.center.x, bs.center.z);
     const floorRadius = bs.radius;
     const alongAxisUnit = new THREE.Vector2(Math.cos(floorboardAngleRad), Math.sin(floorboardAngleRad));
@@ -86,18 +71,15 @@ export class Floor {
     const boardWidthCm = inToCm(dim.width);
     const thicknessCm = inToCm(dim.thickness);
     const step = boardWidthCm + gapCm + 0.003;
-    console.log(`floorRadius=${floorRadius}`);
-    console.log("startPoint: ", startPoint);
 
     while (distFromStart < 2*floorRadius) {
-      //console.log(`distFromStart = ${distFromStart}`);
       const centerPoint = startPoint.clone().addScaledVector(crossAxisUnit, distFromStart + boardWidthCm/2);
       const from = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, -floorRadius), -thicknessCm);
       const to = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, floorRadius), -thicknessCm);;
       const lumber = this.lumberyard.makeLumberFromTo(floorStock, from, to, Math.PI/2);
       this.floorBoards.add(lumber);
       if (this.floorBoards.children.length == 1) {
-        console.log("added floorboard ", lumber);
+        //console.log("added floorboard ", lumber);
       }
       distFromStart += step;
     }
@@ -131,7 +113,7 @@ export class Floor {
 
     var points: THREE.Vector2[] = [];
     this.room.corners.forEach((corner) => {
-      console.log("floor corner ", corner);
+      //console.log("floor corner ", corner);
       points.push(
         new THREE.Vector2(corner.x / textureScale, corner.y / textureScale)
       );
@@ -146,7 +128,7 @@ export class Floor {
     floor.scale.set(textureScale, textureScale, textureScale);
     floor.receiveShadow = true;
     floor.castShadow = false;
-    console.log("floor is ", floor);
+    //console.log("floor is ", floor);
     return floor;
   }
 
@@ -180,7 +162,7 @@ export class Floor {
   //  }
 
   public addToScene() {
-    console.log("floor.addToScene");
+    //console.log("floor.addToScene");
     if (this.floorPlane) {
       this.scene.add(this.floorPlane);
     }
@@ -195,7 +177,7 @@ export class Floor {
   }
 
   public removeFromScene() {
-    console.log("floor.removeFromScene");
+    //console.log("floor.removeFromScene");
     if (this.floorPlane) {
       this.scene.remove(this.floorPlane);
     }
