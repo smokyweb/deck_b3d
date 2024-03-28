@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { inToCm, cmToIn } from "../core/utils";
 import * as CSG from "csg";
+import { XYZ, UV, csgToBufferGeometry } from "../core/csgutil";
 
 export interface LumberDim {
   // These are cross-grain dimensions.  Width is typically the longer one.
@@ -112,11 +113,12 @@ export class LumberYard {
     const nnodes = vertices.length / 3;
     const norm = new THREE.Vector3();
     const vert = new THREE.Vector3();
-    const uvgen = function (
-      x: number,
-      y: number,
-      z: number
+    const uvgen = function (pos: XYZ, 
+                            _normal: XYZ
     ): { u: number; v: number } {
+      let x = pos.x;
+      let y = pos.y;
+      let z = pos.z;
       var ubase: number, u_xm: number, u_ym: number, u_zm: number;
       var vbase: number, v_xm: number, v_ym: number, v_zm: number;
       var yzscale: number;
@@ -194,7 +196,7 @@ export class LumberYard {
       vert.z = vertices[o3 + 2];
       // Figure out which face we're on, and set the appropriate texture coordinate
       if (Math.abs(norm.x) < 0.1) {
-        const { u, v } = uvgen(vert.x, vert.y, vert.z);
+        const { u, v } = uvgen(vert, norm);
         uvattr.setXY(i, u, v);
       }
     }
@@ -205,7 +207,7 @@ export class LumberYard {
   public makeLumber(
     nomDimension: string,
     lengthInches: number
-  ): THREE.Object3D {
+  ): THREE.Mesh {
     const size = LumberYard.lumberDimensions.get(nomDimension);
     if (!size) {
       throw Error(`Invalid lumber dimension '${nomDimension}'`);
@@ -218,7 +220,7 @@ export class LumberYard {
     from: THREE.Vector3,
     to: THREE.Vector3,
     rotation?: number
-  ): THREE.Object3D {
+  ): THREE.Mesh {
     rotation = rotation || 0;
     const length = from.distanceTo(to);
     const lengthInches = cmToIn(length);
@@ -248,14 +250,12 @@ export class LumberYard {
   public makeWoodInches(
     lengthInches: number,
     widthInches: number,
-    heightInches: number,
-    outline: boolean = false
-  ): THREE.Object3D {
+    heightInches: number
+  ): THREE.Mesh {
     return this.makeWood(
       inToCm(lengthInches),
       inToCm(widthInches),
-      inToCm(heightInches),
-      outline
+      inToCm(heightInches)
     );
   }
   // Arguments are in cm.
@@ -263,35 +263,23 @@ export class LumberYard {
     length: number,
     width: number,
     height: number,
-    outline: boolean = false
-  ): THREE.Object3D {
+  ): THREE.Mesh {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
     const box = new THREE.BoxBufferGeometry(length, width, height);
     this.retextureBox(box, length, width, height);
     const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
     const lumber = new THREE.Mesh(box, texture);
+    lumber.userData = { length, width, height, matrix: lumber.matrix.clone() };
     this.count++;
-    const results: THREE.Object3D[] = [lumber];
-    if (outline) {
-      const edgeGeo = new THREE.EdgesGeometry(box, 1),
-        line = new THREE.Line(
-          edgeGeo,
-          new THREE.LineBasicMaterial({ color: 0x000000 })
-        );
-      results.push(line);
-    }
-    if (results.length == 1) {
-      return results[0];
-    } else {
-      const group = new THREE.Group();
-      results.forEach((r) => group.add(r));
-      return group;
-    }
+    return lumber;
   }
-  public makeWoodFromCSG(_csg: CSG.CSG): THREE.Object3D {
-    const v: CSG.Vector = new CSG.Vector(1, 2, 3);
-    const w = v.dividedBy(2).unit();
-    console.log(v, w);
-    return new THREE.Group();
+  // csg must have started life as a piece of wood.  Then it was transformed
+  // into a CSG, then (subtractive) actions performed on it.  Then
+  public makeWoodFromCSG(csg: CSG.CSG, matrix: THREE.Matrix4, uvgen: (pos: XYZ, normal: XYZ) => UV): THREE.Mesh {
+    const geom = csgToBufferGeometry(csg, matrix, uvgen);
+    const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
+    const lumber = new THREE.Mesh(geom, texture);
+    lumber.matrix.copy(matrix);
+    return lumber;
   }
 }
