@@ -10,6 +10,18 @@ export interface LumberDim {
   nominalDim: string;
 }
 
+export interface LumberMeta {
+  matrix: THREE.Matrix4;
+  uvgen: UVGen;
+  length: number;
+  width: number;
+  height: number;
+  uvGen: UVGen;
+}
+
+export type UVGen = (pos: XYZ, normal: XYZ) => UV;
+
+
 export class LumberYard {
   private sidegrain: THREE.Texture;
   private zebra: THREE.Texture;
@@ -69,23 +81,13 @@ export class LumberYard {
     this.zebra.wrapS = this.sidegrain.wrapT = THREE.MirroredRepeatWrapping;
   }
 
-  // width, depth, height:  x, y, and z dimensions of box
-  // s, t:  starting coordinate in texture
-  // box needs to be in its initial position, centered on origin.
-  //
-  // TODO: Do this smarter, to handle non-axis-aligned cuts on the lumber.
-  //       Project the actual y,z of the vertex from the x-axis to the
-  //       nominal surface of the lumber and use that coordinate.  This won't
-  //       be physically accurate but it will be consistent with the current
-  //       method.
-  private retextureBox(
-    geom: THREE.BoxBufferGeometry,
+  private makeUVGen(
     width: number,
     height: number,
     depth: number,
     in_s?: number,
     in_t?: number
-  ) {
+  ): UVGen {
     var s: number;
     if (typeof in_s === "number") {
       s = in_s;
@@ -99,33 +101,25 @@ export class LumberYard {
     } else {
       t = Math.random();
     }
-
-    const uvattr = geom.getAttribute("uv");
-    const vertices = geom.getAttribute("position").array;
-    const normals = geom.getAttribute("normal").array;
-    // difference in u texture coordinate along x direction
     const udelta = cmToIn(width) / this.textureSizeInches;
     // difference in v texture coordinate along y directioon
     const y_vdelta = cmToIn(height) / this.textureSizeInches;
     // difference in v texture coordinate along z directioon
     const z_vdelta = cmToIn(depth) / this.textureSizeInches;
 
-    const nnodes = vertices.length / 3;
-    const norm = new THREE.Vector3();
-    const vert = new THREE.Vector3();
+    var ubase: number, u_xm: number, u_ym: number, u_zm: number;
+    var vbase: number, v_xm: number, v_ym: number, v_zm: number;
+    ubase = s + udelta / 2;
+    u_xm = udelta / width;
+    u_ym = 0;
+    u_zm = 0;
     const uvgen = function (pos: XYZ, 
                             _normal: XYZ
     ): { u: number; v: number } {
       let x = pos.x;
       let y = pos.y;
       let z = pos.z;
-      var ubase: number, u_xm: number, u_ym: number, u_zm: number;
-      var vbase: number, v_xm: number, v_ym: number, v_zm: number;
       var yzscale: number;
-      ubase = s + udelta / 2;
-      u_xm = udelta / width;
-      u_ym = 0;
-      u_zm = 0;
 
       // divide the surfaces of the sides of the board into 4 regions, the
       // top surface (+z), front surface(-y), the bottom surface (-z),
@@ -182,9 +176,20 @@ export class LumberYard {
       const v = vbase + v_xm * x + v_ym * y + v_zm * z;
       return { u, v };
     };
+    return uvgen;
+  }
+
+  private retextureBG(geom: THREE.BufferGeometry, uvGen: UVGen) {
+    const uvattr = geom.getAttribute("uv");
+    const vertices = geom.getAttribute("position").array;
+    const normals = geom.getAttribute("normal").array;
+    const nnodes = vertices.length / 3;
+    // difference in u texture coordinate along x direction
     // Loop over all vertices.  Look at the normal to see which
     // face we're on.  Then look at the position to figure out
     // what the texture coordinate should be.
+    const norm = new THREE.Vector3();
+    const vert = new THREE.Vector3();
     for (let i = 0; i < nnodes; i++) {
       const o3 = i * 3; // offset into vertices and normals arrays
       //const o2 = i*2; // offset into uvs array
@@ -195,12 +200,11 @@ export class LumberYard {
       vert.y = vertices[o3 + 1];
       vert.z = vertices[o3 + 2];
       // Figure out which face we're on, and set the appropriate texture coordinate
-      if (Math.abs(norm.x) < 0.1) {
-        const { u, v } = uvgen(vert, norm);
-        uvattr.setXY(i, u, v);
-      }
+      const { u, v } = uvGen(vert, norm);
+      uvattr.setXY(i, u, v);
     }
   }
+
 
   // returns piece of lumber, centered at origin, length is along x axis, width is y axis,
   // thickness is z axis
@@ -212,7 +216,9 @@ export class LumberYard {
     if (!size) {
       throw Error(`Invalid lumber dimension '${nomDimension}'`);
     }
-    return this.makeWoodInches(lengthInches, size.width, size.thickness);
+    const wood = this.makeWoodInches(lengthInches, size.width, size.thickness);
+    this.fixMeta(wood);
+    return wood;
   }
   // from and to are in the cm model space.
   public makeLumberFromTo(
@@ -238,6 +244,7 @@ export class LumberYard {
     res.rotateY(shadowAngle);
     res.rotateZ(elevationAngle);
     res.rotateX(rotation);
+    this.fixMeta(res);
     return res;
   }
   private currentTexture(): THREE.Texture {
@@ -266,20 +273,32 @@ export class LumberYard {
   ): THREE.Mesh {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
     const box = new THREE.BoxBufferGeometry(length, width, height);
-    this.retextureBox(box, length, width, height);
     const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
     const lumber = new THREE.Mesh(box, texture);
-    lumber.userData = { length, width, height, matrix: lumber.matrix.clone() };
+    const uvGen = this.makeUVGen(length, width, height);
+    this.retextureBG(box, uvGen);
+    lumber.userData = { length, width, height, matrix: lumber.matrix.clone(), uvGen };
+    this.fixMeta(lumber);
     this.count++;
     return lumber;
   }
+  private fixMeta(mesh: THREE.Mesh) {
+    if (mesh.userData) {
+      mesh.userData.matrix = mesh.matrix.clone();
+    } else {
+      throw new Error("metadata not initialized");
+    }
+  }
+
   // csg must have started life as a piece of wood.  Then it was transformed
   // into a CSG, then (subtractive) actions performed on it.  Then
-  public makeWoodFromCSG(csg: CSG.CSG, matrix: THREE.Matrix4, uvgen: (pos: XYZ, normal: XYZ) => UV): THREE.Mesh {
-    const geom = csgToBufferGeometry(csg, matrix, uvgen);
+  public makeWoodFromCSG(csg: CSG.CSG, meta: LumberMeta): THREE.Mesh {
+    const geom = csgToBufferGeometry(csg, meta.matrix, meta.uvGen);
     const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
     const lumber = new THREE.Mesh(geom, texture);
-    lumber.matrix.copy(matrix);
+    lumber.matrix.identity();
+    lumber.applyMatrix(meta.matrix);
+    lumber.userData = meta;
     return lumber;
   }
 }

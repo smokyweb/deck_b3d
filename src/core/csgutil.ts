@@ -27,7 +27,7 @@ export function csgToBufferGeometry(csg: CSG.CSG, matrix?: THREE.Matrix4,
     inv_matrix = new THREE.Matrix4();
     inv_matrix.getInverse(matrix);
     inv_quaternion = new THREE.Quaternion();
-    inv_matrix.decompose(undefined, inv_quaternion, undefined);
+    inv_matrix.decompose(scratchPosition, inv_quaternion, scratchScale);
   }
 
   function addVertex(v: CSG.Vertex) {
@@ -93,13 +93,15 @@ export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
   return mesh;
 }
 
+const scratchPosition = new THREE.Vector3();
+const scratchScale = new THREE.Vector3();
 export function bufferGeometryToCSG(geom: THREE.BufferGeometry, matrix: THREE.Matrix4, shared?: any): CSG.CSG {
   const positions = geom.getAttribute("position");
   const normals = geom.getAttribute("normal");
   const index = geom.getIndex();
 
   const quaternion = new THREE.Quaternion();
-  matrix.decompose(undefined, quaternion, undefined);
+  matrix.decompose(scratchPosition, quaternion, scratchScale);
 
   const triangles: CSG.Polygon[] = [];
 

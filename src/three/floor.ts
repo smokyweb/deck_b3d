@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { Scene } from "../model/scene";
 import { Room } from "../model/room";
 import * as CSG from "csg";
-import { csgToBlueMesh } from "../core/csgutil";
-import { LumberYard } from "./lumberyard";
+import { csgToBlueMesh, bufferGeometryToCSG } from "../core/csgutil";
+import { LumberYard, LumberMeta } from "./lumberyard";
 import { inToCm, degToRad, Utils } from "../core/utils";
 
 export class Floor {
@@ -71,18 +71,25 @@ export class Floor {
     const boardWidthCm = inToCm(dim.width);
     const thicknessCm = inToCm(dim.thickness);
     const step = boardWidthCm + gapCm + 0.003;
+    const origBoards: THREE.Mesh[] = [];
 
     while (distFromStart < 2*floorRadius) {
       const centerPoint = startPoint.clone().addScaledVector(crossAxisUnit, distFromStart + boardWidthCm/2);
       const from = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, -floorRadius), -thicknessCm);
       const to = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, floorRadius), -thicknessCm);;
       const lumber = this.lumberyard.makeLumberFromTo(floorStock, from, to, Math.PI/2);
-      this.floorBoards.add(lumber);
-      if (this.floorBoards.children.length == 1) {
-        //console.log("added floorboard ", lumber);
-      }
+      origBoards.push(lumber);
       distFromStart += step;
     }
+    const roomcsg = this.room.csgClipRegion();
+    const newboards = origBoards.map((orig: THREE.Mesh) => {
+      const meta = orig.userData as LumberMeta;
+      const boardCSG = bufferGeometryToCSG(orig.geometry as THREE.BufferGeometry, meta.matrix);
+      boardCSG.intersect(roomcsg);
+      const lumber = this.lumberyard.makeWoodFromCSG(boardCSG, meta);
+      return lumber;
+    });
+    newboards.forEach((board) => this.floorBoards.add(board));
   }
 
   private buildFloor() {
