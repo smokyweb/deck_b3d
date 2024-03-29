@@ -283,6 +283,7 @@ export class LumberYard {
     return lumber;
   }
   private fixMeta(mesh: THREE.Mesh) {
+    mesh.updateMatrix();
     if (mesh.userData) {
       mesh.userData.matrix = mesh.matrix.clone();
     } else {
@@ -298,7 +299,9 @@ export class LumberYard {
     const lumber = new THREE.Mesh(geom, texture);
     lumber.matrix.identity();
     lumber.applyMatrix(meta.matrix);
+    console.log("lumbber matrix", lumber.matrix);
     lumber.userData = meta;
+    this.fixMeta(lumber);
     return lumber;
   }
 }

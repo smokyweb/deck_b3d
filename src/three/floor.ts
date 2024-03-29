@@ -84,9 +84,9 @@ export class Floor {
     const roomcsg = this.room.csgClipRegion();
     const newboards = origBoards.map((orig: THREE.Mesh) => {
       const meta = orig.userData as LumberMeta;
-      const boardCSG = bufferGeometryToCSG(orig.geometry as THREE.BufferGeometry, meta.matrix);
-      boardCSG.intersect(roomcsg);
-      const lumber = this.lumberyard.makeWoodFromCSG(boardCSG, meta);
+      const origCSG = bufferGeometryToCSG(orig.geometry as THREE.BufferGeometry, meta.matrix);
+      const trimmedCSG = origCSG.intersect(roomcsg);
+      const lumber = this.lumberyard.makeWoodFromCSG(trimmedCSG, meta);
       return lumber;
     });
     newboards.forEach((board) => this.floorBoards.add(board));
