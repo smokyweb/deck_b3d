@@ -12,7 +12,11 @@ export class Floor {
   private floorClip: THREE.Object3D | null = null;
   private floorBoards: THREE.Group = new THREE.Group();
 
-  constructor(private scene: Scene, private room: Room, private lumberyard: LumberYard) {
+  constructor(
+    private scene: Scene,
+    private room: Room,
+    private lumberyard: LumberYard
+  ) {
     this.room.fireOnFloorChange(() => this.redraw);
     this.build();
     // roofs look weird, so commented out
@@ -32,7 +36,6 @@ export class Floor {
     this.addToScene();
   }
 
-
   private buildFloorBoards() {
     {
       const children = this.floorBoards.children.slice();
@@ -48,12 +51,11 @@ export class Floor {
     const gapCm = inToCm(gapInches);
     const dim = LumberYard.lumberDimensions.get(floorStock);
 
-
     if (!fp) {
       console.error("floorPlane is null");
       return;
     }
-    if (!dim)  {
+    if (!dim) {
       console.error("dim is null");
       return;
     }
@@ -64,27 +66,48 @@ export class Floor {
 
     const floorCenter = new THREE.Vector2(bs.center.x, bs.center.z);
     const floorRadius = bs.radius;
-    const alongAxisUnit = new THREE.Vector2(Math.cos(floorboardAngleRad), Math.sin(floorboardAngleRad));
+    const alongAxisUnit = new THREE.Vector2(
+      Math.cos(floorboardAngleRad),
+      Math.sin(floorboardAngleRad)
+    );
     const crossAxisUnit = new THREE.Vector2(-alongAxisUnit.y, alongAxisUnit.x);
     let distFromStart = 0;
-    const startPoint = floorCenter.clone().addScaledVector(crossAxisUnit, -floorRadius);
+    const startPoint = floorCenter
+      .clone()
+      .addScaledVector(crossAxisUnit, -floorRadius);
     const boardWidthCm = inToCm(dim.width);
     const thicknessCm = inToCm(dim.thickness);
     const step = boardWidthCm + gapCm + 0.003;
     const origBoards: THREE.Mesh[] = [];
 
-    while (distFromStart < 2*floorRadius) {
-      const centerPoint = startPoint.clone().addScaledVector(crossAxisUnit, distFromStart + boardWidthCm/2);
-      const from = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, -floorRadius), -thicknessCm);
-      const to = Utils.deflatten(centerPoint.clone().addScaledVector(alongAxisUnit, floorRadius), -thicknessCm);;
-      const lumber = this.lumberyard.makeLumberFromTo(floorStock, from, to, Math.PI/2);
+    while (distFromStart < 2 * floorRadius) {
+      const centerPoint = startPoint
+        .clone()
+        .addScaledVector(crossAxisUnit, distFromStart + boardWidthCm / 2);
+      const from = Utils.deflatten(
+        centerPoint.clone().addScaledVector(alongAxisUnit, -floorRadius),
+        -thicknessCm
+      );
+      const to = Utils.deflatten(
+        centerPoint.clone().addScaledVector(alongAxisUnit, floorRadius),
+        -thicknessCm
+      );
+      const lumber = this.lumberyard.makeLumberFromTo(
+        floorStock,
+        from,
+        to,
+        Math.PI / 2
+      );
       origBoards.push(lumber);
       distFromStart += step;
     }
     const roomcsg = this.room.csgClipRegion();
     const newboards = origBoards.map((orig: THREE.Mesh) => {
       const meta = orig.userData as LumberMeta;
-      const origCSG = bufferGeometryToCSG(orig.geometry as THREE.BufferGeometry, meta.matrix);
+      const origCSG = bufferGeometryToCSG(
+        orig.geometry as THREE.BufferGeometry,
+        meta.matrix
+      );
       const trimmedCSG = origCSG.intersect(roomcsg);
       const lumber = this.lumberyard.makeWoodFromCSG(trimmedCSG, meta);
       return lumber;

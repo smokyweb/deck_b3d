@@ -21,7 +21,6 @@ export interface LumberMeta {
 
 export type UVGen = (pos: XYZ, normal: XYZ) => UV;
 
-
 export class LumberYard {
   private sidegrain: THREE.Texture;
   private zebra: THREE.Texture;
@@ -113,9 +112,7 @@ export class LumberYard {
     u_xm = udelta / width;
     u_ym = 0;
     u_zm = 0;
-    const uvgen = function (pos: XYZ, 
-                            _normal: XYZ
-    ): { u: number; v: number } {
+    const uvgen = function (pos: XYZ, _normal: XYZ): { u: number; v: number } {
       let x = pos.x;
       let y = pos.y;
       let z = pos.z;
@@ -141,13 +138,13 @@ export class LumberYard {
       if (upper_right) {
         if (upper_left) {
           // top surface
-          yzscale = (depth/2) / z;
+          yzscale = depth / 2 / z;
           vbase = t + y_vdelta / 2;
           v_xm = v_zm = 0;
           v_ym = y_vdelta / height;
         } else {
           // front surface
-          yzscale = (height/2) / (-y);
+          yzscale = height / 2 / -y;
           vbase = t + y_vdelta + z_vdelta / 2;
           v_xm = v_ym = 0;
           v_zm = z_vdelta / depth;
@@ -155,13 +152,13 @@ export class LumberYard {
       } else {
         if (!upper_left) {
           // bottom surface
-          yzscale = (depth/2) / (-z);
+          yzscale = depth / 2 / -z;
           vbase = t + 1.5 * y_vdelta + z_vdelta;
           v_xm = v_zm = 0;
           v_ym = -y_vdelta / height;
         } else {
           // back surface
-          yzscale = (height/2) / y;
+          yzscale = height / 2 / y;
           vbase = t + 2 * y_vdelta + 1.5 * z_vdelta;
           v_xm = v_ym = 0;
           v_zm = -z_vdelta / depth;
@@ -205,13 +202,9 @@ export class LumberYard {
     }
   }
 
-
   // returns piece of lumber, centered at origin, length is along x axis, width is y axis,
   // thickness is z axis
-  public makeLumber(
-    nomDimension: string,
-    lengthInches: number
-  ): THREE.Mesh {
+  public makeLumber(nomDimension: string, lengthInches: number): THREE.Mesh {
     const size = LumberYard.lumberDimensions.get(nomDimension);
     if (!size) {
       throw Error(`Invalid lumber dimension '${nomDimension}'`);
@@ -266,18 +259,20 @@ export class LumberYard {
     );
   }
   // Arguments are in cm.
-  public makeWood(
-    length: number,
-    width: number,
-    height: number,
-  ): THREE.Mesh {
+  public makeWood(length: number, width: number, height: number): THREE.Mesh {
     // TODO: custom BufferGeometry with wood texture subsampling from sidegrain
     const box = new THREE.BoxBufferGeometry(length, width, height);
     const texture = new THREE.MeshBasicMaterial({ map: this.currentTexture() });
     const lumber = new THREE.Mesh(box, texture);
     const uvGen = this.makeUVGen(length, width, height);
     this.retextureBG(box, uvGen);
-    lumber.userData = { length, width, height, matrix: lumber.matrix.clone(), uvGen };
+    lumber.userData = {
+      length,
+      width,
+      height,
+      matrix: lumber.matrix.clone(),
+      uvGen,
+    };
     this.fixMeta(lumber);
     this.count++;
     return lumber;

@@ -4,7 +4,7 @@ import * as CSG from "csg";
 export interface UV {
   u: number;
   v: number;
-};
+}
 
 export interface XYZ {
   x: number;
@@ -12,9 +12,11 @@ export interface XYZ {
   z: number;
 }
 
-export function csgToBufferGeometry(csg: CSG.CSG, matrix?: THREE.Matrix4,
-                                    uvgen?: (pos: CSG.Vector, normal: CSG.Vector) =>  UV): THREE.BufferGeometry {
-
+export function csgToBufferGeometry(
+  csg: CSG.CSG,
+  matrix?: THREE.Matrix4,
+  uvgen?: (pos: CSG.Vector, normal: CSG.Vector) => UV
+): THREE.BufferGeometry {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
   const positions: number[] = [];
   const normals: number[] = [];
@@ -95,7 +97,11 @@ export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
 
 const scratchPosition = new THREE.Vector3();
 const scratchScale = new THREE.Vector3();
-export function bufferGeometryToCSG(geom: THREE.BufferGeometry, matrix: THREE.Matrix4, shared?: any): CSG.CSG {
+export function bufferGeometryToCSG(
+  geom: THREE.BufferGeometry,
+  matrix: THREE.Matrix4,
+  shared?: any
+): CSG.CSG {
   const positions = geom.getAttribute("position");
   const normals = geom.getAttribute("normal");
   const index = geom.getIndex();
@@ -114,29 +120,29 @@ export function bufferGeometryToCSG(geom: THREE.BufferGeometry, matrix: THREE.Ma
     const nx = normals.getX(i);
     const ny = normals.getY(i);
     const nz = normals.getZ(i);
-    const norm = new THREE.Vector3(nx, ny, nz); 
-    norm.applyQuaternion(quaternion);// convert to world orientation
+    const norm = new THREE.Vector3(nx, ny, nz);
+    norm.applyQuaternion(quaternion); // convert to world orientation
 
-    return new CSG.Vertex(new CSG.Vector(coord.x, coord.y, coord.z), new CSG.Vector(norm.x, norm.y, norm.z));
+    return new CSG.Vertex(
+      new CSG.Vector(coord.x, coord.y, coord.z),
+      new CSG.Vector(norm.x, norm.y, norm.z)
+    );
   }
 
   function extractTriangle(i1: number, i2: number, i3: number) {
-    const vecs = [extractWorldV3(i1), 
-      extractWorldV3(i2),
-      extractWorldV3(i3)];
+    const vecs = [extractWorldV3(i1), extractWorldV3(i2), extractWorldV3(i3)];
     const poly = new CSG.Polygon(vecs, shared);
     triangles.push(poly);
   }
 
   if (index) {
-    for(let i = 0; i < index.count; i += 3) {
-      extractTriangle(index.array[i], index.array[i+1], index.array[i+2]);
+    for (let i = 0; i < index.count; i += 3) {
+      extractTriangle(index.array[i], index.array[i + 1], index.array[i + 2]);
     }
   } else {
-    for(let i = 0; i < positions.count; i += 3) {
-      extractTriangle(i, i+1, i+2);
+    for (let i = 0; i < positions.count; i += 3) {
+      extractTriangle(i, i + 1, i + 2);
     }
   }
   return CSG.fromPolygons(triangles);
 }
-
