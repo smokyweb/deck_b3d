@@ -80,6 +80,8 @@ export class Controller {
     elt.addEventListener("mousemove", (event: MouseEvent) =>
       this.mouseMoveEvent(event)
     );
+    elt.addEventListener("click", (event: MouseEvent) =>
+      this.checkWallsAndFloors(event));
     //console.log("adding keydown listener");
     // can't add this on the canvas because an HTMLElement needs to have the focus
     // in order to get keydown events.  By default, a canvas can't have the focus.
@@ -171,6 +173,7 @@ export class Controller {
   }
 
   public checkWallsAndFloors(event: MouseEvent) {
+    console.log("checkWallsAndFloors", event);
     // double click on a wall or floor brings up texture change modal
     if (this.state == State.UNSELECTED && this.mouseoverObject === null) {
       // check walls
@@ -180,6 +183,7 @@ export class Controller {
         const obj = wallIntersects[0].object as any;
         const wall = obj?.edge?.wall;
         if (wall instanceof Wall) {
+          console.log("wall clicked", wall);
           this.three.wallClicked.fire(wall);
           return;
         }
@@ -187,10 +191,15 @@ export class Controller {
 
       // check floors
       var floorPlanes = this.model.floorplan.floorPlanes();
+      // unfortunately, the rayCaster ignores invisible objects
+      floorPlanes.forEach((mesh) => mesh.visible = true);
       var floorIntersects = this.getIntersections(event, floorPlanes, false);
+      floorPlanes.forEach((mesh) => mesh.visible = false);
+
       if (floorIntersects.length > 0) {
         // FIXME:  floorPlanes should be Three.Floor
         var room = (floorIntersects[0].object as any).room;
+        console.log("floor clicked", room);
         this.three.floorClicked.fire(room);
         return;
       }
