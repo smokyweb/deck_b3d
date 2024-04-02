@@ -15,14 +15,13 @@ export interface XYZ {
 export function csgToBufferGeometry(
   csg: CSG.CSG,
   matrix?: THREE.Matrix4,
-  uvgen?: (pos: CSG.Vector, normal: CSG.Vector) => UV
+  uvgen?: (pos: XYZ, normal: XYZ) => UV
 ): THREE.BufferGeometry {
   const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
   const positions: number[] = [];
   const normals: number[] = [];
   const uv: number[] = [];
 
-  const scratchV3 = new THREE.Vector3();
   let inv_matrix: THREE.Matrix4 | null = null;
   let inv_quaternion: THREE.Quaternion | null = null;
   if (matrix) {
@@ -32,22 +31,20 @@ export function csgToBufferGeometry(
     inv_matrix.decompose(scratchPosition, inv_quaternion, scratchScale);
   }
 
+  const scratchPos = new THREE.Vector3();
+  const scratchNorm = new THREE.Vector3();
   function addVertex(v: CSG.Vertex) {
-    let pos = v.pos;
-    let normal = v.normal;
+    scratchPos.set(v.pos.x, v.pos.y, v.pos.z);
+    scratchNorm.set(v.normal.x, v.normal.y, v.normal.z);
 
-    if (matrix && inv_quaternion) {
-      scratchV3.set(pos.x, pos.y, pos.z);
-      scratchV3.applyMatrix4(matrix);
-      pos = new CSG.Vector(scratchV3);
-      scratchV3.set(normal.x, normal.y, normal.z);
-      scratchV3.applyQuaternion(inv_quaternion);
-      normal = new CSG.Vector(scratchV3);
+    if (inv_matrix && inv_quaternion) {
+      scratchPos.applyMatrix4(inv_matrix);
+      scratchNorm.applyQuaternion(inv_quaternion);
     }
-    positions.push(pos.x, pos.y, pos.z);
-    normals.push(normal.x, normal.y, normal.z);
+    positions.push(scratchPos.x, scratchPos.y, scratchPos.z);
+    normals.push(scratchNorm.x, scratchNorm.y, scratchNorm.z);
     if (uvgen) {
-      const thisuv = uvgen(pos, normal);
+      const thisuv = uvgen(scratchPos, scratchNorm);
       uv.push(thisuv.u, thisuv.v);
     }
   }

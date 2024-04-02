@@ -294,7 +294,7 @@ export class LumberYard {
     const lumber = new THREE.Mesh(geom, texture);
     lumber.matrix.identity();
     lumber.applyMatrix(meta.matrix);
-    console.log("lumbber matrix", lumber.matrix);
+    //console.log("lumber matrix", lumber.matrix);
     lumber.userData = meta;
     this.fixMeta(lumber);
     return lumber;

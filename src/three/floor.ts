@@ -11,6 +11,7 @@ export class Floor {
   private floorTexture: THREE.Texture | null = null;
   private floorClip: THREE.Object3D | null = null;
   private floorBoards: THREE.Group = new THREE.Group();
+  private floorBoundSphere: THREE.Object3D | null = null;
 
   constructor(
     private scene: Scene,
@@ -64,6 +65,23 @@ export class Floor {
     const bs = fp.geometry.boundingSphere.clone();
     bs.applyMatrix4(fp.matrix);
 
+    if (this.floorBoundSphere) {
+      this.scene.remove(this.floorBoundSphere);
+      this.floorBoundSphere = null;
+    }
+    /* draws green bounds radius over floor.
+    {
+      const geom = new THREE.SphereGeometry(bs.radius);
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3});
+      const mesh = new THREE.Mesh(geom, material);
+      mesh.position.copy(bs.center);
+      mesh.updateMatrix();
+      this.floorBoundSphere = mesh;
+      this.scene.add(this.floorBoundSphere);
+    }
+    */
+
+
     const floorCenter = new THREE.Vector2(bs.center.x, bs.center.z);
     const floorRadius = bs.radius;
     const alongAxisUnit = new THREE.Vector2(
@@ -79,6 +97,7 @@ export class Floor {
     const thicknessCm = inToCm(dim.thickness);
     const step = boardWidthCm + gapCm + 0.003;
     const origBoards: THREE.Mesh[] = [];
+
 
     while (distFromStart < 2 * floorRadius) {
       const centerPoint = startPoint
@@ -102,7 +121,7 @@ export class Floor {
       distFromStart += step;
     }
     const roomcsg = this.room.csgClipRegion();
-    const newboards = origBoards.map((orig: THREE.Mesh) => {
+    const newBoards = origBoards.map((orig: THREE.Mesh) => {
       const meta = orig.userData as LumberMeta;
       const origCSG = bufferGeometryToCSG(
         orig.geometry as THREE.BufferGeometry,
@@ -112,7 +131,7 @@ export class Floor {
       const lumber = this.lumberyard.makeWoodFromCSG(trimmedCSG, meta);
       return lumber;
     });
-    newboards.forEach((board) => this.floorBoards.add(board));
+    newBoards.forEach((board) => this.floorBoards.add(board));
   }
 
   private buildFloor() {
@@ -193,9 +212,11 @@ export class Floor {
 
   public addToScene() {
     //console.log("floor.addToScene");
+    /* commented out because we have floorboards now.
+
     if (this.floorPlane) {
       this.scene.add(this.floorPlane);
-    }
+    }*/
     // hack so we can do intersect testing
     if (this.room.floorPlane) {
       this.scene.add(this.room.floorPlane);
