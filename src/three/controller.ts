@@ -60,7 +60,6 @@ export class Controller {
 
   private state = State.UNSELECTED;
 
-  // fixme:  three should be a Three.Main class
   constructor(
     private three: ThreeMain,
     private model: Model,
@@ -95,6 +94,15 @@ export class Controller {
     this.scene.itemRemovedCallbacks.add((item: Item) => this.itemRemoved(item));
     this.scene.itemLoadedCallbacks.add((item: Item) => this.itemLoaded(item));
     this.setGroundPlane();
+
+    const floorboardAngleInput = document.getElementById("floorboardAngle");
+    if (floorboardAngleInput instanceof HTMLInputElement) {
+      floorboardAngleInput.addEventListener("change", (_ev: Event) => {
+        console.log("floorboardAngleInput changed:", floorboardAngleInput.value);
+      });
+    }
+
+
   }
 
   // invoked via callback when item is loaded

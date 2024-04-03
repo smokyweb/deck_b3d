@@ -44,7 +44,7 @@ export class Floor {
         this.floorBoards.remove(child);
       });
     }
-    const floorboardAngleDeg = 30;
+    const floorboardAngleDeg = this.room.floorboardAngleDeg;
     const floorboardAngleRad = degToRad(floorboardAngleDeg);
     const fp = this.floorPlane;
     const floorStock = "2x8";

@@ -22,6 +22,8 @@ export class Room {
   /** floor plane for intersection testing */
   public floorPlane: FloorPlane | null = null;
 
+  public floorboardAngleDeg: number = 0;
+
   /** */
   private floorChangeCallbacks = $.Callbacks();
 
