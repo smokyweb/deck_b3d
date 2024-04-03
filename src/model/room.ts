@@ -60,6 +60,10 @@ export class Room {
   ) {
     var uuid = this.getUuid();
     this.floorplan.setFloorTexture(uuid, textureUrl, textureScale);
+    this.changed();
+  }
+
+  public changed() {
     this.floorChangeCallbacks.fire();
   }
 

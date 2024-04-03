@@ -98,11 +98,19 @@ export class Controller {
     const floorboardAngleInput = document.getElementById("floorboardAngle");
     if (floorboardAngleInput instanceof HTMLInputElement) {
       floorboardAngleInput.addEventListener("change", (_ev: Event) => {
-        console.log("floorboardAngleInput changed:", floorboardAngleInput.value);
+        const angle = parseFloat(floorboardAngleInput.value);
+        if (isNaN(angle)) {
+          console.error("floorboardAngle is bad");
+          return;
+        }
+        console.log("floorboardAngleInput changed:", angle);
+        this.model.floorplan.getRooms().forEach((room) => {
+          room.floorboardAngleDeg = angle;
+          room.changed();
+        });
+        this.three.setNeedsUpdate();
       });
     }
-
-
   }
 
   // invoked via callback when item is loaded

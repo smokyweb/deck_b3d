@@ -18,7 +18,7 @@ export class Floor {
     private room: Room,
     private lumberyard: LumberYard
   ) {
-    this.room.fireOnFloorChange(() => this.redraw);
+    this.room.fireOnFloorChange(() => this.redraw());
     this.build();
     // roofs look weird, so commented out
   }
