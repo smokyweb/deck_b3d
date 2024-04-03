@@ -277,7 +277,7 @@ export class LumberYard {
     this.count++;
     return lumber;
   }
-  private fixMeta(mesh: THREE.Mesh) {
+  public fixMeta(mesh: THREE.Mesh) {
     mesh.updateMatrix();
     if (mesh.userData) {
       mesh.userData.matrix = mesh.matrix.clone();

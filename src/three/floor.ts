@@ -117,6 +117,12 @@ export class Floor {
         to,
         Math.PI / 2
       );
+      const WOBBLE_MAGNITUDE = 0.0000; // +-radians
+      const wobbleZ = (Math.random() * 2 - 1) * WOBBLE_MAGNITUDE;
+      const wobbleY = (Math.random() * 2 - 1) * WOBBLE_MAGNITUDE;
+      lumber.rotateZ(wobbleZ);
+      lumber.rotateY(wobbleY);
+      this.lumberyard.fixMeta(lumber);
       origBoards.push(lumber);
       distFromStart += step;
     }
