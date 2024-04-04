@@ -81,7 +81,6 @@ export class Floor {
     }
     */
 
-
     const floorCenter = new THREE.Vector2(bs.center.x, bs.center.z);
     const floorRadius = bs.radius;
     const alongAxisUnit = new THREE.Vector2(
@@ -97,7 +96,6 @@ export class Floor {
     const thicknessCm = inToCm(dim.thickness);
     const step = boardWidthCm + gapCm + 0.003;
     const origBoards: THREE.Mesh[] = [];
-
 
     while (distFromStart < 2 * floorRadius) {
       const centerPoint = startPoint
@@ -117,7 +115,7 @@ export class Floor {
         to,
         Math.PI / 2
       );
-      const WOBBLE_MAGNITUDE = 0.0000; // +-radians
+      const WOBBLE_MAGNITUDE = 0.0; // +-radians
       const wobbleZ = (Math.random() * 2 - 1) * WOBBLE_MAGNITUDE;
       const wobbleY = (Math.random() * 2 - 1) * WOBBLE_MAGNITUDE;
       lumber.rotateZ(wobbleZ);

@@ -80,7 +80,8 @@ export class Controller {
       this.mouseMoveEvent(event)
     );
     elt.addEventListener("click", (event: MouseEvent) =>
-      this.checkWallsAndFloors(event));
+      this.checkWallsAndFloors(event)
+    );
     //console.log("adding keydown listener");
     // can't add this on the canvas because an HTMLElement needs to have the focus
     // in order to get keydown events.  By default, a canvas can't have the focus.
@@ -208,9 +209,9 @@ export class Controller {
       // check floors
       var floorPlanes = this.model.floorplan.floorPlanes();
       // unfortunately, the rayCaster ignores invisible objects
-      floorPlanes.forEach((mesh) => mesh.visible = true);
+      floorPlanes.forEach((mesh) => (mesh.visible = true));
       var floorIntersects = this.getIntersections(event, floorPlanes, false);
-      floorPlanes.forEach((mesh) => mesh.visible = false);
+      floorPlanes.forEach((mesh) => (mesh.visible = false));
 
       if (floorIntersects.length > 0) {
         // FIXME:  floorPlanes should be Three.Floor
