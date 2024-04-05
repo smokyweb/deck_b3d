@@ -21,6 +21,7 @@ export function csgToBufferGeometry(
   const positions: number[] = [];
   const normals: number[] = [];
   const uv: number[] = [];
+  const index: number[] = [];
 
   let inv_matrix: THREE.Matrix4 | null = null;
   let inv_quaternion: THREE.Quaternion | null = null;
@@ -48,18 +49,15 @@ export function csgToBufferGeometry(
       uv.push(thisuv.u, thisuv.v);
     }
   }
-  function addTriangle(v1: CSG.Vertex, v2: CSG.Vertex, v3: CSG.Vertex) {
-    addVertex(v1);
-    addVertex(v2);
-    addVertex(v3);
-  }
   function addPolygon(p: CSG.Polygon) {
     const len = p.vertices.length;
+    const firstIndex = positions.length/3;
+    p.vertices.forEach(addVertex);
     // CSG.Polygons are convex, so we can use a fan decomposition.
     for (let j = 2; j < len; j++) {
       const i = j - 1;
       //console.log(`addTriangle(0, ${i}, ${j})`);
-      addTriangle(p.vertices[0], p.vertices[i], p.vertices[j]);
+      index.push(firstIndex, firstIndex+i, firstIndex+j);
     }
   }
   //console.log("converting to blueMesh: ", csg);
@@ -78,6 +76,7 @@ export function csgToBufferGeometry(
       new THREE.BufferAttribute(new Float32Array(uv), 2)
     );
   }
+  geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(index), 1));
   return geometry;
 }
 
