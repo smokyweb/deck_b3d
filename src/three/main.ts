@@ -54,6 +54,7 @@ export class Main {
   public nothingClicked = $.Callbacks();
 
   private renderCount: number = 0;
+  private animationFrameCount: number = 0;
 
   constructor(
     private model: Model,
@@ -137,13 +138,15 @@ export class Main {
     });
 
     //canvas = new ThreeCanvas(canvasElement, this);
-    this.logRenderCount();
-  }
 
-  private logRenderCount() {
-    const DELAY=5000;
-    console.log(`rendercount=${this.renderCount}`);
-    setTimeout(() => this.logRenderCount(), DELAY);
+    setInterval(() => console.log(`rendercount=${this.renderCount}`), 5*1000);
+    setInterval(() => {
+      if (this.animationFrameCount > 0) {
+        const pct = this.renderCount / this.animationFrameCount * 100;
+        const pct_str = pct.toFixed(2);
+        console.log(`animationFrameCount=${this.animationFrameCount}, renders=${pct_str}%`);
+      }
+    }, 60*1000);
   }
 
   private spin() {
@@ -181,12 +184,8 @@ export class Main {
     }
   }
 
-  private nrenders: number = 0;
   private render() {
-    if (this.nrenders < 10) {
-      //console.log("Three.Main.render() scene=", this.scene, " camera=", this.camera);
-    }
-    this.nrenders++;
+    this.animationFrameCount++;
     this.spin();
     if (this.shouldRender()) {
       this.renderer.clear();
@@ -204,9 +203,12 @@ export class Main {
     this.lastRender = Date.now();
   }
 
+  // so we're not creating unnecessary objects in background
+  private animateCallback = this.animate.bind(this);
+
   private animate() {
-    requestAnimationFrame(() => this.animate());
     this.render();
+    requestAnimationFrame(this.animateCallback);
   }
 
   public setCursorStyle(cursorStyle: string) {
