@@ -41,11 +41,10 @@ export class Main {
 
   private hud: HUD;
 
-  // FIXME:  These aren't properly initialized
-  public heightMargin: number = 10;
-  public widthMargin: number = 10;
-  private elementHeight: number = 10;
-  private elementWidth: number = 10;
+  public heightMargin: number;
+  public widthMargin: number;
+  private elementHeight: number;
+  private elementWidth: number;
 
   public itemSelectedCallbacks = $.Callbacks(); // item
   public itemUnselectedCallbacks = $.Callbacks();
@@ -53,6 +52,8 @@ export class Main {
   public wallClicked = $.Callbacks(); // wall
   public floorClicked = $.Callbacks(); // floor
   public nothingClicked = $.Callbacks();
+
+  private renderCount: number = 0;
 
   constructor(
     private model: Model,
@@ -102,8 +103,13 @@ export class Main {
       this.hud
     );
 
-    // handle window resizing
+    // tsc wants to see these members initialized here in
+    // the constructor.  They are unconditionally set in
+    // this.updateWindowSize().
+    this.heightMargin = this.widthMargin = 10; 
+    this.elementHeight = this.elementWidth = 10;
     this.updateWindowSize();
+    // handle window resizing
     if (this.options.resize) {
       window.addEventListener("resize", (_event: Event) =>
         this.updateWindowSize()
@@ -131,6 +137,13 @@ export class Main {
     });
 
     //canvas = new ThreeCanvas(canvasElement, this);
+    this.logRenderCount();
+  }
+
+  private logRenderCount() {
+    const DELAY=5000;
+    console.log(`rendercount=${this.renderCount}`);
+    setTimeout(() => this.logRenderCount(), DELAY);
   }
 
   private spin() {
@@ -179,6 +192,7 @@ export class Main {
       this.renderer.clear();
       this.renderer.render(this.scene.getScene(), this.camera);
       this.renderer.clearDepth();
+      this.renderCount++;
       this.renderer.render(this.hud.getScene(), this.camera);
       const chatter = false;
       if (chatter) {
@@ -191,10 +205,7 @@ export class Main {
   }
 
   private animate() {
-    var delay = 50;
-    setTimeout(() => {
-      requestAnimationFrame(() => this.animate());
-    }, delay);
+    requestAnimationFrame(() => this.animate());
     this.render();
   }
 
