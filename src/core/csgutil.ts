@@ -1,6 +1,48 @@
 import * as THREE from "three";
 import * as CSG from "csg";
 
+  /**
+   * Converting back and forth between textured Mesh 
+   * objects and CSG objects is complicated.  Why is this complicated?
+   *
+   *  1.  Geometry objects have texture coordinates, and CSG objects don't.
+   *
+   *  2.  Geometry objects have local coordinates.  The object3D has a
+   *      transform (Object3D.matrix , or equivalently .rotation+.position+.scale) that sends
+   *      local coordinates to global coordinates, but CSG objects are just in
+   *      global coordinates.
+   *
+   *  3.  CSG objects have convex polygonal faces, but Geometry's are made up of
+   *      triangles.
+   *
+   *  4.  Texture coordinates, if they aren't all custom, are typically computed in some way based on
+   *      the local position and normal of a vertex.
+   *
+   *  
+   *  So to convert a THREE.Mesh to a CSG, you need to iterate over all the
+   *  triangles in the geometry object, apply the transform to the coordinates,
+   *  and put the triangles back together into a CSG.  Many of these triangles
+   *  will be coplanar, but that's ok, the CSG algorithms detect this and
+   *  reassemble the triangles into polygonal faces.  This process discards the
+   *  texture coordinates.
+   *
+   *  You need to keep track of the initial Mesh's transform and Material, and
+   *  have a way to generate/regenerate texture coordinates if you want to
+   *  transform back into a Mesh.
+   *  
+   *  Then you do your CSG operations, typically cutting away pieces of it.
+   *
+   *  Then you have your pared-down CSG and want to turn it back into a THREE.Mesh.
+   *
+   *  To convert a CSG back into a THREE.Mesh, you take the CSG's face vertices
+   *  (and normals), to them apply the *inverse* of the transfrom from before
+   *  to get everything back into local coordinates, use the local vertex information
+   *  with the uvgen function to make texture coordinates, and put the local vertex
+   *  info, texture coordinates, and triangle info into the Geometry.
+   *
+   *  Then you create a Mesh with the old transform, old Material, and new Geometry.
+   */
+
 export interface UV {
   u: number;
   v: number;
@@ -25,15 +67,16 @@ export function csgToBufferGeometry(
 
   let inv_matrix: THREE.Matrix4 | null = null;
   let inv_quaternion: THREE.Quaternion | null = null;
+  const scratchPos = new THREE.Vector3();
+  const scratchNorm = new THREE.Vector3();
+  const scratchScale = new THREE.Vector3();
   if (matrix) {
     inv_matrix = new THREE.Matrix4();
     inv_matrix.getInverse(matrix);
     inv_quaternion = new THREE.Quaternion();
-    inv_matrix.decompose(scratchPosition, inv_quaternion, scratchScale);
+    inv_matrix.decompose(scratchPos, inv_quaternion, scratchScale);
   }
 
-  const scratchPos = new THREE.Vector3();
-  const scratchNorm = new THREE.Vector3();
   function addVertex(v: CSG.Vertex) {
     scratchPos.set(v.pos.x, v.pos.y, v.pos.z);
     scratchNorm.set(v.normal.x, v.normal.y, v.normal.z);
@@ -91,8 +134,6 @@ export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
   return mesh;
 }
 
-const scratchPosition = new THREE.Vector3();
-const scratchScale = new THREE.Vector3();
 export function bufferGeometryToCSG(
   geom: THREE.BufferGeometry,
   matrix: THREE.Matrix4,
@@ -103,6 +144,8 @@ export function bufferGeometryToCSG(
   const index = geom.getIndex();
 
   const quaternion = new THREE.Quaternion();
+  const scratchPosition = new THREE.Vector3();
+  const scratchScale = new THREE.Vector3();
   matrix.decompose(scratchPosition, quaternion, scratchScale);
 
   const triangles: CSG.Polygon[] = [];
