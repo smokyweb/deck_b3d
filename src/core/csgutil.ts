@@ -43,17 +43,31 @@ import * as CSG from "csg";
    *  Then you create a Mesh with the old transform, old Material, and new Geometry.
    */
 
+
+/** 
+ * Represents something that looks like a texture coordinate
+ */
 export interface UV {
   u: number;
   v: number;
 }
 
+/*
+ * Represents something that looks like a 3d coordinate.
+ *
+ * This fits both THREE.Vector3 and CSG.Vector
+ */
 export interface XYZ {
   x: number;
   y: number;
   z: number;
 }
 
+/**
+ * @param {CSG.CSG} csg The CSG object to convert
+ * @param {THREE.Matrix4} [matrix] The local-to-global transform from the original Object3D.  Default identity.
+ * @param {(pos:XYZ, normal: XYZ) => UV} [uvgen] if present, used to generate texture coordinates.  If absent, no texture coordinates will be generated in the resulting BufferGeometry.
+ */
 export function csgToBufferGeometry(
   csg: CSG.CSG,
   matrix?: THREE.Matrix4,
@@ -123,6 +137,9 @@ export function csgToBufferGeometry(
   return geometry;
 }
 
+/** 
+ * simple utility to convert a CSG to a semitransmarent blue mesh.
+ */
 export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
   const bg = csgToBufferGeometry(csg, undefined, undefined);
   const material = new THREE.MeshBasicMaterial({
@@ -130,10 +147,20 @@ export function csgToBlueMesh(csg: CSG.CSG): THREE.Mesh {
     transparent: true,
     opacity: 0.3,
   });
+  // no effort is made to make local coordinates.  Just use identity transform in the Object3d and global 
+  // coordinates in the BufferGeometry.
   const mesh = new THREE.Mesh(bg, material);
   return mesh;
 }
 
+/**
+ *
+ * Converts a BufferGeometry (in local coordinates) into a CSG (in global coordinates)
+ *
+ * @param {THREE.BufferGeometry} geom The geometry to replicate
+ * @param {THREE.Matrix4} matrix The local-to-global matrix as taken from the Object3d (call Object3D.updateMatrix() first).
+ * @param {any} [shared] A value to stick in all the CSG's 'shared' fields.
+ */
 export function bufferGeometryToCSG(
   geom: THREE.BufferGeometry,
   matrix: THREE.Matrix4,
@@ -175,10 +202,15 @@ export function bufferGeometryToCSG(
   }
 
   if (index) {
+    // An index is present.
+    // So the index array, in groups of 3, refers to vertex definitions that form triangles.
+    // A vertex can appear in more than one triangle.
     for (let i = 0; i < index.count; i += 3) {
       extractTriangle(index.array[i], index.array[i + 1], index.array[i + 2]);
     }
   } else {
+    // No index is present.
+    // So each vertex is used once in a single triangle.
     for (let i = 0; i < positions.count; i += 3) {
       extractTriangle(i, i + 1, i + 2);
     }

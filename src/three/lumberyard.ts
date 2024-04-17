@@ -277,6 +277,10 @@ export class LumberYard {
     this.count++;
     return lumber;
   }
+   /**
+   *  fixMeta() assumes that the given mesh contains a LumberMeta object in its 
+   *  userData field.  
+   */
   public fixMeta(mesh: THREE.Mesh) {
     mesh.updateMatrix();
     if (mesh.userData) {
